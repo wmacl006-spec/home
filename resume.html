@@ -89,6 +89,12 @@
       margin-bottom: 0.4rem;
     }
 
+    /* Prevent phone numbers from breaking on mobile */
+    .phone {
+      white-space: nowrap;
+      overflow-wrap: normal;
+    }
+
     /* MAIN */
     main {
       padding: 4rem 3.5rem;
@@ -200,17 +206,17 @@
 
     <div class="sidebar-section">
       <h3>Contact</h3>
-      <p>519-807-8017</p>
+      <p class="phone">519-807-8017</p>
       <br>
       <p>work@williammaclean.ca</p>
       <p>school@williammaclean.ca</p>
       <p>contact@williammaclean.ca</p>
       <br>
       <p>Ottawa, ON</p>
-      <p>808-545 Rideau St, K1N 0E3</p>
+      <p class="phone">808-545 Rideau St, K1N 0E3</p>
       <br>
       <p>Cambridge, ON</p>
-      <p>1164 West River Rd, N1R 5S5</p>
+      <p class="phone">1164 West River Rd, N1R 5S5</p>
     </div>
 
     <div class="sidebar-section">
@@ -248,8 +254,8 @@
         <p>Stagehand supporting carpentry, lighting, audio, pyrotechnics, camera operations and truck loading in the Kitchener–Waterloo region.</p>
         <br>
         <p>References:</p>
-        <p>- Call Steward: Kathlene Orlando - 226-748-3575</p>
-        <p>- Head Carpenter - Center In The Square: Mark Card - 519-578-5660</p>
+        <p>- Call Steward: Kathlene Orlando - <span class="phone">226-748-3575</span></p>
+        <p>- Head Carpenter - Center In The Square: Mark Card - <span class="phone">519-578-5660</span></p>
       </div>
 
       <div class="role">
@@ -260,7 +266,7 @@
         <p>Runner and general labourer supporting transportation and on-site operations.</p>
         <br>
         <p>Reference:</p>
-        <p>- CEO: Heidi MacLean - 226-868-1300</p>
+        <p>- CEO: Heidi MacLean - <span class="phone">226-868-1300</span></p>
       </div>
     </section>
 
