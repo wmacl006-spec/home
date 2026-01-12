@@ -44,7 +44,33 @@
       font-family: 'Comfortaa', sans-serif;
       font-size: 2rem;
       font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .home-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 2rem;
+      padding: 0.6rem 1.1rem;
+
+      background: var(--panel);
+      border: 1px solid #242424;
+      border-radius: 10px;
+
+      text-decoration: none;
+      color: var(--white);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .home-button:hover {
+      transform: translateY(-2px);
+      border-color: var(--pink);
+      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
     }
 
     .sidebar-section { margin-bottom: 2.4rem; }
@@ -106,33 +132,6 @@
       background: #111;
     }
 
-    .home-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 2rem;
-    padding: 0.6rem 1.1rem;
-
-    background: var(--panel);
-    border: 1px solid #242424;
-    border-radius: 10px;
-
-    text-decoration: none;
-    color: var(--white);
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-
-    .home-button:hover {
-    transform: translateY(-2px);
-    border-color: var(--pink);
-    box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
-    }
-
-
     .contact-column h3 {
       font-size: 1.3rem;
       color: var(--pink);
@@ -146,37 +145,35 @@
     }
 
     input, textarea {
-    padding: 0.9rem;
-    border-radius: 6px;
-    border: none;
-    background: #1f1f1f;
-    color: var(--white);
-    font-size: 0.95rem;
-    font-family: inherit;
+      padding: 0.9rem;
+      border-radius: 6px;
+      border: none;
+      background: #1f1f1f;
+      color: var(--white);
+      font-size: 0.95rem;
+      font-family: inherit;
     }
 
-
     button {
-    padding: 0.9rem;
-    border-radius: 10px;
-    border: 1px solid #242424;
-    background: var(--panel);
+      padding: 0.9rem;
+      border-radius: 10px;
+      border: 1px solid #242424;
+      background: var(--panel);
 
-    color: var(--white);
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
+      color: var(--white);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
 
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
 
     button:hover {
-    transform: translateY(-2px);
-    border-color: var(--pink);
-    box-shadow: 0 12px 28px rgba(176, 11, 85, 0.25);
+      transform: translateY(-2px);
+      border-color: var(--pink);
+      box-shadow: 0 12px 28px rgba(176, 11, 85, 0.25);
     }
-
 
     .form-status {
       font-size: 0.9rem;
@@ -198,6 +195,8 @@
   <!-- LEFT INFO -->
   <aside>
     <h1>William MacLean</h1>
+
+    <a href="index.html" class="home-button">Home</a>
 
     <div class="sidebar-section">
       <h3>Contact</h3>
@@ -288,8 +287,6 @@
 
   <!-- CONTACT -->
   <div class="contact-column">
-    <a href="index.html" class="home-button">Home</a>
-
     <h3>Contact</h3>
 
     <form id="contact-form">
@@ -332,19 +329,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
