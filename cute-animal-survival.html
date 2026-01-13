@@ -135,11 +135,11 @@ button:hover { border-color:var(--pink); cursor:pointer; }
         <button id="upgradeFoodBtn">Upgrade Food Gen (65 Water)</button>
         <button id="upgradeWaterBtn">Upgrade Water Gen (75 Food)</button><br>
 
-        <button id="sellFoodBtn">Sell 5 Food (+25 Coins)</button>
+        <button id="sellFoodBtn">Sell 5 Food (+22 Coins)</button>
         <button id="sellWaterBtn">Sell 5 Water (+20 Coins)</button><br>
 
         <button id="buyFoodBtn">Buy 5 Food (30 Coins)</button>
-        <button id="buyWaterBtn">Buy 5 Water (25 Coins)</button>
+        <button id="buyWaterBtn">Buy 5 Water (23 Coins)</button>
     </div>
 
     <button id="tryAgainBtn" style="display:none;">Try Again</button>
@@ -237,8 +237,8 @@ function tick(){
     if(player.hunger===0&&player.thirst===0) player.health-=5;
     else if(player.hunger===0||player.thirst===0) player.health-=1;
 
-    player.food+=1.0+player.foodGeneratorLevel*0.35;
-    player.water+=1.3+player.waterGeneratorLevel*0.35;
+    player.food+=1.2+player.foodGeneratorLevel*0.38;
+    player.water+=1.45+player.waterGeneratorLevel*0.43;
 
     if(player.coins>player.maxCoins) player.maxCoins=player.coins;
 
@@ -260,10 +260,10 @@ function upgrade(t){
     if(t==="food"&&player.water>=65){player.water-=65;player.foodGeneratorLevel++;}
     if(t==="water"&&player.food>=75){player.food-=75;player.waterGeneratorLevel++;}
 }
-function sellFood(){ if(player.food>=5){player.food-=5;player.coins+=25;} }
+function sellFood(){ if(player.food>=5){player.food-=5;player.coins+=22;} }
 function sellWater(){ if(player.water>=5){player.water-=5;player.coins+=20;} }
 function buyFood(){ if(player.coins>=30){player.coins-=30;player.food+=5;} }
-function buyWater(){ if(player.coins>=25){player.coins-=25;player.water+=5;} }
+function buyWater(){ if(player.coins>=25){player.coins-=23;player.water+=5;} }
 
 function updateUI(){
     $("hungerBar").style.width=player.hunger+"%";
@@ -300,4 +300,5 @@ loadLeaderboards();
 </script>
 </body>
 </html>
+
 
