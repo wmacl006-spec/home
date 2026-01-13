@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ · William MacLean</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink: #B00B55;
+      --black: #0f0f0f;
+      --white: #ffffff;
+      --gray: #b5b5b5;
+      --panel: #161616;
+      --border: #242424;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #1b1b1b, var(--black));
+      color: var(--white);
+    }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+      padding: 4rem 3rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    h1 {
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 3rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: #eaeaea;
+    }
+
+    .subtitle {
+      color: var(--gray);
+      font-size: 1rem;
+    }
+
+    /* FAQ container */
+    .faq {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .faq-item {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .faq-item.open {
+      border-color: var(--pink);
+      box-shadow: 0 12px 30px rgba(176, 11, 85, 0.2);
+    }
+
+    .faq-question {
+      width: 100%;
+      padding: 1.4rem 1.6rem;
+      background: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      color: var(--white);
+      text-align: left;
+      font-size: 1.05rem;
+      font-weight: 600;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .faq-question span {
+      color: var(--gray);
+      font-weight: 500;
+      transition: transform 0.25s ease, color 0.25s ease;
+    }
+
+    .faq-item.open .faq-question span {
+      transform: rotate(45deg);
+      color: var(--pink);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 1.6rem;
+      color: #d6d6d6;
+      line-height: 1.6;
+      transition: max-height 0.35s ease, padding 0.25s ease;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 500px;
+      padding: 0 1.6rem 1.4rem;
+    }
+
+    footer {
+      margin-top: 4rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #8a8a8a;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2.4rem; }
+      main { padding: 3rem 2rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <header>
+      <h1>FAQ</h1>
+      <p class="subtitle">Common questions about my projects, site, and work</p>
+    </header>
+
+    <section class="faq">
+
+      <div class="faq-item">
+        <button class="faq-question">
+          What is this website?
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          This is my personal website where I host my resume, projects, study notes, and experiments.
+          It serves both as a portfolio and a living workspace for things I am actively building.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          Are your projects open source?
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          Most projects are either fully open source or partially shared.
+          If a repository is not publicly linked, feel free to reach out for access or clarification.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          What technologies do you usually work with?
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          I primarily work with HTML, CSS, JavaScript, Python, and Firebase.
+          I also have experience with data analysis, statistics, and systems-level reasoning.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          What is the Cute Animal Survival game?
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          It is a browser-based survival game where players manage hunger, thirst, health,
+          and resource generators to keep a virtual animal alive as long as possible.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          Can I use your study notes?
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          Yes. The notes are intended to be educational resources.
+          You are free to use them for learning, reference, or personal study.
+        </div>
+      </div>
+
+    </section>
+
+    <footer>
+      © 2026 William MacLean
+    </footer>
+  </main>
+
+  <script>
+    const items = document.querySelectorAll('.faq-item');
+
+    items.forEach(item => {
+      const button = item.querySelector('.faq-question');
+
+      button.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+
+        items.forEach(i => i.classList.remove('open'));
+
+        if (!isOpen) {
+          item.classList.add('open');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
