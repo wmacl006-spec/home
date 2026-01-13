@@ -204,19 +204,18 @@ manatee:{alive:"gamepic/manatee_alive.png",dead:"gamepic/manatee_dead.png"}
 
 let player,password,selectedAnimal,loop;
 
-/* ---------- HELPERS ---------- */
 function formatTime(ms){
     const s=Math.floor(ms/1000);
     return `${Math.floor(s/60)}m ${s%60}s`;
 }
 
-/* ---------- LOGIN ---------- */
+/* LOGIN */
 async function login(){
     password=$("passwordInput").value.trim();
     if(!password) return;
 
     const blocked = await get(ref(db,"blockedPasswords/"+password));
-    if(blocked.exists()){ alert("A pet has already died with that password. Try a different one."); return; }
+    if(blocked.exists()){ alert("Try a different password."); return; }
 
     const snap=await get(ref(db,"players/"+password));
     player=snap.exists()?snap.val():{
@@ -254,7 +253,7 @@ function startGame(){
     loop=setInterval(tick,1000);
 }
 
-/* ---------- GAME LOOP ---------- */
+/* GAME LOOP */
 function tick(){
     const elapsed=Date.now()-player.startTime;
     $("survivalTimer").innerText="Survived: "+formatTime(elapsed);
@@ -288,7 +287,7 @@ function onDeath(time){
     saveLeaderboards(time);
 }
 
-/* ---------- ACTIONS ---------- */
+/* ACTIONS */
 function feed(){ if(player.food>=15){player.food-=15;player.hunger=Math.min(100,player.hunger+15);} }
 function drink(){ if(player.water>=20){player.water-=20;player.thirst=Math.min(100,player.thirst+20);} }
 function upgrade(t){
@@ -300,7 +299,6 @@ function sellWater(){ if(player.water>=5){player.water-=5;player.coins+=20;} }
 function buyFood(){ if(player.coins>=25){player.coins-=25;player.food+=5;} }
 function buyWater(){ if(player.coins>=23){player.coins-=23;player.water+=5;} }
 
-/* ---------- UI ---------- */
 function updateUI(){
     $("hungerBar").style.width=player.hunger+"%";
     $("thirstBar").style.width=player.thirst+"%";
@@ -312,7 +310,7 @@ function updateUI(){
     $("waterLvl").innerText=player.waterGeneratorLevel;
 }
 
-/* ---------- LEADERBOARDS ---------- */
+/* LEADERBOARDS */
 async function saveLeaderboards(time){
     await set(ref(db,"leaderboard_time/"+password),{name:player.nickname,time});
     await set(ref(db,"leaderboard_coins/"+password),{name:player.nickname,coins:player.maxCoins});
@@ -335,6 +333,3 @@ loadLeaderboards();
 </script>
 </body>
 </html>
-
-
-
