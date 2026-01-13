@@ -47,7 +47,6 @@
       text-decoration: none;
       font-size: 0.85rem;
       font-weight: 600;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .home-button:hover {
@@ -91,7 +90,7 @@
     .section-title {
       font-family: 'Comfortaa', sans-serif;
       font-size: 1.6rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
     }
 
     .section-subtitle {
@@ -103,31 +102,49 @@
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 2rem;
+      padding: 1.5rem;
+      max-width: 420px; /* keeps it compact like a gauge */
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
-      gap: 10px;
+      gap: 6px; /* tighter spacing */
     }
 
     .square {
-      width: 100%;
-      padding-top: 100%;
+      aspect-ratio: 1 / 1;
       background: #1f1f1f;
-      border-radius: 6px;
+      border-radius: 4px;
       border: 1px solid #2a2a2a;
     }
 
     .square.active {
       background: var(--pink);
-      box-shadow: 0 0 12px rgba(176, 11, 85, 0.8);
       border-color: var(--pink);
+      box-shadow: 0 0 10px rgba(176, 11, 85, 0.75);
+    }
+
+    /* blinking next square */
+    .square.next {
+      animation: blink 1.2s infinite;
+      border-color: var(--pink);
+    }
+
+    @keyframes blink {
+      0%, 100% {
+        box-shadow: 0 0 0 rgba(176, 11, 85, 0);
+        background: #1f1f1f;
+      }
+      50% {
+        box-shadow: 0 0 14px rgba(176, 11, 85, 0.9);
+        background: rgba(176, 11, 85, 0.35);
+      }
     }
 
     @media (max-width: 600px) {
       .chart-box { height: 340px; }
+      .grid-wrapper { max-width: 100%; }
     }
   </style>
 </head>
@@ -145,9 +162,8 @@
     <canvas id="chart"></canvas>
   </div>
 
-  <!-- LONG TERM -->
   <h2 class="section-title">Long-Term Goal Tracking</h2>
-  <p class="section-subtitle">100-unit progress visualization</p>
+  <p class="section-subtitle">100-unit progress gauge</p>
 
   <div class="grid-wrapper">
     <div class="grid" id="goalGrid"></div>
@@ -203,7 +219,15 @@
 
   for (let i = 0; i < 100; i++) {
     const square = document.createElement("div");
-    square.className = "square" + (i < filled ? " active" : "");
+
+    if (i < filled) {
+      square.className = "square active";
+    } else if (i === filled && filled < 100) {
+      square.className = "square next";
+    } else {
+      square.className = "square";
+    }
+
     grid.appendChild(square);
   }
 </script>
