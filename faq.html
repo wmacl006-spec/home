@@ -22,7 +22,6 @@
     body {
       min-height: 100vh;
       display: flex;
-      align-items: center;
       justify-content: center;
       font-family: 'Inter', sans-serif;
       background: radial-gradient(circle at top, #1b1b1b, var(--black));
@@ -32,7 +31,37 @@
     main {
       width: 100%;
       max-width: 900px;
-      padding: 4rem 3rem;
+      padding: 3rem;
+    }
+
+    /* ---------- HOME BUTTON (MATCHES RESUME) ---------- */
+
+    .home-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+      padding: 0.6rem 1.1rem;
+
+      background: var(--panel);
+      border: 1px solid #242424;
+      border-radius: 10px;
+
+      text-decoration: none;
+      color: var(--white);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+
+      transition: transform 0.2s ease,
+                  box-shadow 0.2s ease,
+                  border-color 0.2s ease;
+    }
+
+    .home-button:hover {
+      transform: translateY(-2px);
+      border-color: var(--pink);
+      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
     }
 
     header {
@@ -171,7 +200,7 @@
 
     @media (max-width: 600px) {
       h1 { font-size: 2.4rem; }
-      main { padding: 3rem 2rem; }
+      main { padding: 2.5rem 2rem; }
     }
   </style>
 </head>
@@ -179,23 +208,21 @@
 <body>
 <main>
 
+  <a href="index.html" class="home-button">Home</a>
+
   <header>
     <h1>FAQ</h1>
     <p class="subtitle">Common questions about me, my projects, this site, school and work</p>
   </header>
 
-  <!-- ASK + SEARCH -->
   <section class="faq-tools">
     <input id="search" type="text" placeholder="Search questions…" />
-
     <textarea id="ask" placeholder="Ask a question…"></textarea>
     <button id="submitQuestion">Submit Question</button>
-
     <div id="status" class="status"></div>
   </section>
 
-  <!-- FAQ -->
-  <section class="faq" id="faqList">
+  <section class="faq">
 
     <div class="faq-item">
       <button class="faq-question">What is this website?<span>+</span></button>
@@ -238,47 +265,36 @@
   });
 
   /* Search */
-  const search = document.getElementById('search');
-  const faqItems = document.querySelectorAll('.faq-item');
-
-  search.addEventListener('input', () => {
-    const q = search.value.toLowerCase();
-    faqItems.forEach(item => {
+  document.getElementById('search').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.faq-item').forEach(item => {
       const text = item.querySelector('.faq-question').innerText.toLowerCase();
       item.style.display = text.includes(q) ? '' : 'none';
     });
   });
 
-  /* Submit question to Firebase */
-  const submitBtn = document.getElementById('submitQuestion');
-  const askInput = document.getElementById('ask');
-  const status = document.getElementById('status');
-
-  submitBtn.addEventListener('click', async () => {
-    const question = askInput.value.trim();
+  /* Firebase submit — question only */
+  document.getElementById('submitQuestion').addEventListener('click', async () => {
+    const input = document.getElementById('ask');
+    const status = document.getElementById('status');
+    const question = input.value.trim();
     if (!question) return;
 
-    submitBtn.disabled = true;
     status.textContent = 'Submitting…';
 
     try {
-      await fetch('https://lilguys-ae7fe-default-rtdb.firebaseio.com/faqQuestions.json', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question,
-          timestamp: Date.now(),
-          userAgent: navigator.userAgent,
-          page: location.pathname
-        })
-      });
-
-      askInput.value = '';
+      await fetch(
+        'https://lilguys-ae7fe-default-rtdb.firebaseio.com/faqQuestions.json',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question })
+        }
+      );
+      input.value = '';
       status.textContent = 'Question submitted.';
     } catch {
       status.textContent = 'Submission failed.';
-    } finally {
-      submitBtn.disabled = false;
     }
   });
 </script>
