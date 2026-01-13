@@ -52,12 +52,12 @@ button:hover { border-color:var(--pink); cursor:pointer; }
 
 .fill { height:100%; }
 
-/* PET SELECTION (RESIZED) */
+/* PET SELECTION */
 .animal-select {
     display:flex;
     justify-content:center;
     flex-wrap:wrap;
-    margin-top:0.5rem;
+    margin-top:.5rem;
 }
 
 .animal-select img {
@@ -68,11 +68,6 @@ button:hover { border-color:var(--pink); cursor:pointer; }
     cursor:pointer;
     border-radius:8px;
     border:2px solid transparent;
-    transition:transform 0.15s ease, border-color 0.15s ease;
-}
-
-.animal-select img:hover {
-    transform:scale(1.05);
 }
 
 .animal-select img.selected {
@@ -166,10 +161,8 @@ const app = initializeApp({ databaseURL:"https://lilguys-ae7fe-default-rtdb.fire
 const db = getDatabase(app);
 const $ = id => document.getElementById(id);
 
-/* NAV */
 $("homeBtn").onclick = () => location.href="index.html";
 
-/* BUTTONS */
 $("startBtn").onclick = login;
 $("confirmAnimalBtn").onclick = confirmAnimal;
 $("feedBtn").onclick = feed;
@@ -192,7 +185,6 @@ manatee:{alive:"manatee_alive.png",dead:"manatee_dead.png"}
 
 let player,password,selectedAnimal,loop;
 
-/* LOGIN */
 async function login(){
     password=$("passwordInput").value.trim();
     if(!password) return;
@@ -224,7 +216,6 @@ function confirmAnimal(){
     startGame();
 }
 
-/* GAME LOOP */
 function startGame(){
     $("loginPanel").style.display="none";
     $("game").style.display="block";
@@ -235,7 +226,9 @@ function startGame(){
 
 function tick(){
     const elapsedSec=(Date.now()-player.startTime)/1000;
-    const stages=Math.floor(elapsedSec/300);
+
+    /* ACCELERATION EVERY 2.5 MIN (150s) */
+    const stages=Math.floor(elapsedSec/150);
 
     const hungerRate=1.15*Math.pow(1.10,stages);
     const thirstRate=1.35*Math.pow(1.15,stages);
@@ -263,16 +256,17 @@ function tick(){
     }
 }
 
-/* ACTIONS */
 function feed(){ if(player.food>=15){player.food-=15;player.hunger=Math.min(100,player.hunger+15);} }
 function drink(){ if(player.water>=20){player.water-=20;player.thirst=Math.min(100,player.thirst+20);} }
-function upgrade(t){ if(t==="food"&&player.water>=65){player.water-=65;player.foodGeneratorLevel++;} if(t==="water"&&player.food>=75){player.food-=75;player.waterGeneratorLevel++;} }
+function upgrade(t){
+    if(t==="food"&&player.water>=65){player.water-=65;player.foodGeneratorLevel++;}
+    if(t==="water"&&player.food>=75){player.food-=75;player.waterGeneratorLevel++;}
+}
 function sellFood(){ if(player.food>=5){player.food-=5;player.coins+=25;} }
 function sellWater(){ if(player.water>=5){player.water-=5;player.coins+=20;} }
 function buyFood(){ if(player.coins>=30){player.coins-=30;player.food+=5;} }
 function buyWater(){ if(player.coins>=25){player.coins-=25;player.water+=5;} }
 
-/* UI */
 function updateUI(){
     $("hungerBar").style.width=player.hunger+"%";
     $("thirstBar").style.width=player.thirst+"%";
@@ -284,37 +278,24 @@ function updateUI(){
     $("waterLvl").innerText=player.waterGeneratorLevel;
 }
 
-/* LEADERBOARDS */
 async function saveLeaderboards(){
     const time=Date.now()-player.startTime;
 
-    await set(ref(db,"leaderboard_time/"+password),{
-        name:player.nickname,time
-    });
-
-    await set(ref(db,"leaderboard_coins/"+password),{
-        name:player.nickname,coins:player.maxCoins
-    });
-
+    await set(ref(db,"leaderboard_time/"+password),{name:player.nickname,time});
+    await set(ref(db,"leaderboard_coins/"+password),{name:player.nickname,coins:player.maxCoins});
     loadLeaderboards();
 }
 
 async function loadLeaderboards(){
-    loadLB("leaderboard_time","leaderboardTime",
-        e=>`${e.name} — ${Math.floor(e.time/60000)}m ${Math.floor((e.time%60000)/1000)}s`);
-    loadLB("leaderboard_coins","leaderboardCoins",
-        e=>`${e.name} — ${e.coins} coins`);
+    loadLB("leaderboard_time","leaderboardTime",e=>`${e.name} — ${Math.floor(e.time/60000)}m ${Math.floor((e.time%60000)/1000)}s`);
+    loadLB("leaderboard_coins","leaderboardCoins",e=>`${e.name} — ${e.coins} coins`);
 }
 
 async function loadLB(path,el,fmt){
     const snap=await get(ref(db,path));
-    if(!snap.exists()){
-        $(el).innerHTML="<p>No entries</p>";
-        return;
-    }
+    if(!snap.exists()){ $(el).innerHTML="<p>No entries</p>"; return; }
     const arr=Object.values(snap.val())
         .sort((a,b)=>(b.time||b.coins)-(a.time||a.coins));
-
     $(el).innerHTML="<ol>"+arr.map(e=>`<li>${fmt(e)}</li>`).join("")+"</ol>";
 }
 
