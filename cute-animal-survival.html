@@ -32,10 +32,10 @@ body {
     text-align: center;
 }
 
-h1, h2, h3 {
+h1, h2 {
     font-family: 'Comfortaa', sans-serif;
     color: var(--pink);
-    margin: 0.5rem 0;
+    margin-bottom: 0.5rem;
 }
 
 input, button {
@@ -48,7 +48,10 @@ input, button {
     margin: 0.3rem;
 }
 
-button:hover { border-color: var(--pink); cursor: pointer; }
+button:hover {
+    border-color: var(--pink);
+    cursor: pointer;
+}
 
 .bar {
     width: 300px;
@@ -69,7 +72,9 @@ button:hover { border-color: var(--pink); cursor: pointer; }
     border: 3px solid transparent;
 }
 
-.animal-select img.selected { border-color: var(--pink); }
+.animal-select img.selected {
+    border-color: var(--pink);
+}
 
 #homeBtn {
     position: fixed;
@@ -87,7 +92,7 @@ button:hover { border-color: var(--pink); cursor: pointer; }
 <div class="container">
 <h1>Cute Animal Survival</h1>
 
-<div id="login">
+<div id="loginPanel">
     <input type="password" id="passwordInput" placeholder="Enter password">
     <button id="startBtn">Start</button>
 
@@ -124,13 +129,13 @@ button:hover { border-color: var(--pink); cursor: pointer; }
     </p>
 
     <p>
-        Food Generator Lv: <span id="foodLvl">0</span> |
-        Water Generator Lv: <span id="waterLvl">0</span>
+        Food Gen Lv: <span id="foodLvl">0</span> |
+        Water Gen Lv: <span id="waterLvl">0</span>
     </p>
 
     <div id="gameControls">
-        <button id="feedBtn">Feed (15 Food → +15 Hunger)</button>
-        <button id="waterBtn">Drink (20 Water → +20 Thirst)</button><br>
+        <button id="feedBtn">Feed (15 Food)</button>
+        <button id="waterBtn">Drink (20 Water)</button><br>
         <button id="upgradeFoodBtn">Upgrade Food Gen (65 Water)</button>
         <button id="upgradeWaterBtn">Upgrade Water Gen (75 Food)</button>
     </div>
@@ -151,7 +156,7 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-homeBtn.onclick = () => location.href = "index.html";
+document.getElementById("homeBtn").onclick = () => location.href = "index.html";
 
 const images = {
     cat:{alive:"cat_alive.png",dead:"cat_dead.png"},
@@ -163,131 +168,114 @@ const images = {
 
 let player, password, selectedAnimal, loop;
 
-startBtn.onclick = login;
+const startBtn = document.getElementById("startBtn");
+const confirmAnimalBtn = document.getElementById("confirmAnimalBtn");
+const loginPanel = document.getElementById("loginPanel");
+const animalChoice = document.getElementById("animalChoice");
+const game = document.getElementById("game");
+
+startBtn.onclick = handleLogin;
 confirmAnimalBtn.onclick = confirmAnimal;
-feedBtn.onclick = feed;
-waterBtn.onclick = drink;
-upgradeFoodBtn.onclick = () => upgrade("food");
-upgradeWaterBtn.onclick = () => upgrade("water");
-tryAgainBtn.onclick = () => location.reload();
 
-document.querySelectorAll(".animal-select img").forEach(img=>{
-    img.onclick=()=>{
-        selectedAnimal=img.dataset.animal;
-        document.querySelectorAll(".animal-select img").forEach(i=>i.classList.remove("selected"));
-        img.classList.add("selected");
-    };
-});
-
-async function login(){
-    password=passwordInput.value;
+async function handleLogin(){
+    password = document.getElementById("passwordInput").value.trim();
     if(!password) return;
 
-    const snap=await get(ref(db,"players/"+password));
-    player=snap.exists()?snap.val():{
-        hunger:100,thirst:100,health:100,
-        food:0,water:0,
+    const snap = await get(ref(db,"players/"+password));
+    player = snap.exists() ? snap.val() : {
+        hunger:100, thirst:100, health:100,
+        food:0, water:0,
         foodGeneratorLevel:0,
         waterGeneratorLevel:0,
         lastUpdate:Date.now()
     };
 
-    if(!player.animal) animalChoice.style.display="block";
-    else startGame();
+    if(!player.animal){
+        animalChoice.style.display = "block";
+    } else {
+        startGame();
+    }
 }
 
 function confirmAnimal(){
-    if(!selectedAnimal||!nicknameInput.value) return;
-    player.animal=selectedAnimal;
-    player.nickname=nicknameInput.value;
-    player.startTime=Date.now();
+    const name = document.getElementById("nicknameInput").value.trim();
+    if(!selectedAnimal || !name) return;
+
+    player.animal = selectedAnimal;
+    player.nickname = name;
+    player.startTime = Date.now();
     startGame();
 }
 
+document.querySelectorAll(".animal-select img").forEach(img=>{
+    img.onclick = ()=>{
+        selectedAnimal = img.dataset.animal;
+        document.querySelectorAll(".animal-select img").forEach(i=>i.classList.remove("selected"));
+        img.classList.add("selected");
+    };
+});
+
 function startGame(){
-    login.style.display="none";
-    game.style.display="block";
-    animalName.innerText=player.nickname;
-    animalImg.src=images[player.animal].alive;
-    loop=setInterval(tick,1000);
+    loginPanel.style.display = "none";
+    game.style.display = "block";
+    document.getElementById("animalName").innerText = player.nickname;
+    document.getElementById("animalImg").src = images[player.animal].alive;
+    loop = setInterval(tick,1000);
 }
 
 function tick(){
-    player.hunger=Math.max(0,player.hunger-1);
-    player.thirst=Math.max(0,player.thirst-1.5);
+    player.hunger = Math.max(0, player.hunger - 1);
+    player.thirst = Math.max(0, player.thirst - 1.5);
 
-    if(player.hunger===0&&player.thirst===0) player.health-=5;
-    else if(player.hunger===0||player.thirst===0) player.health-=1;
+    if(player.hunger===0 && player.thirst===0) player.health -= 5;
+    else if(player.hunger===0 || player.thirst===0) player.health -= 1;
 
-    player.food+=0.5+player.foodGeneratorLevel*0.35;
-    player.water+=0.6+player.waterGeneratorLevel*0.35;
+    player.food += 0.5 + player.foodGeneratorLevel * 0.35;
+    player.water += 0.6 + player.waterGeneratorLevel * 0.35;
 
     updateUI();
     set(ref(db,"players/"+password),player);
 
-    if(player.health<=0){
+    if(player.health <= 0){
         clearInterval(loop);
-        animalImg.src=images[player.animal].dead;
-        gameControls.style.display="none";
-        tryAgainBtn.style.display="inline-block";
+        document.getElementById("animalImg").src = images[player.animal].dead;
+        document.getElementById("gameControls").style.display="none";
+        document.getElementById("tryAgainBtn").style.display="inline-block";
         saveLeaderboard();
     }
 }
 
-function feed(){
-    if(player.food>=15){
-        player.food-=15;
-        player.hunger=Math.min(100,player.hunger+15);
-    }
-}
-
-function drink(){
-    if(player.water>=20){
-        player.water-=20;
-        player.thirst=Math.min(100,player.thirst+20);
-    }
-}
-
-function upgrade(type){
-    if(type==="food"&&player.water>=65){
-        player.water-=65; player.foodGeneratorLevel++;
-    }
-    if(type==="water"&&player.food>=75){
-        player.food-=75; player.waterGeneratorLevel++;
-    }
-}
-
 function updateUI(){
-    hungerBar.style.width=player.hunger+"%";
-    thirstBar.style.width=player.thirst+"%";
-    healthBar.style.width=player.health+"%";
-    foodCount.innerText=Math.floor(player.food);
-    waterCount.innerText=Math.floor(player.water);
-    foodLvl.innerText=player.foodGeneratorLevel;
-    waterLvl.innerText=player.waterGeneratorLevel;
+    hungerBar.style.width = player.hunger + "%";
+    thirstBar.style.width = player.thirst + "%";
+    healthBar.style.width = player.health + "%";
+    foodCount.innerText = Math.floor(player.food);
+    waterCount.innerText = Math.floor(player.water);
+    foodLvl.innerText = player.foodGeneratorLevel;
+    waterLvl.innerText = player.waterGeneratorLevel;
 }
 
 async function saveLeaderboard(){
-    const time=Date.now()-player.startTime;
+    const time = Date.now() - player.startTime;
     await set(ref(db,"leaderboard/"+password),{
-        name:player.nickname,
+        name: player.nickname,
         time
     });
     loadLeaderboard();
 }
 
 async function loadLeaderboard(){
-    const snap=await get(ref(db,"leaderboard"));
+    const snap = await get(ref(db,"leaderboard"));
     if(!snap.exists()){
         leaderboard.innerHTML="<p>No entries yet</p>";
         return;
     }
-    const list=Object.values(snap.val()).sort((a,b)=>b.time-a.time);
-    leaderboard.innerHTML="<ol>"+list.map(e=>{
+    const arr = Object.values(snap.val()).sort((a,b)=>b.time-a.time);
+    leaderboard.innerHTML = "<ol>" + arr.map(e=>{
         const m=Math.floor(e.time/60000);
         const s=Math.floor(e.time%60000/1000);
         return `<li>${e.name} — ${m}m ${s}s</li>`;
-    }).join("")+"</ol>";
+    }).join("") + "</ol>";
 }
 
 loadLeaderboard();
