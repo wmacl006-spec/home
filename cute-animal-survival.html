@@ -237,8 +237,8 @@ function tick(){
     if(player.hunger===0&&player.thirst===0) player.health-=5;
     else if(player.hunger===0||player.thirst===0) player.health-=1;
 
-    player.food+=1.2+player.foodGeneratorLevel*0.38;
-    player.water+=1.45+player.waterGeneratorLevel*0.43;
+    player.food+=1.2+player.foodGeneratorLevel*0.47;
+    player.water+=1.45+player.waterGeneratorLevel*0.56;
 
     if(player.coins>player.maxCoins) player.maxCoins=player.coins;
 
@@ -300,6 +300,7 @@ loadLeaderboards();
 </script>
 </body>
 </html>
+
 
 
 
