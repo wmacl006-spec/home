@@ -40,12 +40,12 @@ let macroNotes = [];
 let currentIndex = null;
 
 // Load JSON automatically
-fetch('macro/macro.json')
+fetch('notes/macro/macro.json')
   .then(res => res.json())
   .then(files => {
     macroNotes = files;
     macroNotes.forEach((file, index) => {
-      const filename = `macro/${file}`;
+      const filename = `notes/macro/${file}`;
       const img = new Image();
       img.src = filename;
       img.onload = () => {
@@ -95,5 +95,6 @@ document.addEventListener('keydown', (e) => {
 
 </body>
 </html>
+
 
 
