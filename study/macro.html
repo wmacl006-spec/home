@@ -40,12 +40,12 @@ let macroNotes = [];
 let currentIndex = null;
 
 // Load JSON automatically
-fetch('notes/macro/macro.json')
+fetch('macro/macro.json')
   .then(res => res.json())
   .then(files => {
     macroNotes = files;
     macroNotes.forEach((file, index) => {
-      const filename = `notes/macro/${file}`;
+      const filename = `macro/${file}`;
       const img = new Image();
       img.src = filename;
       img.onload = () => {
@@ -66,7 +66,7 @@ fetch('notes/macro/macro.json')
 
 function openOverlay(index){
   currentIndex=index;
-  document.getElementById('overlay-img').src = `notes/macro/${macroNotes[currentIndex]}`;
+  document.getElementById('overlay-img').src = `study/notes/macro/${macroNotes[currentIndex]}`;
   document.getElementById('overlay-title').textContent = macroNotes[currentIndex].replace('.png','');
   document.getElementById('overlay').style.display='flex';
 }
@@ -95,3 +95,4 @@ document.addEventListener('keydown', (e) => {
 
 </body>
 </html>
+
