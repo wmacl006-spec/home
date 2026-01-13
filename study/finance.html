@@ -36,16 +36,16 @@ h1{font-family:'Comfortaa',sans-serif;font-size:2.5rem;margin-bottom:1rem;color:
 
 <script>
 const container = document.getElementById('notes-container');
-let financeNotes = [];
+let notesArray = [];
 let currentIndex = null;
 
 // Load JSON automatically
-fetch('notes/finance/finance.json')
+fetch('./notes/finance/finance.json')
   .then(res => res.json())
   .then(files => {
-    financeNotes = files;
-    financeNotes.forEach((file, index) => {
-      const filename = `notes/finance/${file}`;
+    notesArray = files;
+    notesArray.forEach((file, index) => {
+      const filename = `./notes/finance/${file}`;
       const img = new Image();
       img.src = filename;
       img.onload = () => {
@@ -66,8 +66,8 @@ fetch('notes/finance/finance.json')
 
 function openOverlay(index){
   currentIndex=index;
-  document.getElementById('overlay-img').src = `notes/finance/${financeNotes[currentIndex]}`;
-  document.getElementById('overlay-title').textContent = financeNotes[currentIndex].replace('.png','');
+  document.getElementById('overlay-img').src = `./notes/finance/${notesArray[currentIndex]}`;
+  document.getElementById('overlay-title').textContent = notesArray[currentIndex].replace('.png','');
   document.getElementById('overlay').style.display='flex';
 }
 
@@ -84,10 +84,10 @@ document.addEventListener('keydown', (e) => {
   if(currentIndex === null) return;
   if(e.key==="Escape") closeOverlay();
   else if(e.key==="ArrowRight"){
-    currentIndex = (currentIndex + 1) % financeNotes.length;
+    currentIndex = (currentIndex + 1) % notesArray.length;
     openOverlay(currentIndex);
   } else if(e.key==="ArrowLeft"){
-    currentIndex = (currentIndex - 1 + financeNotes.length) % financeNotes.length;
+    currentIndex = (currentIndex - 1 + notesArray.length) % notesArray.length;
     openOverlay(currentIndex);
   }
 });
