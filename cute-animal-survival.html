@@ -228,8 +228,8 @@ function tick(){
     const stages=Math.floor(elapsedSec/60);
 
     /* UPDATED BASE DRAIN */
-    const hungerRate = 1.35 * Math.pow(1.20, stages);
-    const thirstRate = 1.50 * Math.pow(1.30, stages);
+    const hungerRate = 1.23 * Math.pow(1.22, stages);
+    const thirstRate = 1.40 * Math.pow(1.34, stages);
 
     player.hunger=Math.max(0,player.hunger-hungerRate);
     player.thirst=Math.max(0,player.thirst-thirstRate);
@@ -300,3 +300,4 @@ loadLeaderboards();
 </script>
 </body>
 </html>
+
