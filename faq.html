@@ -37,7 +37,7 @@
 
     header {
       text-align: center;
-      margin-bottom: 3.5rem;
+      margin-bottom: 3rem;
     }
 
     h1 {
@@ -53,7 +53,56 @@
       font-size: 1rem;
     }
 
-    /* FAQ container */
+    /* ---------- ASK + SEARCH ---------- */
+
+    .faq-tools {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+
+    .faq-tools input,
+    .faq-tools textarea,
+    .faq-tools button {
+      width: 100%;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      color: var(--white);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .faq-tools input::placeholder,
+    .faq-tools textarea::placeholder {
+      color: #8a8a8a;
+    }
+
+    .faq-tools textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .faq-tools button {
+      cursor: pointer;
+      font-weight: 600;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .faq-tools button:hover {
+      border-color: var(--pink);
+      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+    }
+
+    .status {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    /* ---------- FAQ ---------- */
+
     .faq {
       display: flex;
       flex-direction: column;
@@ -78,7 +127,6 @@
       padding: 1.4rem 1.6rem;
       background: none;
       border: none;
-      outline: none;
       cursor: pointer;
       color: var(--white);
       text-align: left;
@@ -86,14 +134,12 @@
       font-weight: 600;
 
       display: flex;
-      align-items: center;
       justify-content: space-between;
       gap: 1rem;
     }
 
     .faq-question span {
       color: var(--gray);
-      font-weight: 500;
       transition: transform 0.25s ease, color 0.25s ease;
     }
 
@@ -131,88 +177,111 @@
 </head>
 
 <body>
-  <main>
-    <header>
-      <h1>FAQ</h1>
-      <p class="subtitle">Common questions about me, my projects, this site, school and work</p>
-    </header>
+<main>
 
-    <section class="faq">
+  <header>
+    <h1>FAQ</h1>
+    <p class="subtitle">Common questions about me, my projects, this site, school and work</p>
+  </header>
 
-      <div class="faq-item">
-        <button class="faq-question">
-          What is this website?
-          <span>+</span>
-        </button>
-        <div class="faq-answer">
-          This is my personal website where I host my resume, projects, study notes, and experiments.
-          It serves both as a portfolio and a workspace for things I am making or have made.
-        </div>
-      </div>
+  <!-- ASK + SEARCH -->
+  <section class="faq-tools">
+    <input id="search" type="text" placeholder="Search questions…" />
 
-      <div class="faq-item">
-        <button class="faq-question">
-          Have I worn wigs?
-          <span>+</span>
-        </button>
-        <div class="faq-answer">
-          No.
-        </div>
-      </div>
+    <textarea id="ask" placeholder="Ask a question…"></textarea>
+    <button id="submitQuestion">Submit Question</button>
 
-      <div class="faq-item">
-        <button class="faq-question">
-          Will I wear wigs?
-          <span>+</span>
-        </button>
-        <div class="faq-answer">
-          Maybe.
-        </div>
-      </div>
+    <div id="status" class="status"></div>
+  </section>
 
-      <div class="faq-item">
-        <button class="faq-question">
-          When will I wear wigs?
-          <span>+</span>
-        </button>
-        <div class="faq-answer">
-          ._.
-        </div>
-      </div>
+  <!-- FAQ -->
+  <section class="faq" id="faqList">
 
-      <div class="faq-item">
-        <button class="faq-question">
-          Why the animal game?
-          <span>+</span>
-        </button>
-        <div class="faq-answer">
-          It was requested.
-        </div>
-      </div>
+    <div class="faq-item">
+      <button class="faq-question">What is this website?<span>+</span></button>
+      <div class="faq-answer">This is my personal website where I host my resume, projects, study notes, and experiments.</div>
+    </div>
 
-    </section>
+    <div class="faq-item">
+      <button class="faq-question">Have I worn wigs?<span>+</span></button>
+      <div class="faq-answer">No.</div>
+    </div>
 
-    <footer>
-      © 2026 William MacLean
-    </footer>
-  </main>
+    <div class="faq-item">
+      <button class="faq-question">Will I wear wigs?<span>+</span></button>
+      <div class="faq-answer">Maybe.</div>
+    </div>
 
-  <script>
-    const items = document.querySelectorAll('.faq-item');
+    <div class="faq-item">
+      <button class="faq-question">When will I wear wigs?<span>+</span></button>
+      <div class="faq-answer">._.</div>
+    </div>
 
-    items.forEach(item => {
-      const button = item.querySelector('.faq-question');
+    <div class="faq-item">
+      <button class="faq-question">Why the animal game?<span>+</span></button>
+      <div class="faq-answer">It was requested.</div>
+    </div>
 
-      button.addEventListener('click', () => {
-        const isOpen = item.classList.contains('open');
+  </section>
 
-        items.forEach(i => i.classList.remove('open'));
+  <footer>© 2026 William MacLean</footer>
+</main>
 
-        if (!isOpen) {
-          item.classList.add('open');
-        }
-      });
+<script>
+  /* Accordion */
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.parentElement;
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      item.classList.toggle('open');
     });
-  </script>
+  });
+
+  /* Search */
+  const search = document.getElementById('search');
+  const faqItems = document.querySelectorAll('.faq-item');
+
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase();
+    faqItems.forEach(item => {
+      const text = item.querySelector('.faq-question').innerText.toLowerCase();
+      item.style.display = text.includes(q) ? '' : 'none';
+    });
+  });
+
+  /* Submit question to Firebase */
+  const submitBtn = document.getElementById('submitQuestion');
+  const askInput = document.getElementById('ask');
+  const status = document.getElementById('status');
+
+  submitBtn.addEventListener('click', async () => {
+    const question = askInput.value.trim();
+    if (!question) return;
+
+    submitBtn.disabled = true;
+    status.textContent = 'Submitting…';
+
+    try {
+      await fetch('https://lilguys-ae7fe-default-rtdb.firebaseio.com/faqQuestions.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question,
+          timestamp: Date.now(),
+          userAgent: navigator.userAgent,
+          page: location.pathname
+        })
+      });
+
+      askInput.value = '';
+      status.textContent = 'Question submitted.';
+    } catch {
+      status.textContent = 'Submission failed.';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+
 </body>
 </html>
