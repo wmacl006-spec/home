@@ -52,7 +52,6 @@ button:hover { border-color:var(--pink); cursor:pointer; }
 
 .fill { height:100%; }
 
-/* PET SELECTION */
 .animal-select {
     display:flex;
     justify-content:center;
@@ -227,11 +226,10 @@ function startGame(){
 function tick(){
     const elapsedSec=(Date.now()-player.startTime)/1000;
 
-    /* ACCELERATION EVERY 2.5 MIN (150s) */
-    const stages=Math.floor(elapsedSec/150);
+    const stages=Math.floor(elapsedSec/60);
 
-    const hungerRate=1.15*Math.pow(1.10,stages);
-    const thirstRate=1.35*Math.pow(1.15,stages);
+    const hungerRate=1.15*Math.pow(1.20,stages);
+    const thirstRate=1.35*Math.pow(1.30,stages);
 
     player.hunger=Math.max(0,player.hunger-hungerRate);
     player.thirst=Math.max(0,player.thirst-thirstRate);
@@ -280,7 +278,6 @@ function updateUI(){
 
 async function saveLeaderboards(){
     const time=Date.now()-player.startTime;
-
     await set(ref(db,"leaderboard_time/"+password),{name:player.nickname,time});
     await set(ref(db,"leaderboard_coins/"+password),{name:player.nickname,coins:player.maxCoins});
     loadLeaderboards();
