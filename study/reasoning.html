@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Reasoning Notes</title>
+<title>reasoning Notes</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root { --pink:#B00B55; --black:#0f0f0f; --white:#fff; --panel:#161616; }
@@ -24,7 +24,7 @@ h1{font-family:'Comfortaa',sans-serif;font-size:2.5rem;margin-bottom:1rem;color:
 </head>
 <body>
 
-<h1>Reasoning Notes</h1>
+<h1>reasoning Notes</h1>
 <div class="links" id="notes-container"></div>
 <a href="notes.html" class="home-link">← Back to Classes</a>
 
@@ -36,16 +36,16 @@ h1{font-family:'Comfortaa',sans-serif;font-size:2.5rem;margin-bottom:1rem;color:
 
 <script>
 const container = document.getElementById('notes-container');
-let reasoningNotes = [];
+let notesArray = [];
 let currentIndex = null;
 
 // Load JSON automatically
-fetch('reasoning/reasoning.json')
+fetch('./notes/reasoning/reasoning.json')
   .then(res => res.json())
   .then(files => {
-    reasoningNotes = files;
-    reasoningNotes.forEach((file, index) => {
-      const filename = `reasoning/${file}`;
+    notesArray = files;
+    notesArray.forEach((file, index) => {
+      const filename = `./notes/reasoning/${file}`;
       const img = new Image();
       img.src = filename;
       img.onload = () => {
@@ -66,8 +66,8 @@ fetch('reasoning/reasoning.json')
 
 function openOverlay(index){
   currentIndex=index;
-  document.getElementById('overlay-img').src = `reasoning/${reasoningNotes[currentIndex]}`;
-  document.getElementById('overlay-title').textContent = reasoningNotes[currentIndex].replace('.png','');
+  document.getElementById('overlay-img').src = `./notes/reasoning/${notesArray[currentIndex]}`;
+  document.getElementById('overlay-title').textContent = notesArray[currentIndex].replace('.png','');
   document.getElementById('overlay').style.display='flex';
 }
 
@@ -84,10 +84,10 @@ document.addEventListener('keydown', (e) => {
   if(currentIndex === null) return;
   if(e.key==="Escape") closeOverlay();
   else if(e.key==="ArrowRight"){
-    currentIndex = (currentIndex + 1) % reasoningNotes.length;
+    currentIndex = (currentIndex + 1) % notesArray.length;
     openOverlay(currentIndex);
   } else if(e.key==="ArrowLeft"){
-    currentIndex = (currentIndex - 1 + reasoningNotes.length) % reasoningNotes.length;
+    currentIndex = (currentIndex - 1 + notesArray.length) % notesArray.length;
     openOverlay(currentIndex);
   }
 });
@@ -95,7 +95,3 @@ document.addEventListener('keydown', (e) => {
 
 </body>
 </html>
-
-
-
-
