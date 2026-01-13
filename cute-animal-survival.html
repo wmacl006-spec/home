@@ -52,6 +52,33 @@ button:hover { border-color:var(--pink); cursor:pointer; }
 
 .fill { height:100%; }
 
+/* PET SELECTION (RESIZED) */
+.animal-select {
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:0.5rem;
+}
+
+.animal-select img {
+    width:64px;
+    height:64px;
+    object-fit:contain;
+    margin:6px;
+    cursor:pointer;
+    border-radius:8px;
+    border:2px solid transparent;
+    transition:transform 0.15s ease, border-color 0.15s ease;
+}
+
+.animal-select img:hover {
+    transform:scale(1.05);
+}
+
+.animal-select img.selected {
+    border-color:var(--pink);
+}
+
 #homeBtn {
     position:fixed;
     top:12px;
@@ -139,7 +166,10 @@ const app = initializeApp({ databaseURL:"https://lilguys-ae7fe-default-rtdb.fire
 const db = getDatabase(app);
 const $ = id => document.getElementById(id);
 
+/* NAV */
 $("homeBtn").onclick = () => location.href="index.html";
+
+/* BUTTONS */
 $("startBtn").onclick = login;
 $("confirmAnimalBtn").onclick = confirmAnimal;
 $("feedBtn").onclick = feed;
@@ -204,14 +234,20 @@ function startGame(){
 }
 
 function tick(){
-    player.hunger=Math.max(0,player.hunger-1);
-    player.thirst=Math.max(0,player.thirst-1.5);
+    const elapsedSec=(Date.now()-player.startTime)/1000;
+    const stages=Math.floor(elapsedSec/300);
+
+    const hungerRate=1.15*Math.pow(1.10,stages);
+    const thirstRate=1.35*Math.pow(1.15,stages);
+
+    player.hunger=Math.max(0,player.hunger-hungerRate);
+    player.thirst=Math.max(0,player.thirst-thirstRate);
 
     if(player.hunger===0&&player.thirst===0) player.health-=5;
     else if(player.hunger===0||player.thirst===0) player.health-=1;
 
-    player.food+=0.5+player.foodGeneratorLevel*0.35;
-    player.water+=0.6+player.waterGeneratorLevel*0.35;
+    player.food+=1.0+player.foodGeneratorLevel*0.35;
+    player.water+=1.3+player.waterGeneratorLevel*0.35;
 
     if(player.coins>player.maxCoins) player.maxCoins=player.coins;
 
@@ -264,14 +300,21 @@ async function saveLeaderboards(){
 }
 
 async function loadLeaderboards(){
-    loadLB("leaderboard_time","leaderboardTime",(e)=>`${e.name} — ${Math.floor(e.time/60000)}m ${Math.floor((e.time%60000)/1000)}s`);
-    loadLB("leaderboard_coins","leaderboardCoins",(e)=>`${e.name} — ${e.coins} coins`);
+    loadLB("leaderboard_time","leaderboardTime",
+        e=>`${e.name} — ${Math.floor(e.time/60000)}m ${Math.floor((e.time%60000)/1000)}s`);
+    loadLB("leaderboard_coins","leaderboardCoins",
+        e=>`${e.name} — ${e.coins} coins`);
 }
 
 async function loadLB(path,el,fmt){
     const snap=await get(ref(db,path));
-    if(!snap.exists()){ $(el).innerHTML="<p>No entries</p>"; return; }
-    const arr=Object.values(snap.val()).sort((a,b)=>(b.time||b.coins)-(a.time||a.coins));
+    if(!snap.exists()){
+        $(el).innerHTML="<p>No entries</p>";
+        return;
+    }
+    const arr=Object.values(snap.val())
+        .sort((a,b)=>(b.time||b.coins)-(a.time||a.coins));
+
     $(el).innerHTML="<ol>"+arr.map(e=>`<li>${fmt(e)}</li>`).join("")+"</ol>";
 }
 
