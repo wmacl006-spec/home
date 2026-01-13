@@ -17,7 +17,11 @@
       --panel: #161616;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       min-height: 100vh;
@@ -37,16 +41,13 @@
     }
 
     h1 {
-    font-family: 'Comfortaa', sans-serif;
-    font-size: 3rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-bottom: 1rem;
-    color: #eaeaea;
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 3rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+      color: #eaeaea;
     }
-
-
-
 
     .subtitle {
       font-size: 1.05rem;
@@ -54,10 +55,14 @@
       margin-bottom: 3.5rem;
     }
 
+    /* ---- FIXED GRID ---- */
     .links {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 260px));
       gap: 1.5rem;
+      justify-content: center;
+      max-width: 820px;
+      margin: 0 auto;
     }
 
     .link-card {
@@ -73,7 +78,9 @@
       font-size: 1.05rem;
       font-weight: 600;
       letter-spacing: 0.4px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.2s ease,
+                  box-shadow 0.2s ease,
+                  border-color 0.2s ease;
     }
 
     .link-card:hover {
@@ -89,13 +96,18 @@
     }
 
     @media (max-width: 600px) {
-      h1 { font-size: 2.4rem; }
-      .content { padding: 3rem 2rem; }
+      h1 {
+        font-size: 2.4rem;
+      }
+
+      .content {
+        padding: 3rem 2rem;
+      }
     }
   </style>
 </head>
-<body>
 
+<body>
   <main class="content">
     <h1>William MacLean</h1>
     <p class="subtitle">Personal site · Resume · Projects</p>
@@ -105,28 +117,12 @@
       <a href="study/notes.html" class="link-card">Study Notes</a>
       <a href="goalgraph.html" class="link-card">Goals</a>
       <a href="cute-animal-survival.html" class="link-card">Pet Game</a>
-      <!-- Add more links later -->
+      <!-- Add more links freely; last row will stay centered -->
     </div>
 
     <footer>
       © 2026 William MacLean
     </footer>
   </main>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
