@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>William MacLean</title>
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -17,11 +16,7 @@
       --panel: #161616;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       min-height: 100vh;
@@ -44,13 +39,11 @@
       font-family: 'Comfortaa', sans-serif;
       font-size: 3rem;
       font-weight: 600;
-      letter-spacing: 0.5px;
       margin-bottom: 1rem;
       color: #eaeaea;
     }
 
     .subtitle {
-      font-size: 1.05rem;
       color: var(--gray);
       margin-bottom: 3.5rem;
     }
@@ -72,6 +65,10 @@
       grid-column: 2;
     }
 
+    .links > .link-card:nth-last-child(1):nth-child(3n + 2) {
+      grid-column: 3;
+    }
+
     .link-card {
       display: flex;
       align-items: center;
@@ -82,12 +79,8 @@
       border-radius: 14px;
       text-decoration: none;
       color: var(--white);
-      font-size: 1.05rem;
       font-weight: 600;
-      letter-spacing: 0.4px;
-      transition: transform 0.2s ease,
-                  box-shadow 0.2s ease,
-                  border-color 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .link-card:hover {
@@ -102,7 +95,6 @@
       color: #8a8a8a;
     }
 
-    /* ---- RESPONSIVE ---- */
     @media (max-width: 900px) {
       .links {
         grid-template-columns: repeat(2, 1fr);
@@ -118,13 +110,8 @@
         grid-template-columns: 1fr;
       }
 
-      h1 {
-        font-size: 2.4rem;
-      }
-
-      .content {
-        padding: 3rem 2rem;
-      }
+      h1 { font-size: 2.4rem; }
+      .content { padding: 3rem 2rem; }
     }
   </style>
 </head>
@@ -140,7 +127,6 @@
       <a href="goalgraph.html" class="link-card">Goals</a>
       <a href="cute-animal-survival.html" class="link-card">Pet Game</a>
       <a href="cute-animal-survival.html" class="link-card">Pet Game</a>
-      <!-- Add more links freely -->
     </div>
 
     <footer>
@@ -149,4 +135,3 @@
   </main>
 </body>
 </html>
-
