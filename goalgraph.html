@@ -3,90 +3,181 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Goal Graph</title>
+  <title>William MacLean | Goal Graph</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body {
+    :root {
+      --pink: #B00B55;
+      --black: #0f0f0f;
+      --panel: #161616;
+      --border: #242424;
+      --gray: #b5b5b5;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      padding: 3rem;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0f0f0f;
-      color: white;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #1b1b1b, var(--black));
+      color: var(--white);
+      padding: 3rem 2rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .home-button {
+      display: inline-block;
+      margin-bottom: 2rem;
+      padding: 0.6rem 1.1rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--white);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .home-button:hover {
+      transform: translateY(-2px);
+      border-color: var(--pink);
+      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
     }
 
     h1 {
-      margin-bottom: 0.25rem;
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 2.3rem;
+      margin-bottom: 0.4rem;
+      color: #eaeaea;
     }
 
-    p {
-      margin-top: 0;
-      margin-bottom: 2rem;
-      color: #aaa;
+    .subtitle {
+      color: var(--gray);
+      margin-bottom: 1.5rem;
     }
+
+    .summary {
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+      color: var(--gray);
+    }
+
+    .summary span {
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .summary .positive { color: #7CFCB0; }
+    .summary .negative { color: #ff7a7a; }
 
     .chart-box {
-      max-width: 900px;
-      height: 400px;
-      background: #161616;
-      border: 1px solid #222;
-      border-radius: 12px;
-      padding: 1.5rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      height: 420px;
     }
 
     canvas {
       width: 100%;
       height: 100%;
     }
+
+    @media (max-width: 600px) {
+      .chart-box { height: 340px; }
+      h1 { font-size: 1.9rem; }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Daily Goal Tracking</h1>
-  <p>Progress over time</p>
+  <div class="container">
+    <a href="index.html" class="home-button">Home</a>
 
-  <div class="chart-box">
-    <canvas id="chart"></canvas>
+    <h1>Daily Goal Tracking</h1>
+    <p class="subtitle">Progress over time</p>
+
+    <div class="summary" id="weeklySummary"></div>
+
+    <div class="chart-box">
+      <canvas id="chart"></canvas>
+    </div>
   </div>
 
-  <!-- Load data FIRST -->
-  <script src="goaldata.js"></script>
+  <!-- Load data -->
+  <script src="goaldata.js?v=live"></script>
 
-  <!-- Chart logic -->
+  <!-- Logic -->
   <script>
-    console.log("Loaded goalData:", goalData);
-
     const labels = goalData.map(d => d.date);
     const values = goalData.map(d => d.value);
 
+    /* ----- Weekly delta calculation ----- */
+    let weeklyDeltaText = "Not enough data for 7-day change";
+
+    if (goalData.length >= 8) {
+      const latest = goalData[goalData.length - 1].value;
+      const weekAgo = goalData[goalData.length - 8].value;
+      const delta = latest - weekAgo;
+
+      const sign = delta > 0 ? "+" : "";
+      const cls = delta > 0 ? "positive" : delta < 0 ? "negative" : "";
+
+      weeklyDeltaText = `
+        Past 7 days: 
+        <span class="${cls}">${sign}${delta}</span>
+      `;
+    }
+
+    document.getElementById("weeklySummary").innerHTML = weeklyDeltaText;
+
+    /* ----- Chart ----- */
     new Chart(document.getElementById("chart"), {
       type: "line",
       data: {
-        labels: labels,
+        labels,
         datasets: [{
           label: "Goal Value",
           data: values,
           borderColor: "#B00B55",
           backgroundColor: "rgba(176, 11, 85, 0.2)",
           fill: true,
-          tension: 0.3,
-          pointRadius: 4
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: "#B00B55"
         }]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          legend: { display: true }
+          legend: { display: false }
         },
         scales: {
           x: {
-            ticks: { color: "#bbb" },
+            ticks: { color: "#b5b5b5" },
             grid: { color: "#222" }
           },
           y: {
-            ticks: { color: "#bbb" },
+            ticks: { color: "#b5b5b5" },
             grid: { color: "#222" }
           }
         }
