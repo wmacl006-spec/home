@@ -80,9 +80,9 @@ button:hover { border-color:var(--pink); cursor:pointer; }
     z-index:9999;
 }
 
-/* TIMER STYLES */
+/* TIMER */
 #survivalTimer {
-    margin:.4rem 0 .3rem;
+    margin:.4rem 0 1rem;
     font-family:Comfortaa,sans-serif;
     font-size:1.15rem;
     color:#ff8fcf;
@@ -98,6 +98,8 @@ button:hover { border-color:var(--pink); cursor:pointer; }
     50% { opacity:.4; }
     100% { opacity:1; }
 }
+</style>
+</head>
 
 <body>
 
@@ -113,11 +115,11 @@ button:hover { border-color:var(--pink); cursor:pointer; }
     <div id="animalChoice" style="display:none;">
         <h2>Pick an animal</h2>
         <div class="animal-select">
-            <img src="gamepic/cat_alive.png" data-animal="cat">
-            <img src="gamepic/dog_alive.png" data-animal="dog">
-            <img src="gamepic/bunny_alive.png" data-animal="bunny">
-            <img src="gamepic/squirrel_alive.png" data-animal="squirrel">
-            <img src="gamepic/manatee_alive.png" data-animal="manatee">
+            <img src="cat_alive.png" data-animal="cat">
+            <img src="dog_alive.png" data-animal="dog">
+            <img src="bunny_alive.png" data-animal="bunny">
+            <img src="squirrel_alive.png" data-animal="squirrel">
+            <img src="manatee_alive.png" data-animal="manatee">
         </div>
         <input type="text" id="nicknameInput" placeholder="Pet name">
         <button id="confirmAnimalBtn">Confirm</button>
@@ -126,7 +128,6 @@ button:hover { border-color:var(--pink); cursor:pointer; }
 
 <div id="game" style="display:none;">
     <h2 id="animalName"></h2>
-
     <div id="survivalTimer">Survived: 0m 0s</div>
 
     <img id="animalImg" width="150">
@@ -194,14 +195,14 @@ $("buyWaterBtn").onclick = buyWater;
 $("tryAgainBtn").onclick = () => location.reload();
 
 const images={
-cat:{alive:"gamepic/cat_alive.png",dead:"gamepic/cat_dead.png"},
-dog:{alive:"gamepic/dog_alive.png",dead:"gamepic/dog_dead.png"},
-bunny:{alive:"gamepic/bunny_alive.png",dead:"gamepic/bunny_dead.png"},
-squirrel:{alive:"gamepic/squirrel_alive.png",dead:"gamepic/squirrel_dead.png"},
-manatee:{alive:"gamepic/manatee_alive.png",dead:"gamepic/manatee_dead.png"}
+cat:{alive:"cat_alive.png",dead:"cat_dead.png"},
+dog:{alive:"dog_alive.png",dead:"dog_dead.png"},
+bunny:{alive:"bunny_alive.png",dead:"bunny_dead.png"},
+squirrel:{alive:"squirrel_alive.png",dead:"squirrel_dead.png"},
+manatee:{alive:"manatee_alive.png",dead:"manatee_dead.png"}
 };
 
-let player,password,selectedAnimal,loop,personalBest=0;
+let player,password,selectedAnimal,loop;
 
 /* ---------- HELPERS ---------- */
 function formatTime(ms){
@@ -221,11 +222,8 @@ async function login(){
     player=snap.exists()?snap.val():{
         hunger:100,thirst:100,health:100,
         food:0,water:0,coins:0,maxCoins:0,
-        foodGeneratorLevel:0,waterGeneratorLevel:0,
-        bestTime:0
+        foodGeneratorLevel:0,waterGeneratorLevel:0
     };
-
-    personalBest = player.bestTime || 0;
 
     if(!player.animal) $("animalChoice").style.display="block";
     else startGame();
@@ -261,8 +259,6 @@ function tick(){
     const elapsed=Date.now()-player.startTime;
     $("survivalTimer").innerText="Survived: "+formatTime(elapsed);
 
-    if(elapsed>personalBest) $("newRecord").style.display="block";
-
     const stages=Math.floor(elapsed/60000);
     player.hunger=Math.max(0,player.hunger-(1.35*Math.pow(1.2,stages)));
     player.thirst=Math.max(0,player.thirst-(1.5*Math.pow(1.3,stages)));
@@ -283,7 +279,6 @@ function tick(){
         $("animalImg").src=images[player.animal].dead;
         $("gameControls").style.display="none";
         $("tryAgainBtn").style.display="inline-block";
-        player.bestTime=Math.max(personalBest,elapsed);
         onDeath(elapsed);
     }
 }
@@ -325,7 +320,7 @@ async function saveLeaderboards(time){
 }
 
 async function loadLeaderboards(){
-    loadLB("leaderboard_time","leaderboardTime",e=>`${formatTime(e.time)}`);
+    loadLB("leaderboard_time","leaderboardTime",e=>formatTime(e.time));
     loadLB("leaderboard_coins","leaderboardCoins",e=>`${e.coins} coins`);
 }
 
@@ -340,5 +335,3 @@ loadLeaderboards();
 </script>
 </body>
 </html>
-
-
