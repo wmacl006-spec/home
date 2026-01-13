@@ -38,29 +38,41 @@ h1 { font-family:'Comfortaa',sans-serif; font-size:2.5rem; margin-bottom:1rem; c
 </div>
 
 <script>
-// Automatically load all macro notes
+// List all your macro notes here
+const macroNotes = [
+  "macro1.png",
+  "macro2.png",
+  "macro3.png",
+  "macro4.png"
+  // Add more filenames here when you add new notes
+];
+
 const container = document.getElementById('notes-container');
-const totalNotes = 50; // maximum number of notes
-for(let i=1; i<=totalNotes; i++){
-  const filename = `notes/macro/macro${i}.png`;
+
+macroNotes.forEach((file, index) => {
+  const filename = `notes/macro/${file}`;
   const img = new Image();
   img.src = filename;
-  img.onload = ()=>{
+  img.onload = () => {
     const card = document.createElement('div');
     card.className = 'link-card';
     const title = document.createElement('p');
-    title.textContent = `Macro ${i}`;
+    title.textContent = file.replace('.png','');
     card.appendChild(img);
     card.appendChild(title);
     container.appendChild(card);
 
     card.addEventListener('click', ()=>{
       document.getElementById('overlay-img').src = filename;
-      document.getElementById('overlay-title').textContent = `Macro ${i}`;
+      document.getElementById('overlay-title').textContent = file.replace('.png','');
       document.getElementById('overlay').style.display='flex';
     });
   };
-}
+  img.onerror = () => {
+    console.warn(`Image not found: ${filename}`);
+  };
+});
+
 document.getElementById('close-btn').addEventListener('click', ()=>{
   document.getElementById('overlay').style.display='none';
 });
