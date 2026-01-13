@@ -7,89 +7,63 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --pink: #B00B55;
-  --black: #0f0f0f;
-  --white: #ffffff;
-  --gray: #b5b5b5;
-  --panel: #161616;
+  --pink: #B00B55; --black: #0f0f0f; --white: #ffffff; --gray: #b5b5b5; --panel: #161616;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Inter', sans-serif;
-  background: radial-gradient(circle at top, #1b1b1b, var(--black));
-  color: var(--white);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 3rem;
-}
-h1 {
-  font-family: 'Comfortaa', sans-serif;
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #eaeaea;
-}
-.links {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.3rem;
-  width: 100%;
-  max-width: 700px;
-}
-.link-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: var(--panel);
-  border: 1px solid #242424;
-  border-radius: 12px;
-  text-decoration: none;
-  color: var(--white);
-  font-size: 1rem;
-  font-weight: 600;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-.link-card img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 6px;
-  margin-bottom: 0.6rem;
-}
-.link-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--pink);
-  box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
-}
-.home-link {
-  margin-top: 2rem;
-  color: var(--pink);
-  text-decoration: none;
-  font-weight: 600;
-}
+body { font-family:'Inter',sans-serif; background:radial-gradient(circle at top,#1b1b1b,var(--black)); color:#fff; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:3rem; }
+h1 { font-family:'Comfortaa',sans-serif; font-size:2.5rem; margin-bottom:1rem; color:#eaeaea; }
+.links { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.3rem; width:100%; max-width:700px; }
+.link-card { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1rem; background:var(--panel); border:1px solid #242424; border-radius:12px; text-decoration:none; color:#fff; font-size:1rem; font-weight:600; transition: transform .2s ease,box-shadow .2s ease,border-color .2s ease; cursor:pointer; }
+.link-card img { max-width:100%; height:auto; border-radius:6px; margin-bottom:0.6rem; }
+.link-card:hover { transform:translateY(-3px); border-color:var(--pink); box-shadow:0 10px 24px rgba(176,11,85,0.25); }
+.home-link { margin-top:2rem; color:var(--pink); text-decoration:none; font-weight:600; }
 .home-link:hover { text-decoration: underline; }
+
+/* overlay */
+#overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); flex-direction:column; align-items:center; justify-content:center; z-index:1000; }
+#overlay img { max-width:90%; max-height:80%; margin-bottom:1rem; border-radius:8px; }
+#overlay p { color:#fff; margin-bottom:2rem; font-size:1.2rem; }
+#close-btn { position:absolute; top:2rem; right:2rem; padding:0.6rem 1rem; background:var(--panel); border:1px solid #242424; color:#fff; cursor:pointer; border-radius:6px; }
 </style>
 </head>
 <body>
 <h1>Macro Notes</h1>
+<div class="links" id="notes-container"></div>
+<a href="notes.html" class="home-link">← Back to Classes</a>
 
-<div class="links">
-  <a href="notes/macro1.png" target="_blank" class="link-card">
-    <img src="notes/macro1.png" alt="Macro 1">
-    <p>Macro 1</p>
-  </a>
-  <a href="notes/macro2.png" target="_blank" class="link-card">
-    <img src="notes/macro2.png" alt="Macro 2">
-    <p>Macro 2</p>
-  </a>
-  <a href="notes/macro3.png" target="_blank" class="link-card">
-    <img src="notes/macro3.png" alt="Macro 3">
-    <p>Macro 3</p>
-  </a>
+<div id="overlay">
+  <button id="close-btn">Back</button>
+  <img id="overlay-img">
+  <p id="overlay-title"></p>
 </div>
 
-<a href="notes.html" class="home-link">← Back to Classes</a>
+<script>
+// Automatically load all macro notes
+const container = document.getElementById('notes-container');
+const totalNotes = 50; // maximum number of notes
+for(let i=1; i<=totalNotes; i++){
+  const filename = `notes/macro/macro${i}.png`;
+  const img = new Image();
+  img.src = filename;
+  img.onload = ()=>{
+    const card = document.createElement('div');
+    card.className = 'link-card';
+    const title = document.createElement('p');
+    title.textContent = `Macro ${i}`;
+    card.appendChild(img);
+    card.appendChild(title);
+    container.appendChild(card);
+
+    card.addEventListener('click', ()=>{
+      document.getElementById('overlay-img').src = filename;
+      document.getElementById('overlay-title').textContent = `Macro ${i}`;
+      document.getElementById('overlay').style.display='flex';
+    });
+  };
+}
+document.getElementById('close-btn').addEventListener('click', ()=>{
+  document.getElementById('overlay').style.display='none';
+});
+</script>
 </body>
 </html>
