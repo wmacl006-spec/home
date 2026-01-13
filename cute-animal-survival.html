@@ -161,7 +161,6 @@ const db = getDatabase(app);
 const $ = id => document.getElementById(id);
 
 $("homeBtn").onclick = () => location.href="index.html";
-
 $("startBtn").onclick = login;
 $("confirmAnimalBtn").onclick = confirmAnimal;
 $("feedBtn").onclick = feed;
@@ -184,9 +183,16 @@ manatee:{alive:"manatee_alive.png",dead:"manatee_dead.png"}
 
 let player,password,selectedAnimal,loop;
 
+/* 🔒 LOGIN WITH PASSWORD BLOCKING */
 async function login(){
     password=$("passwordInput").value.trim();
     if(!password) return;
+
+    const blocked = await get(ref(db,"blockedPasswords/"+password));
+    if(blocked.exists()){
+        alert("This password has already died and cannot be reused.");
+        return;
+    }
 
     const snap=await get(ref(db,"players/"+password));
     player=snap.exists()?snap.val():{
@@ -227,9 +233,8 @@ function tick(){
     const elapsedSec=(Date.now()-player.startTime)/1000;
     const stages=Math.floor(elapsedSec/60);
 
-    /* UPDATED BASE DRAIN */
-    const hungerRate = 1.23 * Math.pow(1.22, stages);
-    const thirstRate = 1.40 * Math.pow(1.34, stages);
+    const hungerRate = 1.35 * Math.pow(1.2, stages);
+    const thirstRate = 1.5 * Math.pow(1.3, stages);
 
     player.hunger=Math.max(0,player.hunger-hungerRate);
     player.thirst=Math.max(0,player.thirst-thirstRate);
@@ -237,8 +242,8 @@ function tick(){
     if(player.hunger===0&&player.thirst===0) player.health-=5;
     else if(player.hunger===0||player.thirst===0) player.health-=1;
 
-    player.food+=1.2+player.foodGeneratorLevel*0.47;
-    player.water+=1.45+player.waterGeneratorLevel*0.56;
+    player.food+=1.2+player.foodGeneratorLevel*0.35;
+    player.water+=1.6+player.waterGeneratorLevel*0.35;
 
     if(player.coins>player.maxCoins) player.maxCoins=player.coins;
 
@@ -250,8 +255,13 @@ function tick(){
         $("animalImg").src=images[player.animal].dead;
         $("gameControls").style.display="none";
         $("tryAgainBtn").style.display="inline-block";
-        saveLeaderboards();
+        onDeath();
     }
+}
+
+function onDeath(){
+    set(ref(db,"blockedPasswords/"+password),true);
+    saveLeaderboards();
 }
 
 function feed(){ if(player.food>=15){player.food-=15;player.hunger=Math.min(100,player.hunger+15);} }
@@ -300,7 +310,3 @@ loadLeaderboards();
 </script>
 </body>
 </html>
-
-
-
-
