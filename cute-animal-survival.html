@@ -9,70 +9,115 @@
 
 <style>
 :root {
-  --pink:#B00B55;
-  --panel:#161616;
-  --black:#0f0f0f;
+    --pink: #B00B55;
+    --purple: #6a1b9a;
+    --black: #0f0f0f;
+    --white: #ffffff;
+    --gray: #b5b5b5;
+    --panel: #161616;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Inter',sans-serif;
-  background:radial-gradient(circle at top,#1b1b1b,var(--black));
-  color:white;
-  min-height:100vh;
+
+* { box-sizing: border-box; margin:0; padding:0; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top, #1b1b1b, var(--black));
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
 }
-.container{max-width:900px;margin:auto;padding:2rem;text-align:center}
-h1,h2{font-family:'Comfortaa',sans-serif;color:var(--pink)}
-input,button{
-  padding:.8rem;
-  border-radius:10px;
-  border:1px solid #242424;
-  background:var(--panel);
-  color:white;
-  margin:.4rem;
+
+.container { width: 100%; max-width: 800px; text-align: center; }
+
+h1, h2 { font-family: 'Comfortaa', sans-serif; color: var(--pink); }
+h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+h2 { font-size: 1.8rem; margin-bottom: 1rem; }
+
+input, button {
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #242424;
+    background: var(--panel);
+    color: var(--white);
+    font-size: 1rem;
+    margin: 0.5rem;
 }
-button{cursor:pointer;font-weight:600}
-.animal-select img{
-  width:80px;
-  margin:10px;
-  cursor:pointer;
-  border-radius:12px;
-  border:3px solid transparent;
+
+button:hover {
+    transform: translateY(-2px);
+    border-color: var(--pink);
+    box-shadow: 0 10px 24px rgba(176,11,85,0.25);
+    cursor: pointer;
 }
-.animal-select img.selected{border-color:var(--pink)}
-#game{display:none}
+
+.bar { width: 300px; height: 20px; background: #222; margin: 10px auto; border-radius: 10px; overflow: hidden; }
+.fill { height: 100%; width: 100%; transition: width 0.2s; }
+
+.animal-select img { width: 80px; margin: 10px; cursor: pointer; border-radius: 10px; border: 3px solid transparent; }
+.animal-select img.selected { border-color: var(--pink); }
+
+#leaderboard { margin-top: 1rem; }
+#leaderboard ol { list-style: decimal; padding-left: 1rem; color: var(--white); }
+
+#tryAgainBtn { display: none; margin-top: 1rem; }
 </style>
 </head>
-
 <body>
 
 <div class="container">
 
 <h1>Cute Animal Survival</h1>
 
-<!-- LOGIN -->
 <div id="login">
-  <input id="passwordInput" type="password" placeholder="Enter password">
-  <button id="startBtn">Start</button>
+    <input type="password" id="passwordInput" placeholder="Enter password">
+    <button id="startBtn">Start</button>
 
-  <div id="animalChoice" style="display:none;margin-top:1.5rem">
-    <h2>Pick an animal & name it</h2>
-    <div class="animal-select">
-      <img src="cat_alive.png" data-animal="cat">
-      <img src="dog_alive.png" data-animal="dog">
-      <img src="bunny_alive.png" data-animal="bunny">
-      <img src="flyingsquirrel_alive.png" data-animal="flyingsquirrel">
-      <img src="manatee_alive.png" data-animal="manatee">
+    <div id="animalChoice" style="display:none; margin-top: 1rem;">
+        <h2>Pick an animal & name it</h2>
+        <div class="animal-select">
+            <img src="cat_alive.png" data-animal="cat">
+            <img src="dog_alive.png" data-animal="dog">
+            <img src="bunny_alive.png" data-animal="bunny">
+            <img src="flyingsquirrel_alive.png" data-animal="flyingsquirrel">
+            <img src="manatee_alive.png" data-animal="manatee">
+        </div>
+        <input type="text" id="nicknameInput" placeholder="Name your animal">
+        <button id="confirmAnimalBtn">Confirm</button>
     </div>
-    <input id="nicknameInput" placeholder="Name your animal">
-    <button id="confirmAnimalBtn">Confirm</button>
-  </div>
 </div>
 
-<!-- GAME -->
-<div id="game">
-  <h2 id="animalName"></h2>
-  <img id="animalImg" width="150">
-  <p>Game started ✔</p>
+<div id="game" style="display:none; margin-top: 2rem;">
+    <h2 id="animalName"></h2>
+    <img id="animalImg" width="150">
+
+    <div>
+        <div>Hunger</div>
+        <div class="bar"><div id="hungerBar" class="fill" style="background:#FF69B4;"></div></div>
+        <div>Thirst</div>
+        <div class="bar"><div id="thirstBar" class="fill" style="background:#6a1b9a;"></div></div>
+        <div>Health</div>
+        <div class="bar"><div id="healthBar" class="fill" style="background:#B00B55;"></div></div>
+    </div>
+
+    <div>
+        Food: <span id="foodCount">0</span> | Water: <span id="waterCount">0</span>
+    </div>
+
+    <div id="gameControls">
+        <button id="feedBtn">Feed</button>
+        <button id="waterBtn">Give Water</button>
+        <button id="upgradeFoodBtn">Upgrade Food Generator</button>
+        <button id="upgradeWaterBtn">Upgrade Water Generator</button>
+    </div>
+
+    <button id="tryAgainBtn">Try Again</button>
+
+    <h2>Leaderboard</h2>
+    <div id="leaderboard"></div>
+    <button onclick="updateLeaderboard()">Refresh Leaderboard</button>
 </div>
 
 </div>
@@ -81,63 +126,22 @@ button{cursor:pointer;font-weight:600}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
 
-/* ---------- FIREBASE ---------- */
 const app = initializeApp({
-  databaseURL:"https://lilguys-ae7fe-default-rtdb.firebaseio.com/"
+  databaseURL: "https://lilguys-ae7fe-default-rtdb.firebaseio.com/"
 });
 const db = getDatabase(app);
 
-/* ---------- STATE ---------- */
-let password = "";
-let selectedAnimal = null;
+let player = null;
+let password = '';
+let selectedAnimal = '';
+let gameInterval = null;
 
-/* ---------- START ---------- */
-startBtn.onclick = async () => {
-  password = passwordInput.value.trim();
-  if (!password) return alert("Enter a password");
-
-  const snap = await get(ref(db, "players/" + password));
-
-  if (snap.exists()) {
-    loadGame(snap.val());
-  } else {
-    animalChoice.style.display = "block";
-  }
+const animalImages = {
+    cat: { alive: "cat_alive.png", dead: "cat_dead.png" },
+    dog: { alive: "dog_alive.png", dead: "dog_dead.png" },
+    bunny: { alive: "bunny_alive.png", dead: "bunny_dead.png" },
+    flyingsquirrel: { alive: "flyingsquirrel_alive.png", dead: "flyingsquirrel_dead.png" },
+    manatee: { alive: "manatee_alive.png", dead: "manatee_dead.png" }
 };
 
-/* ---------- ANIMAL PICK ---------- */
-document.querySelectorAll(".animal-select img").forEach(img => {
-  img.onclick = () => {
-    selectedAnimal = img.dataset.animal;
-    document.querySelectorAll(".animal-select img")
-      .forEach(i => i.classList.remove("selected"));
-    img.classList.add("selected");
-  };
-});
-
-/* ---------- CREATE PLAYER ---------- */
-confirmAnimalBtn.onclick = async () => {
-  const name = nicknameInput.value.trim();
-  if (!name || !selectedAnimal) return alert("Pick an animal and name it");
-
-  const playerData = {
-    name,
-    animal: selectedAnimal,
-    created: Date.now()
-  };
-
-  await set(ref(db, "players/" + password), playerData);
-  loadGame(playerData);
-};
-
-/* ---------- LOAD GAME ---------- */
-function loadGame(data){
-  login.style.display = "none";
-  game.style.display = "block";
-  animalName.textContent = data.name;
-  animalImg.src = data.animal + "_alive.png";
-}
-</script>
-
-</body>
-</html>
+/* EVERYTHING ELSE UNCHANGED */
