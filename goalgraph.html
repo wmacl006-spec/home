@@ -131,6 +131,7 @@
       background: #1f1f1f;
       border-radius: 4px;
       border: 1px solid #2a2a2a;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
     }
 
     .square.active {
@@ -146,15 +147,9 @@
     }
 
     @keyframes pulse {
-      0% {
-        box-shadow: 0 0 0 rgba(176, 11, 85, 0);
-      }
-      50% {
-        box-shadow: 0 0 18px rgba(176, 11, 85, 0.9);
-      }
-      100% {
-        box-shadow: 0 0 0 rgba(176, 11, 85, 0);
-      }
+      0% { box-shadow: 0 0 0 rgba(176, 11, 85, 0); }
+      50% { box-shadow: 0 0 18px rgba(176, 11, 85, 0.9); }
+      100% { box-shadow: 0 0 0 rgba(176, 11, 85, 0); }
     }
 
     /* ----- GOALS LIST ----- */
@@ -289,25 +284,36 @@
     }
   });
 
-  // Grid squares
+  // Grid squares with staggered animation
   const grid = document.getElementById("goalGrid");
   const filled = Math.max(0, Math.min(100, longTermValue));
 
   for (let i = 0; i < 100; i++) {
     const square = document.createElement("div");
-    if (i < filled) square.className = "square active";
-    else if (i === filled && filled < 100) square.className = "square next";
-    else square.className = "square";
+    square.className = "square";
     grid.appendChild(square);
+
+    if (i < filled) {
+      setTimeout(() => {
+        square.classList.add("active");
+        if (i === filled - 1 && filled < 100) {
+          const nextSquare = grid.children[filled];
+          if (nextSquare) nextSquare.classList.add("next");
+        }
+      }, i * 25); // 25ms between each square
+    } else if (i === filled && filled < 100) {
+      setTimeout(() => {
+        square.classList.add("next");
+      }, i * 25);
+    }
   }
 
   // Dollar progress bar
   const progressBar = document.getElementById("dollarProgress");
-  const maxDollar = 1000000; // adjust your target value here
+  const maxDollar = 10; // your goal
   const percent = Math.min(100, (dollarValue / maxDollar) * 100);
   progressBar.style.width = percent + "%";
 </script>
 
 </body>
 </html>
-
