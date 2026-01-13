@@ -74,16 +74,23 @@
       box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
     }
 
+    /* CRITICAL FIX: give the chart height */
     .chart-card {
       background: var(--panel);
       border: 1px solid #242424;
       border-radius: 16px;
       padding: 2rem;
+      height: min(60vh, 480px);
+    }
+
+    .chart-card canvas {
+      width: 100% !important;
+      height: 100% !important;
     }
 
     @media (max-width: 600px) {
       h1 { font-size: 2rem; }
-      .chart-card { padding: 1.5rem; }
+      .chart-card { height: 360px; }
     }
   </style>
 </head>
