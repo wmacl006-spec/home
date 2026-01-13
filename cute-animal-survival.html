@@ -158,14 +158,15 @@ button:hover {
 
   <div id="animalChoice" style="display:none; margin-top:1.5rem;">
     <h2>Pick an animal & name it</h2>
+
     <div class="animal-select">
       <img src="cat_alive.png" data-animal="cat">
       <img src="dog_alive.png" data-animal="dog">
       <img src="bunny_alive.png" data-animal="bunny">
-      <img src="squirrel_alive.png" data-animal="squirrel">
-      <img src="chicken_alive.png" data-animal="chicken">
+      <img src="flyingsquirrel_alive.png" data-animal="flyingsquirrel">
       <img src="manatee_alive.png" data-animal="manatee">
     </div>
+
     <input type="text" id="nicknameInput" placeholder="Name your animal">
     <button id="confirmAnimalBtn">Confirm</button>
   </div>
@@ -179,8 +180,10 @@ button:hover {
   <div>
     <div>Hunger</div>
     <div class="bar"><div id="hungerBar" class="fill" style="background:#FF69B4;"></div></div>
+
     <div>Thirst</div>
     <div class="bar"><div id="thirstBar" class="fill" style="background:#6a1b9a;"></div></div>
+
     <div>Health</div>
     <div class="bar"><div id="healthBar" class="fill" style="background:#B00B55;"></div></div>
   </div>
@@ -204,9 +207,24 @@ button:hover {
 
 </div>
 
-<!-- FIREBASE GAME SCRIPT (UNCHANGED) -->
+<!-- GAME SCRIPT -->
 <script type="module">
-/* 🔥 your entire Firebase + game script goes here EXACTLY as you sent it */
+/*
+PASTE YOUR EXISTING FIREBASE + GAME SCRIPT HERE
+
+Make sure the animalImages object looks like this:
+
+const animalImages = {
+  cat: { alive: "cat_alive.png", dead: "cat_dead.png" },
+  dog: { alive: "dog_alive.png", dead: "dog_dead.png" },
+  bunny: { alive: "bunny_alive.png", dead: "bunny_dead.png" },
+  flyingsquirrel: {
+    alive: "flyingsquirrel_alive.png",
+    dead: "flyingsquirrel_dead.png"
+  },
+  manatee: { alive: "manatee_alive.png", dead: "manatee_dead.png" }
+};
+*/
 </script>
 
 </body>
