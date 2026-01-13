@@ -66,7 +66,7 @@ fetch('macro/macro.json')
 
 function openOverlay(index){
   currentIndex=index;
-  document.getElementById('overlay-img').src = `study/notes/macro/${macroNotes[currentIndex]}`;
+  document.getElementById('overlay-img').src = `notes/macro/${macroNotes[currentIndex]}`;
   document.getElementById('overlay-title').textContent = macroNotes[currentIndex].replace('.png','');
   document.getElementById('overlay').style.display='flex';
 }
@@ -95,4 +95,5 @@ document.addEventListener('keydown', (e) => {
 
 </body>
 </html>
+
 
