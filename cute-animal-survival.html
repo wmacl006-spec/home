@@ -216,7 +216,7 @@ async function login(){
     if(!password) return;
 
     const blocked = await get(ref(db,"blockedPasswords/"+password));
-    if(blocked.exists()){ alert("Try a different password."); return; }
+    if(blocked.exists()){ alert("A pet has already died with that password. Try a different one."); return; }
 
     const snap=await get(ref(db,"players/"+password));
     player=snap.exists()?snap.val():{
@@ -335,4 +335,5 @@ loadLeaderboards();
 </script>
 </body>
 </html>
+
 
