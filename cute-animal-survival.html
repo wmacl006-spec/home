@@ -135,7 +135,7 @@ button:hover {
 
     <div id="gameControls">
         <button id="feedBtn">Feed (15 Food)</button>
-        <button id="waterBtn">Drink (20 Water)</button><br>
+        <button id="drinkBtn">Drink (20 Water)</button><br>
         <button id="upgradeFoodBtn">Upgrade Food Gen (65 Water)</button>
         <button id="upgradeWaterBtn">Upgrade Water Gen (75 Food)</button>
     </div>
@@ -156,8 +156,31 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-document.getElementById("homeBtn").onclick = () => location.href = "index.html";
+/* ---------- DOM REFERENCES ---------- */
+const homeBtn = document.getElementById("homeBtn");
+const startBtn = document.getElementById("startBtn");
+const confirmAnimalBtn = document.getElementById("confirmAnimalBtn");
+const feedBtn = document.getElementById("feedBtn");
+const drinkBtn = document.getElementById("drinkBtn");
+const upgradeFoodBtn = document.getElementById("upgradeFoodBtn");
+const upgradeWaterBtn = document.getElementById("upgradeWaterBtn");
+const tryAgainBtn = document.getElementById("tryAgainBtn");
 
+const loginPanel = document.getElementById("loginPanel");
+const animalChoice = document.getElementById("animalChoice");
+const game = document.getElementById("game");
+
+/* ---------- BUTTON WIRING ---------- */
+homeBtn.onclick = () => location.href = "index.html";
+startBtn.onclick = handleLogin;
+confirmAnimalBtn.onclick = confirmAnimal;
+feedBtn.onclick = feed;
+drinkBtn.onclick = drink;
+upgradeFoodBtn.onclick = () => upgrade("food");
+upgradeWaterBtn.onclick = () => upgrade("water");
+tryAgainBtn.onclick = () => location.reload();
+
+/* ---------- GAME DATA ---------- */
 const images = {
     cat:{alive:"cat_alive.png",dead:"cat_dead.png"},
     dog:{alive:"dog_alive.png",dead:"dog_dead.png"},
@@ -168,17 +191,9 @@ const images = {
 
 let player, password, selectedAnimal, loop;
 
-const startBtn = document.getElementById("startBtn");
-const confirmAnimalBtn = document.getElementById("confirmAnimalBtn");
-const loginPanel = document.getElementById("loginPanel");
-const animalChoice = document.getElementById("animalChoice");
-const game = document.getElementById("game");
-
-startBtn.onclick = handleLogin;
-confirmAnimalBtn.onclick = confirmAnimal;
-
+/* ---------- LOGIN ---------- */
 async function handleLogin(){
-    password = document.getElementById("passwordInput").value.trim();
+    password = passwordInput.value.trim();
     if(!password) return;
 
     const snap = await get(ref(db,"players/"+password));
@@ -197,16 +212,7 @@ async function handleLogin(){
     }
 }
 
-function confirmAnimal(){
-    const name = document.getElementById("nicknameInput").value.trim();
-    if(!selectedAnimal || !name) return;
-
-    player.animal = selectedAnimal;
-    player.nickname = name;
-    player.startTime = Date.now();
-    startGame();
-}
-
+/* ---------- ANIMAL SELECTION ---------- */
 document.querySelectorAll(".animal-select img").forEach(img=>{
     img.onclick = ()=>{
         selectedAnimal = img.dataset.animal;
@@ -215,11 +221,20 @@ document.querySelectorAll(".animal-select img").forEach(img=>{
     };
 });
 
+function confirmAnimal(){
+    if(!selectedAnimal || !nicknameInput.value.trim()) return;
+    player.animal = selectedAnimal;
+    player.nickname = nicknameInput.value.trim();
+    player.startTime = Date.now();
+    startGame();
+}
+
+/* ---------- GAME LOOP ---------- */
 function startGame(){
     loginPanel.style.display = "none";
     game.style.display = "block";
-    document.getElementById("animalName").innerText = player.nickname;
-    document.getElementById("animalImg").src = images[player.animal].alive;
+    animalName.innerText = player.nickname;
+    animalImg.src = images[player.animal].alive;
     loop = setInterval(tick,1000);
 }
 
@@ -238,13 +253,40 @@ function tick(){
 
     if(player.health <= 0){
         clearInterval(loop);
-        document.getElementById("animalImg").src = images[player.animal].dead;
+        animalImg.src = images[player.animal].dead;
         document.getElementById("gameControls").style.display="none";
-        document.getElementById("tryAgainBtn").style.display="inline-block";
+        tryAgainBtn.style.display="inline-block";
         saveLeaderboard();
     }
 }
 
+/* ---------- ACTIONS ---------- */
+function feed(){
+    if(player.food >= 15){
+        player.food -= 15;
+        player.hunger = Math.min(100, player.hunger + 15);
+    }
+}
+
+function drink(){
+    if(player.water >= 20){
+        player.water -= 20;
+        player.thirst = Math.min(100, player.thirst + 20);
+    }
+}
+
+function upgrade(type){
+    if(type==="food" && player.water >= 65){
+        player.water -= 65;
+        player.foodGeneratorLevel++;
+    }
+    if(type==="water" && player.food >= 75){
+        player.food -= 75;
+        player.waterGeneratorLevel++;
+    }
+}
+
+/* ---------- UI ---------- */
 function updateUI(){
     hungerBar.style.width = player.hunger + "%";
     thirstBar.style.width = player.thirst + "%";
@@ -255,6 +297,7 @@ function updateUI(){
     waterLvl.innerText = player.waterGeneratorLevel;
 }
 
+/* ---------- LEADERBOARD ---------- */
 async function saveLeaderboard(){
     const time = Date.now() - player.startTime;
     await set(ref(db,"leaderboard/"+password),{
@@ -273,7 +316,7 @@ async function loadLeaderboard(){
     const arr = Object.values(snap.val()).sort((a,b)=>b.time-a.time);
     leaderboard.innerHTML = "<ol>" + arr.map(e=>{
         const m=Math.floor(e.time/60000);
-        const s=Math.floor(e.time%60000/1000);
+        const s=Math.floor((e.time%60000)/1000);
         return `<li>${e.name} — ${m}m ${s}s</li>`;
     }).join("") + "</ol>";
 }
