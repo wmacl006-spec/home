@@ -32,7 +32,7 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
@@ -85,7 +85,14 @@
 
     canvas { width: 100%; height: 100%; }
 
-    /* ----- LONG TERM GRID ----- */
+    /* ----- LONG TERM SECTION LAYOUT ----- */
+
+    .long-term-layout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
 
     .section-title {
       font-family: 'Comfortaa', sans-serif;
@@ -95,21 +102,23 @@
 
     .section-subtitle {
       color: var(--gray);
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
     }
+
+    /* ----- GRID ----- */
 
     .grid-wrapper {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 1.5rem;
-      max-width: 420px; /* keeps it compact like a gauge */
+      max-width: 420px;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
-      gap: 6px; /* tighter spacing */
+      gap: 6px;
     }
 
     .square {
@@ -125,26 +134,59 @@
       box-shadow: 0 0 10px rgba(176, 11, 85, 0.75);
     }
 
-    /* blinking next square */
+    /* Attractive pulse for next square */
     .square.next {
-      animation: blink 1.2s infinite;
       border-color: var(--pink);
+      background: rgba(176, 11, 85, 0.25);
+      animation: pulse 1.6s ease-in-out infinite;
     }
 
-    @keyframes blink {
-      0%, 100% {
+    @keyframes pulse {
+      0% {
         box-shadow: 0 0 0 rgba(176, 11, 85, 0);
-        background: #1f1f1f;
+        background: rgba(176, 11, 85, 0.25);
       }
       50% {
-        box-shadow: 0 0 14px rgba(176, 11, 85, 0.9);
-        background: rgba(176, 11, 85, 0.35);
+        box-shadow: 0 0 18px rgba(176, 11, 85, 0.9);
+        background: rgba(176, 11, 85, 0.45);
+      }
+      100% {
+        box-shadow: 0 0 0 rgba(176, 11, 85, 0);
+        background: rgba(176, 11, 85, 0.25);
       }
     }
 
-    @media (max-width: 600px) {
-      .chart-box { height: 340px; }
-      .grid-wrapper { max-width: 100%; }
+    /* ----- GOALS LIST ----- */
+
+    .goals-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+    }
+
+    .goals-panel h3 {
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--pink);
+    }
+
+    .goal-item {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #242424;
+      font-size: 0.95rem;
+      color: #e0e0e0;
+    }
+
+    .goal-item:last-child {
+      border-bottom: none;
+    }
+
+    @media (max-width: 900px) {
+      .long-term-layout {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -165,8 +207,20 @@
   <h2 class="section-title">Long-Term Goal Tracking</h2>
   <p class="section-subtitle">100-unit progress gauge</p>
 
-  <div class="grid-wrapper">
-    <div class="grid" id="goalGrid"></div>
+  <div class="long-term-layout">
+    <div class="grid-wrapper">
+      <div class="grid" id="goalGrid"></div>
+    </div>
+
+    <div class="goals-panel">
+      <h3>Current Goals</h3>
+
+      <!-- Edit these freely -->
+      <div class="goal-item">Finish degree with strong GPA</div>
+      <div class="goal-item">Maintain daily progress consistency</div>
+      <div class="goal-item">Secure finance-related internship</div>
+      <div class="goal-item">Build long-term financial discipline</div>
+    </div>
   </div>
 </div>
 
@@ -175,7 +229,7 @@
 <script src="longtermdata.js?v=live"></script>
 
 <script>
-  /* ----- DAILY CHART ----- */
+  /* DAILY CHART */
   const labels = goalData.map(d => d.date);
   const values = goalData.map(d => d.value);
 
@@ -213,7 +267,7 @@
     }
   });
 
-  /* ----- LONG TERM GRID ----- */
+  /* LONG TERM GRID */
   const grid = document.getElementById("goalGrid");
   const filled = Math.max(0, Math.min(100, longTermValue));
 
