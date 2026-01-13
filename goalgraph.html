@@ -3,147 +3,91 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>William MacLean | Daily Goals</title>
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+  <title>Goal Graph</title>
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    :root {
-      --pink: #B00B55;
-      --black: #0f0f0f;
-      --white: #ffffff;
-      --gray: #b5b5b5;
-      --panel: #161616;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at top, #1b1b1b, var(--black));
-      color: var(--white);
-      min-height: 100vh;
-      padding: 3rem 2rem;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
+      margin: 0;
+      padding: 3rem;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0f0f0f;
+      color: white;
     }
 
     h1 {
-      font-family: 'Comfortaa', sans-serif;
-      font-size: 2.4rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: #eaeaea;
+      margin-bottom: 0.25rem;
     }
 
-    .subtitle {
-      font-size: 1rem;
-      color: var(--gray);
-      margin-bottom: 2.5rem;
-    }
-
-    .home-button {
-      display: inline-block;
+    p {
+      margin-top: 0;
       margin-bottom: 2rem;
-      padding: 0.6rem 1.1rem;
-      background: var(--panel);
-      border: 1px solid #242424;
-      border-radius: 10px;
-      color: var(--white);
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      color: #aaa;
     }
 
-    .home-button:hover {
-      transform: translateY(-2px);
-      border-color: var(--pink);
-      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+    .chart-box {
+      max-width: 900px;
+      height: 400px;
+      background: #161616;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 1.5rem;
     }
 
-    /* CRITICAL FIX: give the chart height */
-    .chart-card {
-      background: var(--panel);
-      border: 1px solid #242424;
-      border-radius: 16px;
-      padding: 2rem;
-      height: min(60vh, 480px);
-    }
-
-    .chart-card canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    @media (max-width: 600px) {
-      h1 { font-size: 2rem; }
-      .chart-card { height: 360px; }
+    canvas {
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <a href="index.html" class="home-button">Home</a>
+  <h1>Daily Goal Tracking</h1>
+  <p>Progress over time</p>
 
-    <h1>Daily Goal Tracking</h1>
-    <p class="subtitle">Progress over time</p>
-
-    <div class="chart-card">
-      <canvas id="goalChart"></canvas>
-    </div>
+  <div class="chart-box">
+    <canvas id="chart"></canvas>
   </div>
 
-  <!-- Goal Data -->
+  <!-- Load data FIRST -->
   <script src="goaldata.js"></script>
 
-  <!-- Chart Initialization -->
+  <!-- Chart logic -->
   <script>
-    const labels = goalData.map(entry => entry.date);
-    const values = goalData.map(entry => entry.value);
+    console.log("Loaded goalData:", goalData);
 
-    new Chart(document.getElementById('goalChart'), {
-      type: 'line',
+    const labels = goalData.map(d => d.date);
+    const values = goalData.map(d => d.value);
+
+    new Chart(document.getElementById("chart"), {
+      type: "line",
       data: {
         labels: labels,
         datasets: [{
+          label: "Goal Value",
           data: values,
-          borderColor: '#B00B55',
-          backgroundColor: 'rgba(176, 11, 85, 0.15)',
+          borderColor: "#B00B55",
+          backgroundColor: "rgba(176, 11, 85, 0.2)",
           fill: true,
-          tension: 0.35,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          pointBackgroundColor: '#B00B55'
+          tension: 0.3,
+          pointRadius: 4
         }]
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false,
         plugins: {
-          legend: { display: false }
+          legend: { display: true }
         },
         scales: {
           x: {
-            ticks: { color: '#b5b5b5' },
-            grid: { color: '#222' }
+            ticks: { color: "#bbb" },
+            grid: { color: "#222" }
           },
           y: {
-            ticks: { color: '#b5b5b5' },
-            grid: { color: '#222' }
+            ticks: { color: "#bbb" },
+            grid: { color: "#222" }
           }
         }
       }
