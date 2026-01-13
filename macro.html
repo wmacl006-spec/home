@@ -1,91 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>William MacLean | Macro Notes</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --pink: #B00B55;
-      --black: #0f0f0f;
-      --white: #ffffff;
-      --gray: #b5b5b5;
-      --panel: #161616;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at top, #1b1b1b, var(--black));
-      color: var(--white);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 3rem;
-    }
-
-    h1 {
-      font-family: 'Comfortaa', sans-serif;
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      color: #eaeaea;
-    }
-
-    .links {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.3rem;
-      width: 100%;
-      max-width: 700px;
-    }
-
-    .link-card {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.2rem;
-      background: var(--panel);
-      border: 1px solid #242424;
-      border-radius: 12px;
-      text-decoration: none;
-      color: var(--white);
-      font-size: 1rem;
-      font-weight: 600;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-
-    .link-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--pink);
-      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
-    }
-
-    .home-link {
-      margin-top: 2rem;
-      color: var(--pink);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .home-link:hover { text-decoration: underline; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>William MacLean | Macro Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #B00B55;
+  --black: #0f0f0f;
+  --white: #ffffff;
+  --gray: #b5b5b5;
+  --panel: #161616;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #1b1b1b, var(--black));
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+}
+h1 {
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #eaeaea;
+}
+.links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.3rem;
+  width: 100%;
+  max-width: 700px;
+}
+.link-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--white);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.link-card img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 0.6rem;
+}
+.link-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--pink);
+  box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+}
+.home-link {
+  margin-top: 2rem;
+  color: var(--pink);
+  text-decoration: none;
+  font-weight: 600;
+}
+.home-link:hover { text-decoration: underline; }
+</style>
 </head>
 <body>
+<h1>Macro Notes</h1>
 
-  <h1>Macro Notes</h1>
+<div class="links">
+  <a href="notes/macro1.png" target="_blank" class="link-card">
+    <img src="notes/macro1.png" alt="Macro 1">
+    <p>Macro 1</p>
+  </a>
+  <a href="notes/macro2.png" target="_blank" class="link-card">
+    <img src="notes/macro2.png" alt="Macro 2">
+    <p>Macro 2</p>
+  </a>
+  <a href="notes/macro3.png" target="_blank" class="link-card">
+    <img src="notes/macro3.png" alt="Macro 3">
+    <p>Macro 3</p>
+  </a>
+</div>
 
-  <div class="links">
-    <a href="notes/macro1.pdf" target="_blank" class="link-card">Macro 1</a>
-    <a href="notes/macro2.pdf" target="_blank" class="link-card">Macro 2</a>
-    <a href="notes/macro3.pdf" target="_blank" class="link-card">Macro 3</a>
-  </div>
-
-  <a href="notes.html" class="home-link">← Back to Classes</a>
-
+<a href="notes.html" class="home-link">← Back to Classes</a>
 </body>
 </html>
