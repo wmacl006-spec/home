@@ -138,7 +138,7 @@ button:hover { border-color:var(--pink); cursor:pointer; }
         <button id="sellFoodBtn">Sell 5 Food (+22 Coins)</button>
         <button id="sellWaterBtn">Sell 5 Water (+20 Coins)</button><br>
 
-        <button id="buyFoodBtn">Buy 5 Food (30 Coins)</button>
+        <button id="buyFoodBtn">Buy 5 Food (25 Coins)</button>
         <button id="buyWaterBtn">Buy 5 Water (23 Coins)</button>
     </div>
 
@@ -262,8 +262,8 @@ function upgrade(t){
 }
 function sellFood(){ if(player.food>=5){player.food-=5;player.coins+=22;} }
 function sellWater(){ if(player.water>=5){player.water-=5;player.coins+=20;} }
-function buyFood(){ if(player.coins>=30){player.coins-=30;player.food+=5;} }
-function buyWater(){ if(player.coins>=25){player.coins-=23;player.water+=5;} }
+function buyFood(){ if(player.coins>=25){player.coins-=25;player.food+=5;} }
+function buyWater(){ if(player.coins>=23){player.coins-=23;player.water+=5;} }
 
 function updateUI(){
     $("hungerBar").style.width=player.hunger+"%";
@@ -300,5 +300,6 @@ loadLeaderboards();
 </script>
 </body>
 </html>
+
 
 
