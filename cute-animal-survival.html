@@ -1,251 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cute Animal Survival</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --pink: #B00B55;
+    --purple: #6a1b9a;
+    --black: #0f0f0f;
+    --white: #ffffff;
+    --panel: #161616;
+}
+
+* { box-sizing: border-box; margin:0; padding:0; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top, #1b1b1b, var(--black));
+    color: var(--white);
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    text-align: center;
+}
+
+h1, h2 {
+    font-family: 'Comfortaa', sans-serif;
+    color: var(--pink);
+}
+
+input, button {
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #242424;
+    background: var(--panel);
+    color: var(--white);
+    font-size: 1rem;
+    margin: 0.5rem;
+}
+
+button:hover {
+    cursor: pointer;
+    border-color: var(--pink);
+}
+
+.bar {
+    width: 300px;
+    height: 20px;
+    background: #222;
+    margin: 10px auto;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.fill {
+    height: 100%;
+}
+
+.animal-select img {
+    width: 80px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: 3px solid transparent;
+}
+
+.animal-select img.selected {
+    border-color: var(--pink);
+}
+
+#homeBtn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 9999;
+}
+</style>
+</head>
+
+<body>
+
+<button id="homeBtn">Home</button>
+
+<div class="container">
+    <h1>Cute Animal Survival</h1>
+
+    <div id="login">
+        <input type="password" id="passwordInput" placeholder="Enter password">
+        <button id="startBtn">Start</button>
+
+        <div id="animalChoice" style="display:none;">
+            <h2>Pick an animal & name it</h2>
+            <div class="animal-select">
+                <img src="cat_alive.png" data-animal="cat">
+                <img src="dog_alive.png" data-animal="dog">
+                <img src="bunny_alive.png" data-animal="bunny">
+                <img src="squirrel_alive.png" data-animal="squirrel">
+                <img src="manatee_alive.png" data-animal="manatee">
+            </div>
+            <input type="text" id="nicknameInput" placeholder="Animal name">
+            <button id="confirmAnimalBtn">Confirm</button>
+        </div>
+    </div>
+
+    <div id="game" style="display:none;">
+        <h2 id="animalName"></h2>
+        <img id="animalImg" width="150">
+
+        <div>
+            Hunger
+            <div class="bar"><div id="hungerBar" class="fill" style="background:#FF69B4;width:100%"></div></div>
+            Thirst
+            <div class="bar"><div id="thirstBar" class="fill" style="background:#6a1b9a;width:100%"></div></div>
+            Health
+            <div class="bar"><div id="healthBar" class="fill" style="background:#B00B55;width:100%"></div></div>
+        </div>
+
+        <p>Food: <span id="foodCount">0</span> | Water: <span id="waterCount">0</span></p>
+
+        <div id="gameControls">
+            <button id="feedBtn">Feed</button>
+            <button id="waterBtn">Give Water</button>
+            <button id="upgradeFoodBtn">Upgrade Food Generator</button>
+            <button id="upgradeWaterBtn">Upgrade Water Generator</button>
+        </div>
+
+        <button id="tryAgainBtn" style="display:none;">Try Again</button>
+
+        <h2>Leaderboard</h2>
+        <div id="leaderboard"></div>
+    </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
 
-/* =======================
-   FIREBASE SETUP
-======================= */
 const firebaseConfig = {
     databaseURL: "https://lilguys-ae7fe-default-rtdb.firebaseio.com/"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* =======================
-   GAME STATE
-======================= */
-let player = null;
-let password = '';
-let selectedAnimal = '';
-let gameInterval = null;
-
-/* =======================
-   IMAGES
-======================= */
-const animalImages = {
-    cat: { alive: "cat_alive.png", dead: "cat_dead.png" },
-    dog: { alive: "dog_alive.png", dead: "dog_dead.png" },
-    bunny: { alive: "bunny_alive.png", dead: "bunny_dead.png" },
-    squirrel: { alive: "squirrel_alive.png", dead: "squirrel_dead.png" },
-    manatee: { alive: "manatee_alive.png", dead: "manatee_dead.png" }
+document.getElementById("homeBtn").onclick = () => {
+    window.location.href = "index.html";
 };
 
-/* =======================
-   EVENT LISTENERS
-======================= */
-document.getElementById('startBtn').addEventListener('click', login);
-document.getElementById('confirmAnimalBtn').addEventListener('click', confirmAnimal);
-document.getElementById('feedBtn').addEventListener('click', feed);
-document.getElementById('waterBtn').addEventListener('click', giveWater);
-document.getElementById('upgradeFoodBtn').addEventListener('click', () => upgradeGenerator('food'));
-document.getElementById('upgradeWaterBtn').addEventListener('click', () => upgradeGenerator('water'));
-document.getElementById('tryAgainBtn').addEventListener('click', resetGame);
+const animalImages = {
+    cat: { alive:"cat_alive.png", dead:"cat_dead.png" },
+    dog: { alive:"dog_alive.png", dead:"dog_dead.png" },
+    bunny: { alive:"bunny_alive.png", dead:"bunny_dead.png" },
+    squirrel: { alive:"squirrel_alive.png", dead:"squirrel_dead.png" },
+    manatee: { alive:"manatee_alive.png", dead:"manatee_dead.png" }
+};
 
-document.querySelectorAll('.animal-select img').forEach(img => {
-    img.addEventListener('click', () => chooseAnimal(img.dataset.animal, img));
+let player, password, selectedAnimal, interval;
+
+document.getElementById("startBtn").onclick = login;
+document.getElementById("confirmAnimalBtn").onclick = confirmAnimal;
+document.getElementById("feedBtn").onclick = () => eat("food");
+document.getElementById("waterBtn").onclick = () => eat("water");
+document.getElementById("upgradeFoodBtn").onclick = () => upgrade("food");
+document.getElementById("upgradeWaterBtn").onclick = () => upgrade("water");
+document.getElementById("tryAgainBtn").onclick = reset;
+
+document.querySelectorAll(".animal-select img").forEach(img=>{
+    img.onclick=()=>{
+        selectedAnimal=img.dataset.animal;
+        document.querySelectorAll(".animal-select img").forEach(i=>i.classList.remove("selected"));
+        img.classList.add("selected");
+    };
 });
 
-/* =======================
-   LOGIN / LOAD
-======================= */
-async function login() {
-    password = document.getElementById('passwordInput').value.trim();
-    if (!password) return alert("Enter a password");
-
-    const blocked = await get(ref(db, 'blockedPasswords/' + password));
-    if (blocked.exists()) return alert("This password has already been used.");
-
-    const snap = await get(ref(db, 'players/' + password));
-    if (snap.exists()) {
-        player = snap.val();
-        if (!player.lastUpdate) player.lastUpdate = Date.now();
-        if (!player.startTime) player.startTime = Date.now();
-    } else {
-        player = {
-            animal: null,
-            nickname: '',
-            hunger: 100,
-            thirst: 100,
-            health: 100,
-            food: 0,
-            water: 0,
-            foodGeneratorLevel: 0,
-            waterGeneratorLevel: 0,
-            lastUpdate: Date.now(),
-            startTime: Date.now()
-        };
-    }
-
-    if (!player.animal) {
-        document.getElementById('animalChoice').style.display = 'block';
-    } else {
-        startGame();
-    }
+async function login(){
+    password=document.getElementById("passwordInput").value;
+    if(!password) return;
+    const snap=await get(ref(db,"players/"+password));
+    player=snap.exists()?snap.val():{
+        hunger:100,thirst:100,health:100,
+        food:0,water:0,
+        foodGeneratorLevel:0,
+        waterGeneratorLevel:0,
+        lastUpdate:Date.now()
+    };
+    if(!player.animal) document.getElementById("animalChoice").style.display="block";
+    else start();
 }
 
-/* =======================
-   ANIMAL SELECTION
-======================= */
-function chooseAnimal(animal, img) {
-    selectedAnimal = animal;
-    document.querySelectorAll('.animal-select img').forEach(i => i.classList.remove('selected'));
-    img.classList.add('selected');
+function confirmAnimal(){
+    player.animal=selectedAnimal;
+    player.nickname=document.getElementById("nicknameInput").value;
+    player.startTime=Date.now();
+    start();
 }
 
-function confirmAnimal() {
-    const name = document.getElementById('nicknameInput').value.trim();
-    if (!selectedAnimal || !name) return alert("Pick an animal and name it");
-
-    player.animal = selectedAnimal;
-    player.nickname = name;
-    player.startTime = Date.now();
-    savePlayer();
-
-    document.getElementById('animalChoice').style.display = 'none';
-    startGame();
+function start(){
+    document.getElementById("login").style.display="none";
+    document.getElementById("game").style.display="block";
+    document.getElementById("animalName").innerText=player.nickname;
+    document.getElementById("animalImg").src=animalImages[player.animal].alive;
+    interval=setInterval(tick,1000);
 }
 
-/* =======================
-   GAME START
-======================= */
-function startGame() {
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('game').style.display = 'block';
-    document.getElementById('animalName').innerText = `${player.nickname} (${player.animal.toUpperCase()})`;
-    document.getElementById('animalImg').src = animalImages[player.animal].alive;
+function tick(){
+    const d=1;
 
-    if (gameInterval) clearInterval(gameInterval);
-    gameInterval = setInterval(gameTick, 1000);
-}
+    player.hunger=Math.max(0,player.hunger-1*d);
+    player.thirst=Math.max(0,player.thirst-1.5*d);
 
-/* =======================
-   CORE GAME LOOP
-======================= */
-function gameTick() {
-    const now = Date.now();
-    const delta = (now - player.lastUpdate) / 1000;
+    if(player.hunger===0 && player.thirst===0) player.health-=5*d;
+    else if(player.hunger===0||player.thirst===0) player.health-=1*d;
 
-    /* --- Hunger & Thirst Decay --- */
-    player.hunger -= delta * 1;      // 1/sec
-    player.thirst -= delta * 1.5;    // 1.5/sec
+    player.food+=d*(0.5+player.foodGeneratorLevel*0.35);
+    player.water+=d*(0.6+player.waterGeneratorLevel*0.35);
 
-    if (player.hunger < 0) player.hunger = 0;
-    if (player.thirst < 0) player.thirst = 0;
+    updateUI();
+    set(ref(db,"players/"+password),player);
 
-    /* --- Health Decay --- */
-    if (player.hunger === 0 && player.thirst === 0) {
-        player.health -= delta * 6;  // VERY fast
-    } else if (player.hunger === 0 || player.thirst === 0) {
-        player.health -= delta * 1;
-    }
-
-    if (player.health < 0) player.health = 0;
-
-    /* --- Generator Production --- */
-    player.food += delta * (0.5 + player.foodGeneratorLevel * 0.35);
-    player.water += delta * (0.6 + player.waterGeneratorLevel * 0.35);
-
-    player.lastUpdate = now;
-    savePlayer();
-
-    /* --- UI Update --- */
-    document.getElementById('hungerBar').style.width = player.hunger + '%';
-    document.getElementById('thirstBar').style.width = player.thirst + '%';
-    document.getElementById('healthBar').style.width = player.health + '%';
-    document.getElementById('foodCount').innerText = Math.floor(player.food);
-    document.getElementById('waterCount').innerText = Math.floor(player.water);
-
-    if (player.health <= 0) {
-        clearInterval(gameInterval);
-        document.getElementById('animalImg').src = animalImages[player.animal].dead;
-        endGame();
+    if(player.health<=0){
+        clearInterval(interval);
+        document.getElementById("animalImg").src=animalImages[player.animal].dead;
+        document.getElementById("gameControls").style.display="none";
+        document.getElementById("tryAgainBtn").style.display="inline-block";
     }
 }
 
-/* =======================
-   PLAYER ACTIONS
-======================= */
-function feed() {
-    if (player.food >= 1) {
-        player.food -= 1;
-        player.hunger += 20;
-        if (player.hunger > 100) player.hunger = 100;
-    }
+function eat(type){
+    if(type==="food"&&player.food>=1){player.food--;player.hunger=Math.min(100,player.hunger+20);}
+    if(type==="water"&&player.water>=1){player.water--;player.thirst=Math.min(100,player.thirst+20);}
 }
 
-function giveWater() {
-    if (player.water >= 1) {
-        player.water -= 1;
-        player.thirst += 20;
-        if (player.thirst > 100) player.thirst = 100;
-    }
+function upgrade(type){
+    if(type==="food"&&player.water>=65){player.water-=65;player.foodGeneratorLevel++;}
+    if(type==="water"&&player.food>=75){player.food-=75;player.waterGeneratorLevel++;}
 }
 
-function upgradeGenerator(type) {
-    if (type === 'food') {
-        if (player.water >= 65) {
-            player.water -= 65;
-            player.foodGeneratorLevel += 1;
-        }
-    }
-
-    if (type === 'water') {
-        if (player.food >= 75) {
-            player.food -= 75;
-            player.waterGeneratorLevel += 1;
-        }
-    }
+function updateUI(){
+    hungerBar.style.width=player.hunger+"%";
+    thirstBar.style.width=player.thirst+"%";
+    healthBar.style.width=player.health+"%";
+    foodCount.innerText=Math.floor(player.food);
+    waterCount.innerText=Math.floor(player.water);
 }
 
-/* =======================
-   SAVE / END / RESET
-======================= */
-function savePlayer() {
-    set(ref(db, 'players/' + password), player);
-}
-
-async function endGame() {
-    await set(ref(db, 'leaderboard/' + password), {
-        nickname: player.nickname,
-        survivalTime: Date.now() - player.startTime
-    });
-    await set(ref(db, 'blockedPasswords/' + password), true);
-
-    document.getElementById('gameControls').style.display = 'none';
-    document.getElementById('tryAgainBtn').style.display = 'inline-block';
-}
-
-function resetGame() {
-    player = null;
-    password = '';
-    selectedAnimal = '';
-
-    document.getElementById('login').style.display = 'block';
-    document.getElementById('game').style.display = 'none';
-    document.getElementById('animalChoice').style.display = 'none';
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('nicknameInput').value = '';
-}
-
-/* =======================
-   LEADERBOARD
-======================= */
-function updateLeaderboard() {
-    get(ref(db, 'leaderboard/')).then(snapshot => {
-        const data = snapshot.val();
-        if (!data) return;
-
-        const sorted = Object.values(data).sort((a,b) => b.survivalTime - a.survivalTime);
-        let html = '<ol>';
-        sorted.forEach(e => {
-            const m = Math.floor(e.survivalTime / 60000);
-            const s = Math.floor((e.survivalTime % 60000) / 1000);
-            html += `<li>${e.nickname} - ${m}m ${s}s</li>`;
-        });
-        html += '</ol>';
-        document.getElementById('leaderboard').innerHTML = html;
-    });
-}
-
-updateLeaderboard();
+function reset(){location.reload();}
 </script>
+</body>
+</html>
