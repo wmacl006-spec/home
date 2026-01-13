@@ -109,6 +109,7 @@ button:hover { border-color:var(--pink); cursor:pointer; }
 
 <div id="game" style="display:none;">
     <h2 id="animalName"></h2>
+    <p id="survivalTimer">Survived: 0s</p> <!-- Survival Timer -->
     <img id="animalImg" width="150">
 
     <div>
@@ -181,7 +182,7 @@ squirrel:{alive:"squirrel_alive.png",dead:"squirrel_dead.png"},
 manatee:{alive:"manatee_alive.png",dead:"manatee_dead.png"}
 };
 
-let player,password,selectedAnimal,loop;
+let player,password,selectedAnimal,loop,timerLoop;
 
 /* 🔒 LOGIN WITH PASSWORD BLOCKING */
 async function login(){
@@ -226,7 +227,19 @@ function startGame(){
     $("game").style.display="block";
     $("animalName").innerText=player.nickname;
     $("animalImg").src=images[player.animal].alive;
+
+    player.startTime = player.startTime || Date.now(); // ensure startTime is set
+
     loop=setInterval(tick,1000);
+    timerLoop=setInterval(updateTimer,1000); // start timer
+}
+
+function updateTimer(){
+    if(!player.startTime) return;
+    const elapsedSec=Math.floor((Date.now()-player.startTime)/1000);
+    const minutes=Math.floor(elapsedSec/60);
+    const seconds=elapsedSec%60;
+    $("survivalTimer").innerText=`Survived: ${minutes}m ${seconds}s`;
 }
 
 function tick(){
@@ -252,6 +265,7 @@ function tick(){
 
     if(player.health<=0){
         clearInterval(loop);
+        clearInterval(timerLoop); // stop timer
         $("animalImg").src=images[player.animal].dead;
         $("gameControls").style.display="none";
         $("tryAgainBtn").style.display="inline-block";
@@ -310,12 +324,3 @@ loadLeaderboards();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
