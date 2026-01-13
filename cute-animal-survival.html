@@ -131,18 +131,20 @@ button:hover {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
 
+// --- Firebase config ---
 const firebaseConfig = {
     databaseURL: "https://lilguys-ae7fe-default-rtdb.firebaseio.com/"
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// --- Variables ---
 let player = null;
 let password = '';
 let selectedAnimal = '';
 let gameInterval = null;
 
-// --- Images (chicken removed) ---
+// --- Images ---
 const animalImages = {
     cat: { alive: "cat_alive.png", dead: "cat_dead.png" },
     dog: { alive: "dog_alive.png", dead: "dog_dead.png" },
@@ -168,14 +170,41 @@ async function login() {
     password = document.getElementById('passwordInput').value.trim();
     if(!password) return alert("Enter a password");
 
-    const blockSnap = await get(ref(db, 'blockedPasswords/' + password));
-    if(blockSnap.exists()) return alert("This password has already been used.");
+    try {
+        const blockSnap = await get(ref(db, 'blockedPasswords/' + password));
+        if(blockSnap.exists()) return alert("This password has already been used.");
 
-    loadPlayer(password, (data) => {
-        player = data;
-        if(!player.animal) document.getElementById('animalChoice').style.display = 'block';
-        else startGame();
-    });
+        get(ref(db, 'players/' + password)).then(snapshot => {
+            if(snapshot.exists()) {
+                player = snapshot.val();
+                if(!player.lastUpdate) player.lastUpdate = Date.now();
+                if(!player.startTime) player.startTime = Date.now();
+            } else {
+                player = {
+                    animal: null,
+                    nickname: '',
+                    hunger: 100,
+                    thirst: 100,
+                    health: 100,
+                    food: 0,
+                    water: 0,
+                    foodGeneratorLevel: 1,
+                    waterGeneratorLevel: 1,
+                    lastUpdate: Date.now(),
+                    startTime: Date.now()
+                };
+            }
+
+            if(!player.animal) {
+                document.getElementById('animalChoice').style.display = 'block';
+            } else {
+                startGame();
+            }
+        });
+    } catch (err) {
+        console.error("Firebase error:", err);
+        alert("Error connecting to Firebase. Check console.");
+    }
 }
 
 function chooseAnimal(animal, img) {
@@ -272,23 +301,6 @@ function savePlayer() {
     set(ref(db, 'players/' + password), player);
 }
 
-function loadPlayer(pass, callback) {
-    get(ref(db, 'players/' + pass)).then(snapshot => {
-        if(snapshot.exists()) callback(snapshot.val());
-        else callback({
-            animal: null,
-            hunger: 100,
-            thirst: 100,
-            health: 100,
-            food: 0,
-            water: 0,
-            foodGeneratorLevel: 1,
-            waterGeneratorLevel: 1,
-            lastUpdate: Date.now()
-        });
-    });
-}
-
 async function endGame() {
     const survivalTime = Date.now() - player.startTime;
 
@@ -343,6 +355,7 @@ function goHome() {
 
 // Load leaderboard immediately
 updateLeaderboard();
+
 </script>
 
 </body>
