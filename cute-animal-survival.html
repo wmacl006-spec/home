@@ -96,11 +96,11 @@ button:hover { border-color:var(--pink); cursor:pointer; }
     <div id="animalChoice" style="display:none;">
         <h2>Pick an animal</h2>
         <div class="animal-select">
-            <img src="cat_alive.png" data-animal="cat">
-            <img src="dog_alive.png" data-animal="dog">
-            <img src="bunny_alive.png" data-animal="bunny">
-            <img src="squirrel_alive.png" data-animal="squirrel">
-            <img src="manatee_alive.png" data-animal="manatee">
+            <img src="gamepic/cat_alive.png" data-animal="cat">
+            <img src="gamepic/dog_alive.png" data-animal="dog">
+            <img src="gamepic/bunny_alive.png" data-animal="bunny">
+            <img src="gamepic/squirrel_alive.png" data-animal="squirrel">
+            <img src="gamepic/manatee_alive.png" data-animal="manatee">
         </div>
         <input type="text" id="nicknameInput" placeholder="Pet name">
         <button id="confirmAnimalBtn">Confirm</button>
@@ -109,7 +109,7 @@ button:hover { border-color:var(--pink); cursor:pointer; }
 
 <div id="game" style="display:none;">
     <h2 id="animalName"></h2>
-    <p id="survivalTimer">Survived: 0s</p> <!-- Survival Timer -->
+    <p id="survivalTimer">Survived: 0s</p>
     <img id="animalImg" width="150">
 
     <div>
@@ -175,11 +175,11 @@ $("buyWaterBtn").onclick = buyWater;
 $("tryAgainBtn").onclick = () => location.reload();
 
 const images={
-cat:{alive:"cat_alive.png",dead:"cat_dead.png"},
-dog:{alive:"dog_alive.png",dead:"dog_dead.png"},
-bunny:{alive:"bunny_alive.png",dead:"bunny_dead.png"},
-squirrel:{alive:"squirrel_alive.png",dead:"squirrel_dead.png"},
-manatee:{alive:"manatee_alive.png",dead:"manatee_dead.png"}
+    cat:{alive:"gamepic/cat_alive.png", dead:"gamepic/cat_dead.png"},
+    dog:{alive:"gamepic/dog_alive.png", dead:"gamepic/dog_dead.png"},
+    bunny:{alive:"gamepic/bunny_alive.png", dead:"gamepic/bunny_dead.png"},
+    squirrel:{alive:"gamepic/squirrel_alive.png", dead:"gamepic/squirrel_dead.png"},
+    manatee:{alive:"gamepic/manatee_alive.png", dead:"gamepic/manatee_dead.png"}
 };
 
 let player,password,selectedAnimal,loop,timerLoop;
@@ -228,10 +228,10 @@ function startGame(){
     $("animalName").innerText=player.nickname;
     $("animalImg").src=images[player.animal].alive;
 
-    player.startTime = player.startTime || Date.now(); // ensure startTime is set
+    player.startTime = player.startTime || Date.now();
 
     loop=setInterval(tick,1000);
-    timerLoop=setInterval(updateTimer,1000); // start timer
+    timerLoop=setInterval(updateTimer,1000);
 }
 
 function updateTimer(){
@@ -265,7 +265,7 @@ function tick(){
 
     if(player.health<=0){
         clearInterval(loop);
-        clearInterval(timerLoop); // stop timer
+        clearInterval(timerLoop);
         $("animalImg").src=images[player.animal].dead;
         $("gameControls").style.display="none";
         $("tryAgainBtn").style.display="inline-block";
