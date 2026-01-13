@@ -40,12 +40,12 @@ let reasoningNotes = [];
 let currentIndex = null;
 
 // Load JSON automatically
-fetch('notes/reasoning/reasoning.json')
+fetch('study/notes/reasoning/reasoning.json')
   .then(res => res.json())
   .then(files => {
     reasoningNotes = files;
     reasoningNotes.forEach((file, index) => {
-      const filename = `notes/reasoning/${file}`;
+      const filename = `study/notes/reasoning/${file}`;
       const img = new Image();
       img.src = filename;
       img.onload = () => {
@@ -66,7 +66,7 @@ fetch('notes/reasoning/reasoning.json')
 
 function openOverlay(index){
   currentIndex=index;
-  document.getElementById('overlay-img').src = `notes/reasoning/${reasoningNotes[currentIndex]}`;
+  document.getElementById('overlay-img').src = `study/notes/reasoning/${reasoningNotes[currentIndex]}`;
   document.getElementById('overlay-title').textContent = reasoningNotes[currentIndex].replace('.png','');
   document.getElementById('overlay').style.display='flex';
 }
