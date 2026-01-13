@@ -115,11 +115,11 @@ button:hover { border-color:var(--pink); cursor:pointer; }
     <div id="animalChoice" style="display:none;">
         <h2>Pick an animal</h2>
         <div class="animal-select">
-            <img src="cat_alive.png" data-animal="cat">
-            <img src="dog_alive.png" data-animal="dog">
-            <img src="bunny_alive.png" data-animal="bunny">
-            <img src="squirrel_alive.png" data-animal="squirrel">
-            <img src="manatee_alive.png" data-animal="manatee">
+            <img src="gamepic/cat_alive.png" data-animal="cat">
+            <img src="gamepic/dog_alive.png" data-animal="dog">
+            <img src="gamepic/bunny_alive.png" data-animal="bunny">
+            <img src="gamepic/squirrel_alive.png" data-animal="squirrel">
+            <img src="gamepic/manatee_alive.png" data-animal="manatee">
         </div>
         <input type="text" id="nicknameInput" placeholder="Pet name">
         <button id="confirmAnimalBtn">Confirm</button>
@@ -195,11 +195,11 @@ $("buyWaterBtn").onclick = buyWater;
 $("tryAgainBtn").onclick = () => location.reload();
 
 const images={
-cat:{alive:"cat_alive.png",dead:"cat_dead.png"},
-dog:{alive:"dog_alive.png",dead:"dog_dead.png"},
-bunny:{alive:"bunny_alive.png",dead:"bunny_dead.png"},
-squirrel:{alive:"squirrel_alive.png",dead:"squirrel_dead.png"},
-manatee:{alive:"manatee_alive.png",dead:"manatee_dead.png"}
+cat:{alive:"gamepic/cat_alive.png",dead:"gamepic/cat_dead.png"},
+dog:{alive:"gamepic/dog_alive.png",dead:"gamepic/dog_dead.png"},
+bunny:{alive:"gamepic/bunny_alive.png",dead:"gamepic/bunny_dead.png"},
+squirrel:{alive:"gamepic/squirrel_alive.png",dead:"gamepic/squirrel_dead.png"},
+manatee:{alive:"gamepic/manatee_alive.png",dead:"gamepic/manatee_dead.png"}
 };
 
 let player,password,selectedAnimal,loop;
@@ -335,3 +335,4 @@ loadLeaderboards();
 </script>
 </body>
 </html>
+
