@@ -9,61 +9,54 @@
 
 <style>
 :root {
-    --pink: #B00B55;
-    --black: #0f0f0f;
-    --panel: #161616;
-    --white: #ffffff;
+    --pink:#B00B55;
+    --black:#0f0f0f;
+    --panel:#161616;
+    --white:#ffffff;
 }
 
-* { box-sizing: border-box; margin:0; padding:0; }
+* { box-sizing:border-box; margin:0; padding:0; }
 
 body {
-    font-family: 'Inter', sans-serif;
-    background: radial-gradient(circle at top, #1b1b1b, var(--black));
-    color: var(--white);
-    min-height: 100vh;
-    padding: 2rem;
+    font-family:'Inter',sans-serif;
+    background:radial-gradient(circle at top,#1b1b1b,var(--black));
+    color:var(--white);
+    min-height:100vh;
+    padding:2rem;
 }
 
-.container {
-    max-width: 800px;
-    margin: auto;
-    text-align: center;
+.container { max-width:800px; margin:auto; text-align:center; }
+
+h1,h2 { font-family:'Comfortaa',sans-serif; color:var(--pink); }
+
+input,button {
+    padding:.8rem;
+    border-radius:8px;
+    border:1px solid #242424;
+    background:var(--panel);
+    color:var(--white);
+    font-size:1rem;
+    margin:.3rem;
 }
 
-h1, h2 {
-    font-family: 'Comfortaa', sans-serif;
-    color: var(--pink);
-}
-
-input, button {
-    padding: 0.8rem;
-    border-radius: 8px;
-    border: 1px solid #242424;
-    background: var(--panel);
-    color: var(--white);
-    font-size: 1rem;
-    margin: 0.3rem;
-}
-
-button:hover { border-color: var(--pink); cursor: pointer; }
+button:hover { border-color:var(--pink); cursor:pointer; }
 
 .bar {
-    width: 300px;
-    height: 20px;
-    background: #222;
-    margin: 6px auto;
-    border-radius: 10px;
-    overflow: hidden;
+    width:300px;
+    height:20px;
+    background:#222;
+    margin:6px auto;
+    border-radius:10px;
+    overflow:hidden;
 }
 
-.fill { height: 100%; }
+.fill { height:100%; }
 
 #homeBtn {
-    position: fixed;
-    top: 12px;
-    left: 12px;
-    z-index: 9999;
+    position:fixed;
+    top:12px;
+    left:12px;
+    z-index:9999;
 }
 </style>
 </head>
@@ -98,12 +91,9 @@ button:hover { border-color: var(--pink); cursor: pointer; }
     <img id="animalImg" width="150">
 
     <div>
-        Hunger
-        <div class="bar"><div id="hungerBar" class="fill" style="background:#FF69B4;width:100%"></div></div>
-        Thirst
-        <div class="bar"><div id="thirstBar" class="fill" style="background:#6a1b9a;width:100%"></div></div>
-        Health
-        <div class="bar"><div id="healthBar" class="fill" style="background:#B00B55;width:100%"></div></div>
+        Hunger<div class="bar"><div id="hungerBar" class="fill" style="background:#FF69B4;width:100%"></div></div>
+        Thirst<div class="bar"><div id="thirstBar" class="fill" style="background:#6a1b9a;width:100%"></div></div>
+        Health<div class="bar"><div id="healthBar" class="fill" style="background:#B00B55;width:100%"></div></div>
     </div>
 
     <p>
@@ -133,8 +123,11 @@ button:hover { border-color: var(--pink); cursor: pointer; }
 
     <button id="tryAgainBtn" style="display:none;">Try Again</button>
 
-    <h2>Leaderboard</h2>
-    <div id="leaderboard"></div>
+    <h2>Survival Time Leaderboard</h2>
+    <div id="leaderboardTime"></div>
+
+    <h2>Richest Pets (All-Time)</h2>
+    <div id="leaderboardCoins"></div>
 </div>
 </div>
 
@@ -142,18 +135,12 @@ button:hover { border-color: var(--pink); cursor: pointer; }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
 
-const app = initializeApp({
-    databaseURL: "https://lilguys-ae7fe-default-rtdb.firebaseio.com/"
-});
+const app = initializeApp({ databaseURL:"https://lilguys-ae7fe-default-rtdb.firebaseio.com/" });
 const db = getDatabase(app);
-
 const $ = id => document.getElementById(id);
 
-/* NAV */
-$("homeBtn").onclick = () => location.href = "index.html";
-
-/* BUTTONS */
-$("startBtn").onclick = handleLogin;
+$("homeBtn").onclick = () => location.href="index.html";
+$("startBtn").onclick = login;
 $("confirmAnimalBtn").onclick = confirmAnimal;
 $("feedBtn").onclick = feed;
 $("drinkBtn").onclick = drink;
@@ -165,27 +152,26 @@ $("buyFoodBtn").onclick = buyFood;
 $("buyWaterBtn").onclick = buyWater;
 $("tryAgainBtn").onclick = () => location.reload();
 
-const images = {
-    cat:{alive:"cat_alive.png",dead:"cat_dead.png"},
-    dog:{alive:"dog_alive.png",dead:"dog_dead.png"},
-    bunny:{alive:"bunny_alive.png",dead:"bunny_dead.png"},
-    squirrel:{alive:"squirrel_alive.png",dead:"squirrel_dead.png"},
-    manatee:{alive:"manatee_alive.png",dead:"manatee_dead.png"}
+const images={
+cat:{alive:"cat_alive.png",dead:"cat_dead.png"},
+dog:{alive:"dog_alive.png",dead:"dog_dead.png"},
+bunny:{alive:"bunny_alive.png",dead:"bunny_dead.png"},
+squirrel:{alive:"squirrel_alive.png",dead:"squirrel_dead.png"},
+manatee:{alive:"manatee_alive.png",dead:"manatee_dead.png"}
 };
 
-let player, password, selectedAnimal, loop;
+let player,password,selectedAnimal,loop;
 
 /* LOGIN */
-async function handleLogin(){
-    password = $("passwordInput").value.trim();
+async function login(){
+    password=$("passwordInput").value.trim();
     if(!password) return;
 
-    const snap = await get(ref(db,"players/"+password));
-    player = snap.exists() ? snap.val() : {
-        hunger:100, thirst:100, health:100,
-        food:0, water:0, coins:0,
-        foodGeneratorLevel:0,
-        waterGeneratorLevel:0
+    const snap=await get(ref(db,"players/"+password));
+    player=snap.exists()?snap.val():{
+        hunger:100,thirst:100,health:100,
+        food:0,water:0,coins:0,maxCoins:0,
+        foodGeneratorLevel:0,waterGeneratorLevel:0
     };
 
     if(!player.animal) $("animalChoice").style.display="block";
@@ -193,97 +179,62 @@ async function handleLogin(){
 }
 
 document.querySelectorAll(".animal-select img").forEach(img=>{
-    img.onclick = ()=>{
-        selectedAnimal = img.dataset.animal;
+    img.onclick=()=>{
+        selectedAnimal=img.dataset.animal;
         document.querySelectorAll(".animal-select img").forEach(i=>i.classList.remove("selected"));
         img.classList.add("selected");
     };
 });
 
 function confirmAnimal(){
-    if(!selectedAnimal || !$("nicknameInput").value) return;
-    player.animal = selectedAnimal;
-    player.nickname = $("nicknameInput").value;
-    player.startTime = Date.now();
+    if(!selectedAnimal||!$("nicknameInput").value) return;
+    player.animal=selectedAnimal;
+    player.nickname=$("nicknameInput").value;
+    player.startTime=Date.now();
     startGame();
 }
 
-/* GAME */
+/* GAME LOOP */
 function startGame(){
     $("loginPanel").style.display="none";
     $("game").style.display="block";
-    $("animalName").innerText = player.nickname;
-    $("animalImg").src = images[player.animal].alive;
-    loop = setInterval(tick,1000);
+    $("animalName").innerText=player.nickname;
+    $("animalImg").src=images[player.animal].alive;
+    loop=setInterval(tick,1000);
 }
 
 function tick(){
     player.hunger=Math.max(0,player.hunger-1);
     player.thirst=Math.max(0,player.thirst-1.5);
 
-    if(player.hunger===0 && player.thirst===0) player.health-=5;
-    else if(player.hunger===0 || player.thirst===0) player.health-=1;
+    if(player.hunger===0&&player.thirst===0) player.health-=5;
+    else if(player.hunger===0||player.thirst===0) player.health-=1;
 
     player.food+=0.5+player.foodGeneratorLevel*0.35;
     player.water+=0.6+player.waterGeneratorLevel*0.35;
+
+    if(player.coins>player.maxCoins) player.maxCoins=player.coins;
 
     updateUI();
     set(ref(db,"players/"+password),player);
 
     if(player.health<=0){
         clearInterval(loop);
-        $("animalImg").src = images[player.animal].dead;
+        $("animalImg").src=images[player.animal].dead;
         $("gameControls").style.display="none";
         $("tryAgainBtn").style.display="inline-block";
-        saveLeaderboard();
+        saveLeaderboards();
     }
 }
 
 /* ACTIONS */
-function feed(){
-    if(player.food>=15){
-        player.food-=15;
-        player.hunger=Math.min(100,player.hunger+15);
-    }
-}
-function drink(){
-    if(player.water>=20){
-        player.water-=20;
-        player.thirst=Math.min(100,player.thirst+20);
-    }
-}
-function upgrade(type){
-    if(type==="food" && player.water>=65){
-        player.water-=65; player.foodGeneratorLevel++;
-    }
-    if(type==="water" && player.food>=75){
-        player.food-=75; player.waterGeneratorLevel++;
-    }
-}
-function sellFood(){
-    if(player.food>=5){
-        player.food-=5;
-        player.coins+=25;
-    }
-}
-function sellWater(){
-    if(player.water>=5){
-        player.water-=5;
-        player.coins+=20;
-    }
-}
-function buyFood(){
-    if(player.coins>=30){
-        player.coins-=30;
-        player.food+=5;
-    }
-}
-function buyWater(){
-    if(player.coins>=25){
-        player.coins-=25;
-        player.water+=5;
-    }
-}
+function feed(){ if(player.food>=15){player.food-=15;player.hunger=Math.min(100,player.hunger+15);} }
+function drink(){ if(player.water>=20){player.water-=20;player.thirst=Math.min(100,player.thirst+20);} }
+function upgrade(t){ if(t==="food"&&player.water>=65){player.water-=65;player.foodGeneratorLevel++;} if(t==="water"&&player.food>=75){player.food-=75;player.waterGeneratorLevel++;} }
+function sellFood(){ if(player.food>=5){player.food-=5;player.coins+=25;} }
+function sellWater(){ if(player.water>=5){player.water-=5;player.coins+=20;} }
+function buyFood(){ if(player.coins>=30){player.coins-=30;player.food+=5;} }
+function buyWater(){ if(player.coins>=25){player.coins-=25;player.water+=5;} }
 
 /* UI */
 function updateUI(){
@@ -297,30 +248,34 @@ function updateUI(){
     $("waterLvl").innerText=player.waterGeneratorLevel;
 }
 
-/* LEADERBOARD */
-async function saveLeaderboard(){
+/* LEADERBOARDS */
+async function saveLeaderboards(){
     const time=Date.now()-player.startTime;
-    await set(ref(db,"leaderboard/"+password),{
-        name:player.nickname,
-        time
+
+    await set(ref(db,"leaderboard_time/"+password),{
+        name:player.nickname,time
     });
-    loadLeaderboard();
-}
-async function loadLeaderboard(){
-    const snap=await get(ref(db,"leaderboard"));
-    if(!snap.exists()){
-        $("leaderboard").innerHTML="<p>No entries yet</p>";
-        return;
-    }
-    const arr=Object.values(snap.val()).sort((a,b)=>b.time-a.time);
-    $("leaderboard").innerHTML="<ol>"+arr.map(e=>{
-        const m=Math.floor(e.time/60000);
-        const s=Math.floor((e.time%60000)/1000);
-        return `<li>${e.name} — ${m}m ${s}s</li>`;
-    }).join("")+"</ol>";
+
+    await set(ref(db,"leaderboard_coins/"+password),{
+        name:player.nickname,coins:player.maxCoins
+    });
+
+    loadLeaderboards();
 }
 
-loadLeaderboard();
+async function loadLeaderboards(){
+    loadLB("leaderboard_time","leaderboardTime",(e)=>`${e.name} — ${Math.floor(e.time/60000)}m ${Math.floor((e.time%60000)/1000)}s`);
+    loadLB("leaderboard_coins","leaderboardCoins",(e)=>`${e.name} — ${e.coins} coins`);
+}
+
+async function loadLB(path,el,fmt){
+    const snap=await get(ref(db,path));
+    if(!snap.exists()){ $(el).innerHTML="<p>No entries</p>"; return; }
+    const arr=Object.values(snap.val()).sort((a,b)=>(b.time||b.coins)-(a.time||a.coins));
+    $(el).innerHTML="<ol>"+arr.map(e=>`<li>${fmt(e)}</li>`).join("")+"</ol>";
+}
+
+loadLeaderboards();
 </script>
 </body>
 </html>
