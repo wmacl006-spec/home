@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cute Animal Survival</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --pink: #B00B55;
+  --purple: #6a1b9a;
+  --black: #0f0f0f;
+  --white: #ffffff;
+  --gray: #b5b5b5;
+  --panel: #161616;
+}
+
+* { box-sizing: border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #1b1b1b, var(--black));
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  padding: 1.5rem 2rem;
+}
+
+.home-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.1rem;
+
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 10px;
+
+  text-decoration: none;
+  color: var(--white);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.home-button:hover {
+  transform: translateY(-2px);
+  border-color: var(--pink);
+  box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+}
+
+/* GAME CONTAINER */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+  text-align: center;
+}
+
+h1, h2 {
+  font-family: 'Comfortaa', sans-serif;
+  color: var(--pink);
+}
+
+h1 { font-size: 2.6rem; margin-bottom: 1rem; }
+h2 { font-size: 1.8rem; margin-bottom: 1rem; }
+
+input, button {
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #242424;
+  background: var(--panel);
+  color: var(--white);
+  font-size: 1rem;
+  margin: 0.4rem;
+}
+
+button {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  border-color: var(--pink);
+  box-shadow: 0 10px 24px rgba(176,11,85,0.25);
+}
+
+/* BARS */
+.bar {
+  width: 300px;
+  height: 20px;
+  background: #222;
+  margin: 10px auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  width: 100%;
+  transition: width 0.2s;
+}
+
+/* ANIMAL SELECT */
+.animal-select img {
+  width: 80px;
+  margin: 10px;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 3px solid transparent;
+  transition: transform 0.15s ease;
+}
+
+.animal-select img:hover { transform: scale(1.05); }
+
+.animal-select img.selected {
+  border-color: var(--pink);
+}
+
+/* LEADERBOARD */
+#leaderboard ol {
+  list-style: decimal;
+  padding-left: 1.2rem;
+  text-align: left;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+#tryAgainBtn { display: none; margin-top: 1.2rem; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="index.html" class="home-button">Home</a>
+</header>
+
+<div class="container">
+
+<h1>Cute Animal Survival</h1>
+
+<!-- LOGIN -->
+<div id="login">
+  <input type="password" id="passwordInput" placeholder="Enter password">
+  <button id="startBtn">Start</button>
+
+  <div id="animalChoice" style="display:none; margin-top:1.5rem;">
+    <h2>Pick an animal & name it</h2>
+    <div class="animal-select">
+      <img src="cat_alive.png" data-animal="cat">
+      <img src="dog_alive.png" data-animal="dog">
+      <img src="bunny_alive.png" data-animal="bunny">
+      <img src="squirrel_alive.png" data-animal="squirrel">
+      <img src="chicken_alive.png" data-animal="chicken">
+      <img src="manatee_alive.png" data-animal="manatee">
+    </div>
+    <input type="text" id="nicknameInput" placeholder="Name your animal">
+    <button id="confirmAnimalBtn">Confirm</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game" style="display:none; margin-top:2.5rem;">
+  <h2 id="animalName"></h2>
+  <img id="animalImg" width="150">
+
+  <div>
+    <div>Hunger</div>
+    <div class="bar"><div id="hungerBar" class="fill" style="background:#FF69B4;"></div></div>
+    <div>Thirst</div>
+    <div class="bar"><div id="thirstBar" class="fill" style="background:#6a1b9a;"></div></div>
+    <div>Health</div>
+    <div class="bar"><div id="healthBar" class="fill" style="background:#B00B55;"></div></div>
+  </div>
+
+  <p><strong>Resources</strong><br>
+  Food: <span id="foodCount">0</span> | Water: <span id="waterCount">0</span></p>
+
+  <div id="gameControls">
+    <button id="feedBtn">Feed</button>
+    <button id="waterBtn">Give Water</button>
+    <button id="upgradeFoodBtn">Upgrade Food Generator</button>
+    <button id="upgradeWaterBtn">Upgrade Water Generator</button>
+  </div>
+
+  <button id="tryAgainBtn">Try Again</button>
+
+  <h2>Leaderboard</h2>
+  <div id="leaderboard"></div>
+  <button onclick="updateLeaderboard()">Refresh Leaderboard</button>
+</div>
+
+</div>
+
+<!-- FIREBASE GAME SCRIPT (UNCHANGED) -->
+<script type="module">
+/* 🔥 your entire Firebase + game script goes here EXACTLY as you sent it */
+</script>
+
+</body>
+</html>
