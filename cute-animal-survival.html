@@ -294,8 +294,8 @@ async function saveLeaderboards(){
 }
 
 async function loadLeaderboards(){
-    loadLB("leaderboard_time","leaderboardTime",e=>`${e.name} — ${Math.floor(e.time/60000)}m ${Math.floor((e.time%60000)/1000)}s`);
-    loadLB("leaderboard_coins","leaderboardCoins",e=>`${e.name} — ${e.coins} coins`);
+    loadLB("leaderboard_time","leaderboardTime",e=>`${Math.floor(e.time/60000)}m ${Math.floor((e.time%60000)/1000)}s`);
+    loadLB("leaderboard_coins","leaderboardCoins",e=>`${e.coins} coins`);
 }
 
 async function loadLB(path,el,fmt){
@@ -310,6 +310,7 @@ loadLeaderboards();
 </script>
 </body>
 </html>
+
 
 
 
