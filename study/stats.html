@@ -40,12 +40,12 @@ let statsNotes = [];
 let currentIndex = null;
 
 // Load JSON automatically
-fetch('notes/stats/stats.json')
+fetch('study/notes/stats/stats.json')
   .then(res => res.json())
   .then(files => {
     statsNotes = files;
     statsNotes.forEach((file, index) => {
-      const filename = `notes/stats/${file}`;
+      const filename = `study/notes/stats/${file}`;
       const img = new Image();
       img.src = filename;
       img.onload = () => {
@@ -66,7 +66,7 @@ fetch('notes/stats/stats.json')
 
 function openOverlay(index){
   currentIndex=index;
-  document.getElementById('overlay-img').src = `notes/stats/${statsNotes[currentIndex]}`;
+  document.getElementById('overlay-img').src = `study/notes/stats/${statsNotes[currentIndex]}`;
   document.getElementById('overlay-title').textContent = statsNotes[currentIndex].replace('.png','');
   document.getElementById('overlay').style.display='flex';
 }
