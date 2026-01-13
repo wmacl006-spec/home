@@ -10,11 +10,9 @@
 <style>
 :root {
   --pink: #B00B55;
-  --purple: #6a1b9a;
+  --panel: #161616;
   --black: #0f0f0f;
   --white: #ffffff;
-  --gray: #b5b5b5;
-  --panel: #161616;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
@@ -31,7 +29,6 @@ header{padding:1.5rem 2rem}
   border-radius:10px;
   color:white;
   text-decoration:none;
-  font-size:.85rem;
   font-weight:600;
 }
 .container{max-width:900px;margin:auto;padding:2rem;text-align:center}
@@ -63,15 +60,14 @@ button{cursor:pointer;font-weight:600}
 </header>
 
 <div class="container">
-
 <h1>Cute Animal Survival</h1>
 
 <div id="login">
-  <input id="passwordInput" placeholder="Enter password" type="password">
+  <input id="passwordInput" type="password" placeholder="Enter password">
   <button id="startBtn">Start</button>
 
-  <div id="animalChoice" style="display:none">
-    <h2>Pick an animal</h2>
+  <div id="animalChoice" style="display:none;margin-top:1.5rem">
+    <h2>Pick an animal & name it</h2>
     <div class="animal-select">
       <img src="cat_alive.png" data-animal="cat">
       <img src="dog_alive.png" data-animal="dog">
@@ -83,53 +79,52 @@ button{cursor:pointer;font-weight:600}
     <button id="confirmAnimalBtn">Confirm</button>
   </div>
 </div>
-
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
 
-/* ---------- FIREBASE INIT ---------- */
+/* ---------- FIREBASE ---------- */
 const firebaseConfig = {
   databaseURL: "https://lilguys-ae7fe-default-rtdb.firebaseio.com/"
 };
 
-let app, db;
-try {
-  app = initializeApp(firebaseConfig);
-  db = getDatabase(app);
-  console.log("Firebase initialized");
-} catch (e) {
-  console.error("Firebase failed to initialize", e);
-}
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 /* ---------- STATE ---------- */
 let selectedAnimal = null;
 
-/* ---------- LOGIN ---------- */
-document.getElementById("startBtn").onclick = async () => {
-  const pass = passwordInput.value.trim();
-  if (!pass) return alert("Enter a password");
-
-  document.getElementById("animalChoice").style.display = "block";
+/* ---------- START ---------- */
+startBtn.onclick = () => {
+  if (!passwordInput.value.trim()) {
+    alert("Enter a password");
+    return;
+  }
+  animalChoice.style.display = "block";
 };
 
-/* ---------- ANIMAL SELECT ---------- */
+/* ---------- ANIMAL PICK ---------- */
 document.querySelectorAll(".animal-select img").forEach(img => {
   img.onclick = () => {
     selectedAnimal = img.dataset.animal;
-    document.querySelectorAll(".animal-select img").forEach(i => i.classList.remove("selected"));
+    document.querySelectorAll(".animal-select img")
+      .forEach(i => i.classList.remove("selected"));
     img.classList.add("selected");
   };
 });
 
 /* ---------- CONFIRM ---------- */
-document.getElementById("confirmAnimalBtn").onclick = async () => {
+confirmAnimalBtn.onclick = async () => {
   const name = nicknameInput.value.trim();
-  if (!name || !selectedAnimal) return alert("Pick and name your animal");
+  if (!name || !selectedAnimal) {
+    alert("Pick an animal and name it");
+    return;
+  }
 
-  await set(ref(db, "test/" + name), {
+  await push(ref(db, "players"), {
+    name,
     animal: selectedAnimal,
     created: Date.now()
   });
