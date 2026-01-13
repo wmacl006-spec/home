@@ -40,12 +40,12 @@ let financeNotes = [];
 let currentIndex = null;
 
 // Load JSON automatically
-fetch('notes/finance/finance.json')
+fetch('study/notes/finance/finance.json')
   .then(res => res.json())
   .then(files => {
     financeNotes = files;
     financeNotes.forEach((file, index) => {
-      const filename = `notes/finance/${file}`;
+      const filename = `study/notes/finance/${file}`;
       const img = new Image();
       img.src = filename;
       img.onload = () => {
@@ -66,7 +66,7 @@ fetch('notes/finance/finance.json')
 
 function openOverlay(index){
   currentIndex=index;
-  document.getElementById('overlay-img').src = `notes/finance/${financeNotes[currentIndex]}`;
+  document.getElementById('overlay-img').src = `study/notes/finance/${financeNotes[currentIndex]}`;
   document.getElementById('overlay-title').textContent = financeNotes[currentIndex].replace('.png','');
   document.getElementById('overlay').style.display='flex';
 }
