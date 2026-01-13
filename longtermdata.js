@@ -1,1 +1,1 @@
-const longTermValue = 1.54;
+const longTermValue = 1;
