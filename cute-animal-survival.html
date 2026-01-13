@@ -225,11 +225,11 @@ function startGame(){
 
 function tick(){
     const elapsedSec=(Date.now()-player.startTime)/1000;
-
     const stages=Math.floor(elapsedSec/60);
 
-    const hungerRate=1.15*Math.pow(1.20,stages);
-    const thirstRate=1.35*Math.pow(1.30,stages);
+    /* UPDATED BASE DRAIN */
+    const hungerRate = 1.35 * Math.pow(1.20, stages);
+    const thirstRate = 1.50 * Math.pow(1.30, stages);
 
     player.hunger=Math.max(0,player.hunger-hungerRate);
     player.thirst=Math.max(0,player.thirst-thirstRate);
