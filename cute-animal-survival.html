@@ -190,7 +190,7 @@ async function login(){
 
     const blocked = await get(ref(db,"blockedPasswords/"+password));
     if(blocked.exists()){
-        alert("Try a stronger password.");
+        alert("Try a different password.");
         return;
     }
 
@@ -310,6 +310,7 @@ loadLeaderboards();
 </script>
 </body>
 </html>
+
 
 
 
