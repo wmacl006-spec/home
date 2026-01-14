@@ -50,23 +50,20 @@
       color: #eaeaea;
     }
 
-    /* HOME BUTTON (matches resume) */
+    /* HOME BUTTON */
     .home-button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       padding: 0.6rem 1.1rem;
-
       background: var(--panel);
       border: 1px solid #242424;
       border-radius: 10px;
-
       text-decoration: none;
       color: var(--white);
       font-size: 0.85rem;
       font-weight: 600;
       letter-spacing: 0.3px;
-
       transition: transform 0.2s ease,
                   box-shadow 0.2s ease,
                   border-color 0.2s ease;
@@ -81,7 +78,7 @@
     /* GRID */
     .contact-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 2rem;
     }
 
@@ -96,6 +93,10 @@
     .contact-card:hover {
       border-color: var(--pink);
       box-shadow: 0 14px 32px rgba(176, 11, 85, 0.22);
+    }
+
+    .contact-card.wide {
+      grid-column: span 2;
     }
 
     .contact-card h3 {
@@ -136,6 +137,10 @@
         grid-template-columns: 1fr;
       }
 
+      .contact-card.wide {
+        grid-column: span 1;
+      }
+
       .header {
         flex-direction: column;
         gap: 1.5rem;
@@ -171,14 +176,18 @@
         <a href="mailto:school@williammaclean.ca">wmacl006@uottawa.ca</a>
       </div>
 
-      <!-- SOCIAL -->
-      <div class="contact-card">
+      <!-- SOCIAL (WIDE) -->
+      <div class="contact-card wide">
         <h3>Social</h3>
         <p class="phone">519-807-8017</p>
         <a href="mailto:contact@williammaclean.ca">contact@williammaclean.ca</a>
-        <a href="https://www.instagram.com/william_maclean_06" target="_blank" rel="noopener"> Instagram - william_maclean_06</a>
-        <a href="https://steamcommunity.com/id/Tabearus" target="_blank" rel="noopener"> Steam - Tabearus</a>
-        <a href="https://discord.com/users/556245587352354828" target="_blank" rel="noopener"> Discord - tabearus</a>
+        <a href="https://www.instagram.com/william_maclean_06" target="_blank" rel="noopener">
+          Instagram
+        </a>
+        <a href="https://steamcommunity.com/id/Tabearus" target="_blank" rel="noopener">
+          Steam
+        </a>
+        <p>Discord: tabearus</p>
       </div>
 
     </section>
