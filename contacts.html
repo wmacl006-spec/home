@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>William MacLean | Contact</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink: #B00B55;
+      --black: #0f0f0f;
+      --white: #ffffff;
+      --gray: #b5b5b5;
+      --panel: #161616;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #1b1b1b, var(--black));
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 900px;
+      padding: 4rem 3rem;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 600;
+      color: #eaeaea;
+    }
+
+    /* HOME BUTTON (matches resume) */
+    .home-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.6rem 1.1rem;
+
+      background: var(--panel);
+      border: 1px solid #242424;
+      border-radius: 10px;
+
+      text-decoration: none;
+      color: var(--white);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+
+      transition: transform 0.2s ease,
+                  box-shadow 0.2s ease,
+                  border-color 0.2s ease;
+    }
+
+    .home-button:hover {
+      transform: translateY(-2px);
+      border-color: var(--pink);
+      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+    }
+
+    /* GRID */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .contact-card {
+      background: var(--panel);
+      border: 1px solid #242424;
+      border-radius: 14px;
+      padding: 2rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .contact-card:hover {
+      border-color: var(--pink);
+      box-shadow: 0 14px 32px rgba(176, 11, 85, 0.22);
+    }
+
+    .contact-card h3 {
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--pink);
+      margin-bottom: 1.2rem;
+    }
+
+    .contact-card p,
+    .contact-card a {
+      font-size: 0.95rem;
+      color: #e0e0e0;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+
+    .contact-card a:hover {
+      color: var(--white);
+      text-decoration: underline;
+    }
+
+    .phone {
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 3.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #8a8a8a;
+    }
+
+    @media (max-width: 900px) {
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+
+    <div class="header">
+      <h1>Contact</h1>
+      <a href="index.html" class="home-button">Home</a>
+    </div>
+
+    <section class="contact-grid">
+
+      <!-- WORK -->
+      <div class="contact-card">
+        <h3>Work</h3>
+        <p class="phone">519-807-8017</p>
+        <a href="mailto:work@williammaclean.ca">work@williammaclean.ca</a>
+        <p>Ottawa, ON</p>
+      </div>
+
+      <!-- SCHOOL -->
+      <div class="contact-card">
+        <h3>School</h3>
+        <a href="mailto:school@williammaclean.ca">school@williammaclean.ca</a>
+        <p>University of Ottawa</p>
+        <p>Financial Mathematics & Economics</p>
+      </div>
+
+      <!-- SOCIAL -->
+      <div class="contact-card">
+        <h3>Social</h3>
+        <a href="mailto:contact@williammaclean.ca">contact@williammaclean.ca</a>
+        <a href="https://github.com/" target="_blank">GitHub</a>
+        <a href="https://www.linkedin.com/" target="_blank">LinkedIn</a>
+      </div>
+
+    </section>
+
+    <footer>
+      © 2026 William MacLean
+    </footer>
+
+  </main>
+</body>
+</html>
