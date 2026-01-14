@@ -75,15 +75,6 @@ h1 {
   box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
 }
 
-.player {
-  display: none;
-  margin-bottom: 3rem;
-  background: var(--panel);
-  border: 1px solid #242424;
-  border-radius: 16px;
-  padding: 1rem;
-}
-
 .player iframe {
   width: 100%;
   height: 152px;
@@ -143,7 +134,6 @@ footer {
     <p class="subtitle">March 2023 – Present</p>
   </div>
   <div class="header-buttons">
-    <button class="button" id="togglePlayer">Toggle Player</button>
     <a href="index.html" class="button">Home</a>
   </div>
 </div>
@@ -207,15 +197,8 @@ footer {
 </main>
 
 <script>
-const toggleBtn = document.getElementById("togglePlayer");
 const player = document.getElementById("player");
 const iframe = document.getElementById("spotifyPlayer");
-let playerOn = false;
-
-toggleBtn.onclick = () => {
-  playerOn = !playerOn;
-  player.style.display = playerOn ? "block" : "none";
-};
 
 document.querySelectorAll(".playlist-card").forEach(card => {
   card.addEventListener("click", e => {
@@ -226,16 +209,14 @@ document.querySelectorAll(".playlist-card").forEach(card => {
       playlist.replace("open.spotify.com", "open.spotify.com/embed") +
       "?autoplay=1";
 
-    if (!playerOn) {
-      playerOn = true;
-      player.style.display = "block";
-    }
-
+    player.style.display = "block";
     iframe.src = embed;
+
     player.scrollIntoView({ behavior: "smooth" });
   });
 });
 </script>
+
 
 </body>
 </html>
