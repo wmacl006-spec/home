@@ -16,7 +16,11 @@
   --panel: #161616;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   font-family: 'Inter', sans-serif;
@@ -30,6 +34,7 @@ body {
   padding: 3rem;
 }
 
+/* HEADER */
 .header {
   display: flex;
   justify-content: space-between;
@@ -79,31 +84,27 @@ h1 {
   border-radius: 12px;
 }
 
-/* GALLERY */
+/* GALLERY GRID */
 .gallery {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 2.2rem;
 }
 
-  @media (max-width: 1200px) {
-  .gallery {
-    grid-template-columns: repeat(4, 1fr);
-  }
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .gallery { grid-template-columns: repeat(4, 1fr); }
 }
 
 @media (max-width: 900px) {
-  .gallery {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  .gallery { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 600px) {
-  .gallery {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .gallery { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* PLAYLIST CARD */
 .playlist-card {
   background: var(--panel);
   border: 1px solid #242424;
@@ -111,6 +112,8 @@ h1 {
   overflow: hidden;
   cursor: pointer;
   transition: 0.25s ease;
+  text-decoration: none;
+  color: inherit;
 }
 
 .playlist-card:hover {
@@ -161,14 +164,13 @@ footer {
     </iframe>
   </div>
 
+  <!-- PLAYLIST GRID -->
+  <section class="gallery">
+
     <!-- 2026 -->
 <a class="playlist-card" data-playlist="https://open.spotify.com/playlist/0VBiWh3vHRYOGgWbbekNwn">
-  <div class="cover">
-    <img src="covers/January2026.png">
-  </div>
-  <div class="playlist-info">
-    <h3>January 2026</h3>
-  </div>
+  <div class="cover"><img src="covers/January2026.png"></div>
+  <div class="playlist-info"><h3>January 2026</h3></div>
 </a>
 
 <!-- 2025 -->
@@ -343,7 +345,7 @@ footer {
   <div class="cover"><img src="covers/March2023.png"></div>
   <div class="playlist-info"><h3>March 2023</h3></div>
 </a>
-    
+
   </section>
 
   <footer>© 2026 William MacLean</footer>
@@ -365,6 +367,7 @@ document.querySelectorAll(".playlist-card").forEach(card => {
 
     iframe.src = embed;
     player.style.display = "block";
+    player.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 });
 </script>
