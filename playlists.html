@@ -1,197 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>William MacLean | Monthly Playlists</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>William MacLean | Monthly Playlists</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --pink: #B00B55;
-      --black: #0f0f0f;
-      --white: #ffffff;
-      --gray: #b5b5b5;
-      --panel: #161616;
-    }
+<style>
+:root {
+  --pink: #B00B55;
+  --black: #0f0f0f;
+  --white: #ffffff;
+  --gray: #b5b5b5;
+  --panel: #161616;
+}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      min-height: 100vh;
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at top, #1b1b1b, var(--black));
-      color: var(--white);
-      display: flex;
-      justify-content: center;
-    }
+body {
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #1b1b1b, var(--black));
+  color: var(--white);
+  display: flex;
+  justify-content: center;
+}
 
-    .page {
-      width: 100%;
-      max-width: 1100px;
-      padding: 4rem 3rem;
-    }
+.page {
+  width: 100%;
+  max-width: 1100px;
+  padding: 3rem;
+}
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 3.5rem;
-    }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
 
-    h1 {
-      font-family: 'Comfortaa', sans-serif;
-      font-size: 2.6rem;
-      font-weight: 600;
-      color: #eaeaea;
-    }
+h1 {
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 2.6rem;
+}
 
-    .subtitle {
-      color: var(--gray);
-      font-size: 0.95rem;
-      margin-top: 0.5rem;
-    }
+.subtitle {
+  color: var(--gray);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
 
-    .home-button,
-    .embed-button {
-      padding: 0.6rem 1.1rem;
-      background: var(--panel);
-      border: 1px solid #242424;
-      border-radius: 10px;
-      text-decoration: none;
-      color: var(--white);
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    }
+.header-buttons {
+  display: flex;
+  gap: 0.8rem;
+}
 
-    .home-button:hover,
-    .embed-button:hover {
-      transform: translateY(-2px);
-      border-color: var(--pink);
-      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
-    }
+.button {
+  padding: 0.6rem 1.1rem;
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 10px;
+  color: var(--white);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
 
-    .embed-container {
-      display: none;
-      margin-bottom: 3rem;
-      background: var(--panel);
-      border: 1px solid #242424;
-      border-radius: 16px;
-      padding: 1.5rem;
-    }
+.button:hover {
+  transform: translateY(-2px);
+  border-color: var(--pink);
+  box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+}
 
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 2.2rem;
-    }
+/* PLAYER */
+.player {
+  display: none;
+  margin-bottom: 3rem;
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 16px;
+  padding: 1rem;
+}
 
-    .playlist-card {
-      background: var(--panel);
-      border: 1px solid #242424;
-      border-radius: 16px;
-      overflow: hidden;
-      text-decoration: none;
-      color: var(--white);
-      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-    }
+.player iframe {
+  width: 100%;
+  height: 152px;
+  border-radius: 12px;
+  border: none;
+}
 
-    .playlist-card:hover {
-      transform: translateY(-6px);
-      border-color: var(--pink);
-      box-shadow: 0 18px 40px rgba(176, 11, 85, 0.28);
-    }
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 2.2rem;
+}
 
-    .cover {
-      aspect-ratio: 1 / 1;
-      background: #111;
-    }
+.playlist-card {
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--white);
+  cursor: pointer;
+  transition: 0.25s ease;
+}
 
-    .cover img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+.playlist-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--pink);
+  box-shadow: 0 18px 40px rgba(176, 11, 85, 0.28);
+}
 
-    .playlist-info {
-      padding: 1.2rem 1.3rem 1.4rem;
-    }
+.cover {
+  aspect-ratio: 1 / 1;
+}
 
-    .playlist-info h3 {
-      font-size: 1rem;
-      font-weight: 600;
-    }
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-    footer {
-      margin-top: 4rem;
-      text-align: center;
-      font-size: 0.85rem;
-      color: #8a8a8a;
-    }
+.playlist-info {
+  padding: 1.2rem 1.3rem 1.4rem;
+}
 
-    @media (max-width: 700px) {
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1.5rem;
-      }
-    }
-  </style>
+footer {
+  margin-top: 4rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #8a8a8a;
+}
+</style>
 </head>
 
 <body>
 <main class="page">
 
-  <div class="header">
-    <div>
-      <h1>Monthly Playlists</h1>
-      <p class="subtitle">Custom cover art · April 2023 – January 2026</p>
-    </div>
-    <div style="display:flex; gap:0.8rem;">
-      <button class="embed-button" onclick="toggleEmbed()">Play Playlist</button>
-      <a href="index.html" class="home-button">Home</a>
-    </div>
+<div class="header">
+  <div>
+    <h1>Monthly Playlists</h1>
+    <p class="subtitle">March 2023 – January 2026</p>
   </div>
-
-  <div class="embed-container" id="embedContainer">
-    <iframe
-      style="border-radius:12px"
-      src="INSERT_LINK_HERE"
-      width="100%"
-      height="380"
-      frameborder="0"
-      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-      loading="lazy">
-    </iframe>
+  <div class="header-buttons">
+    <button class="button" id="togglePlayer">Toggle Player</button>
+    <a href="index.html" class="button">Home</a>
   </div>
+</div>
 
-  <section class="gallery">
+<div class="player" id="player">
+  <iframe id="spotifyPlayer"
+    src="https://open.spotify.com/embed/playlist/0VBiWh3vHRYOGgWbbekNwn"
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+  </iframe>
+</div>
 
-    <!-- 2026 -->
-    <a class="playlist-card" href="https://open.spotify.com/playlist/0VBiWh3vHRYOGgWbbekNwn?si=94d46ad99c8a407d"><div class="cover"><img src="covers/January2026.png" alt="January 2026 playlist cover"></div><div class="playlist-info"><h3>January 2026</h3></div></a>
+<section class="gallery">
 
-    <!-- 2025 -->
-    <a class="playlist-card" href="https://open.spotify.com/playlist/0WgQcoUUSgMjoRyypbrgBR?si=50bb1003c2ae45a1"><div class="cover"><img src="covers/December2025.png" alt="December 2025 playlist cover"></div><div class="playlist-info"><h3>December 2025</h3></div></a>
-    <!-- (rest unchanged — omitted for brevity in explanation, but INCLUDED in your actual file) -->
+<!-- 2026 -->
+<a class="playlist-card" href="https://open.spotify.com/playlist/0VBiWh3vHRYOGgWbbekNwn?si=94d46ad99c8a407d"><div class="cover"><img src="covers/January2026.png" alt="January 2026 playlist cover"></div><div class="playlist-info"><h3>January 2026</h3></div></a>
 
-  </section>
+<!-- 2025 -->
+<a class="playlist-card" href="https://open.spotify.com/playlist/0WgQcoUUSgMjoRyypbrgBR?si=50bb1003c2ae45a1"><div class="cover"><img src="covers/December2025.png" alt="December 2025 playlist cover"></div><div class="playlist-info"><h3>December 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/778Q1Fur0CWcjXbphiFmk4?si=f59544ab7f674420"><div class="cover"><img src="covers/November2025.png" alt="November 2025 playlist cover"></div><div class="playlist-info"><h3>November 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/7DT7t2v7rnnpOC9N3mYQaS?si=8e484c20341f4052"><div class="cover"><img src="covers/October2025.png" alt="October 2025 playlist cover"></div><div class="playlist-info"><h3>October 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/78x5XvOEQA3B1dRqyxyQl9?si=1a419742bc4e4f0e"><div class="cover"><img src="covers/September2025.png" alt="September 2025 playlist cover"></div><div class="playlist-info"><h3>September 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/4QHPdmkl0JZakyLzyivXRG?si=ee810a9b4c034edc"><div class="cover"><img src="covers/August2025.png" alt="August 2025 playlist cover"></div><div class="playlist-info"><h3>August 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/1DpXwpCBZ50ibyHv11fIOd?si=3e6e57acaf9c48e5"><div class="cover"><img src="covers/July2025.png" alt="July 2025 playlist cover"></div><div class="playlist-info"><h3>July 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/6Kp55CaQIBbsLPMF3bkP7K?si=fbea3dd553a146a1"><div class="cover"><img src="covers/June2025.png" alt="June 2025 playlist cover"></div><div class="playlist-info"><h3>June 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/03bWsQEy2JLpPUER6MuIXm?si=00fd03834ce841ca"><div class="cover"><img src="covers/May2025.png" alt="May 2025 playlist cover"></div><div class="playlist-info"><h3>May 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/7MNAZj06cLp7uRyGDqEIxR?si=da8914982f8d41ab"><div class="cover"><img src="covers/April2025.png" alt="April 2025 playlist cover"></div><div class="playlist-info"><h3>April 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/31jbRI9nm98k6cQJ6uC20m?si=f2face8b58de4a6c"><div class="cover"><img src="covers/March2025.png" alt="March 2025 playlist cover"></div><div class="playlist-info"><h3>March 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/2gPQ9ciCOGUO1Q0ik5J77Z?si=3b77ef70e27d4842"><div class="cover"><img src="covers/February2025.png" alt="February 2025 playlist cover"></div><div class="playlist-info"><h3>February 2025</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/5V6ovEUT7N4bnnAI6XMKt0?si=a4fa6fd22eb349b9"><div class="cover"><img src="covers/January2025.png" alt="January 2025 playlist cover"></div><div class="playlist-info"><h3>January 2025</h3></div></a>
 
-  <footer>© 2026 William MacLean</footer>
+<!-- 2024 -->
+<a class="playlist-card" href="https://open.spotify.com/playlist/3aMuwrB8NsIvRad2EI3D2b?si=ffba9ea350d94ad7"><div class="cover"><img src="covers/December2024.png" alt="December 2024 playlist cover"></div><div class="playlist-info"><h3>December 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/7BL3BESHc0rgtjP2PLsF0k?si=9226fa3a12104c17"><div class="cover"><img src="covers/November2024.png" alt="November 2024 playlist cover"></div><div class="playlist-info"><h3>November 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/3VybIoaQQXC2zvYmRAa6ed?si=5b3ccfa44411447e"><div class="cover"><img src="covers/October2024.png" alt="October 2024 playlist cover"></div><div class="playlist-info"><h3>October 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/6DVjkqr0VUaBlmKjlAzGYL?si=dc07dba2582a4327"><div class="cover"><img src="covers/September2024.png" alt="September 2024 playlist cover"></div><div class="playlist-info"><h3>September 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/2GH1ww0oWlqLkTYG0rXTvJ?si=0141f488db594d0c"><div class="cover"><img src="covers/August2024.png" alt="August 2024 playlist cover"></div><div class="playlist-info"><h3>August 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/0XQ9YY9WrsQjadZzcgRVBH?si=72800aa005ec464f"><div class="cover"><img src="covers/July2024.png" alt="July 2024 playlist cover"></div><div class="playlist-info"><h3>July 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/0NdQROqWuKakOGHLglhmZC?si=ca9495b7de20472e"><div class="cover"><img src="covers/June2024.png" alt="June 2024 playlist cover"></div><div class="playlist-info"><h3>June 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/5qhS8fNjVK0Bc2zbtanUcg?si=a0d67d6c27d94410"><div class="cover"><img src="covers/May2024.png" alt="May 2024 playlist cover"></div><div class="playlist-info"><h3>May 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/7o7kbQ07bps9zmyfLoWa8q?si=1035bbeb4ca54a70"><div class="cover"><img src="covers/April2024.png" alt="April 2024 playlist cover"></div><div class="playlist-info"><h3>April 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/3xTW45uy4pycmCRudq26g9?si=b1278dc3dc4a4ded"><div class="cover"><img src="covers/March2024.png" alt="March 2024 playlist cover"></div><div class="playlist-info"><h3>March 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/4ymaSUfcWHgZYgXLmg7VXl?si=320dbadcd42347c1"><div class="cover"><img src="covers/February2024.png" alt="February 2024 playlist cover"></div><div class="playlist-info"><h3>February 2024</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/2XOqIVz3mjATxvOPCnmtCx?si=d6e6a46e082e4330"><div class="cover"><img src="covers/January2024.png" alt="January 2024 playlist cover"></div><div class="playlist-info"><h3>January 2024</h3></div></a>
+
+<!-- 2023 -->
+<a class="playlist-card" href="https://open.spotify.com/playlist/4d9ZEHDndf1BA9h6jdCEE8?si=427cc91149ef4978"><div class="cover"><img src="covers/December2023.png" alt="December 2023 playlist cover"></div><div class="playlist-info"><h3>December 2023</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/7CeS2nfxlrkLgMe25gglmD?si=0d05cd2804ec4940"><div class="cover"><img src="covers/November2023.png" alt="November 2023 playlist cover"></div><div class="playlist-info"><h3>November 2023</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/1w4ntYYR0CiWdczibyQiIw?si=68ceadac5ba64f83"><div class="cover"><img src="covers/October2023.png" alt="October 2023 playlist cover"></div><div class="playlist-info"><h3>October 2023</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/1kLcguuqnry52gyTIcqUbI?si=9699121a62ee4a71"><div class="cover"><img src="covers/September2023.png" alt="September 2023 playlist cover"></div><div class="playlist-info"><h3>September 2023</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/2DNDsCftikzcr9X7xMDCWq?si=e1ce8e76e8be468d"><div class="cover"><img src="covers/August2023.png" alt="August 2023 playlist cover"></div><div class="playlist-info"><h3>August 2023</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/7cnKiClhcD1ANxDGive17h?si=89cdd2a6087f4804"><div class="cover"><img src="covers/July2023.png" alt="July 2023 playlist cover"></div><div class="playlist-info"><h3>July 2023</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/6dN23ULruEIq3AcJT6ngzW?si=a9b989d07f954d78"><div class="cover"><img src="covers/June2023.png" alt="June 2023 playlist cover"></div><div class="playlist-info"><h3>June 2023</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/7r9JZje5dxEP3n5m1zstbS?si=a3739b4ed2d4463e"><div class="cover"><img src="covers/May2023.png" alt="May 2023 playlist cover"></div><div class="playlist-info"><h3>May 2023</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/0xT9wovz8rShMGRdfFDNp5?si=0133c6cb067a4f85"><div class="cover"><img src="covers/April2023.png" alt="April 2023 playlist cover"></div><div class="playlist-info"><h3>April 2023</h3></div></a>
+<a class="playlist-card" href="https://open.spotify.com/playlist/4Qs1gWtMnrOCFS8YOgpeT8?si=008e9657cc674605"><div class="cover"><img src="covers/March2023.png" alt="March 2023 playlist cover"></div><div class="playlist-info"><h3>March 2023</h3></div></a>
+
+</section>
+
+<footer>© 2026 William MacLean</footer>
 
 </main>
 
 <script>
-  function toggleEmbed() {
-    const el = document.getElementById("embedContainer");
-    el.style.display =
-      el.style.display === "none" || el.style.display === ""
-        ? "block"
-        : "none";
-  }
+const toggleBtn = document.getElementById("togglePlayer");
+const player = document.getElementById("player");
+const iframe = document.getElementById("spotifyPlayer");
+let playerOn = false;
+
+toggleBtn.onclick = () => {
+  playerOn = !playerOn;
+  player.style.display = playerOn ? "block" : "none";
+};
+
+document.querySelectorAll(".playlist-card").forEach(card => {
+  card.addEventListener("click", e => {
+    if (!playerOn) return;
+
+    e.preventDefault();
+    const playlist = card.dataset.playlist;
+    iframe.src = playlist.replace("open.spotify.com", "open.spotify.com/embed");
+    player.scrollIntoView({ behavior: "smooth" });
+  });
+});
 </script>
 
 </body>
