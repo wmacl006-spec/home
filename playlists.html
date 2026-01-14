@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>William MacLean | Monthly Playlists</title>
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -34,11 +33,10 @@
       padding: 4rem 3rem;
     }
 
-    /* HEADER */
     .header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 3.5rem;
     }
 
@@ -51,14 +49,11 @@
 
     .subtitle {
       color: var(--gray);
-      margin-top: 0.5rem;
       font-size: 0.95rem;
+      margin-top: 0.5rem;
     }
 
     .home-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
       padding: 0.6rem 1.1rem;
       background: var(--panel);
       border: 1px solid #242424;
@@ -67,10 +62,7 @@
       color: var(--white);
       font-size: 0.85rem;
       font-weight: 600;
-      letter-spacing: 0.3px;
-      transition: transform 0.2s ease,
-                  box-shadow 0.2s ease,
-                  border-color 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
 
     .home-button:hover {
@@ -79,7 +71,6 @@
       box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
     }
 
-    /* GALLERY */
     .gallery {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -93,9 +84,7 @@
       overflow: hidden;
       text-decoration: none;
       color: var(--white);
-      transition: transform 0.25s ease,
-                  box-shadow 0.25s ease,
-                  border-color 0.25s ease;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     }
 
     .playlist-card:hover {
@@ -106,9 +95,7 @@
 
     .cover {
       aspect-ratio: 1 / 1;
-      width: 100%;
       background: #111;
-      overflow: hidden;
     }
 
     .cover img {
@@ -125,12 +112,6 @@
     .playlist-info h3 {
       font-size: 1rem;
       font-weight: 600;
-      margin-bottom: 0.35rem;
-    }
-
-    .playlist-info span {
-      font-size: 0.85rem;
-      color: var(--gray);
     }
 
     footer {
@@ -151,57 +132,69 @@
 </head>
 
 <body>
-  <main class="page">
+<main class="page">
 
-    <div class="header">
-      <div>
-        <h1>Monthly Playlists</h1>
-        <p class="subtitle">Curated monthly · Custom cover art</p>
-      </div>
-      <a href="index.html" class="home-button">Home</a>
+  <div class="header">
+    <div>
+      <h1>Monthly Playlists</h1>
+      <p class="subtitle">Custom cover art · April 2023 – January 2026</p>
     </div>
+    <a href="index.html" class="home-button">Home</a>
+  </div>
 
-    <section class="gallery">
+  <section class="gallery">
 
-      <!-- PLAYLIST -->
-      <a href="https://open.spotify.com/" target="_blank" rel="noopener" class="playlist-card">
-        <div class="cover">
-          <img src="covers/2026-01.jpg" alt="January 2026 Playlist Cover">
-        </div>
-        <div class="playlist-info">
-          <h3>January 2026</h3>
-          <span>Monthly Playlist</span>
-        </div>
-      </a>
+    <!-- FORMAT:
+         Replace SPOTIFY_LINK_HERE with the playlist URL
+         Example: https://open.spotify.com/playlist/XXXXXXXX
+    -->
 
-      <a href="https://open.spotify.com/" target="_blank" rel="noopener" class="playlist-card">
-        <div class="cover">
-          <img src="covers/2025-12.jpg" alt="December 2025 Playlist Cover">
-        </div>
-        <div class="playlist-info">
-          <h3>December 2025</h3>
-          <span>Monthly Playlist</span>
-        </div>
-      </a>
+    <!-- 2026 -->
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE" target="_blank" rel="noopener">
+      <div class="cover"><img src="covers/January2026.png" alt="January 2026 playlist cover"></div>
+      <div class="playlist-info"><h3>January 2026</h3></div>
+    </a>
 
-      <a href="https://open.spotify.com/" target="_blank" rel="noopener" class="playlist-card">
-        <div class="cover">
-          <img src="covers/2025-11.jpg" alt="November 2025 Playlist Cover">
-        </div>
-        <div class="playlist-info">
-          <h3>November 2025</h3>
-          <span>Monthly Playlist</span>
-        </div>
-      </a>
+    <!-- 2025 -->
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/December2025.png" alt="December 2025 playlist cover"></div><div class="playlist-info"><h3>December 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/November2025.png" alt="November 2025 playlist cover"></div><div class="playlist-info"><h3>November 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/October2025.png" alt="October 2025 playlist cover"></div><div class="playlist-info"><h3>October 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/September2025.png" alt="September 2025 playlist cover"></div><div class="playlist-info"><h3>September 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/August2025.png" alt="August 2025 playlist cover"></div><div class="playlist-info"><h3>August 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/July2025.png" alt="July 2025 playlist cover"></div><div class="playlist-info"><h3>July 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/June2025.png" alt="June 2025 playlist cover"></div><div class="playlist-info"><h3>June 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/May2025.png" alt="May 2025 playlist cover"></div><div class="playlist-info"><h3>May 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/April2025.png" alt="April 2025 playlist cover"></div><div class="playlist-info"><h3>April 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/March2025.png" alt="March 2025 playlist cover"></div><div class="playlist-info"><h3>March 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/February2025.png" alt="February 2025 playlist cover"></div><div class="playlist-info"><h3>February 2025</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/January2025.png" alt="January 2025 playlist cover"></div><div class="playlist-info"><h3>January 2025</h3></div></a>
 
-      <!-- ADD MORE MONTHS HERE -->
+    <!-- 2024 -->
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/December2024.png" alt="December 2024 playlist cover"></div><div class="playlist-info"><h3>December 2024</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/November2024.png" alt="November 2024 playlist cover"></div><div class="playlist-info"><h3>November 2024</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/October2024.png" alt="October 2024 playlist cover"></div><div class="playlist-info"><h3>October 2024</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/September2024.png" alt="September 2024 playlist cover"></div><div class="playlist-info"><h3>September 2024</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/August2024.png" alt="August 2024 playlist cover"></div><div class="playlist-info"><h3>August 2024</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/July2024.png" alt="July 2024 playlist cover"></div><div class="playlist-info"><h3>July 2024</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/June2024.png" alt="June 2024 playlist cover"></div><div class="playlist-info"><h3>June 2024</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/May2024.png" alt="May 2024 playlist cover"></div><div class="playlist-info"><h3>May 2024</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/April2024.png" alt="April 2024 playlist cover"></div><div class="playlist-info"><h3>April 2024</h3></div></a>
 
-    </section>
+    <!-- 2023 -->
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/December2023.png" alt="December 2023 playlist cover"></div><div class="playlist-info"><h3>December 2023</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/November2023.png" alt="November 2023 playlist cover"></div><div class="playlist-info"><h3>November 2023</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/October2023.png" alt="October 2023 playlist cover"></div><div class="playlist-info"><h3>October 2023</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/September2023.png" alt="September 2023 playlist cover"></div><div class="playlist-info"><h3>September 2023</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/August2023.png" alt="August 2023 playlist cover"></div><div class="playlist-info"><h3>August 2023</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/July2023.png" alt="July 2023 playlist cover"></div><div class="playlist-info"><h3>July 2023</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/June2023.png" alt="June 2023 playlist cover"></div><div class="playlist-info"><h3>June 2023</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/May2023.png" alt="May 2023 playlist cover"></div><div class="playlist-info"><h3>May 2023</h3></div></a>
+    <a class="playlist-card" href="SPOTIFY_LINK_HERE"><div class="cover"><img src="covers/April2023.png" alt="April 2023 playlist cover"></div><div class="playlist-info"><h3>April 2023</h3></div></a>
 
-    <footer>
-      © 2026 William MacLean
-    </footer>
+  </section>
 
-  </main>
+  <footer>© 2026 William MacLean</footer>
+
+</main>
 </body>
 </html>
