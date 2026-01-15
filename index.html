@@ -6,15 +6,18 @@
   <title>William MacLean – Resume, Projects, Contact</title>
 
   <meta name="description" content="Personal website of William MacLean. Resume, contact information, and projects." />
+
   <meta name="robots" content="index, follow">
 
-  <!-- Favicon / Google Search image -->
+  <link rel="icon" type="image/png" href="logo.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+
   <link rel="icon" href="/logo.png" sizes="48x48" type="image/png">
   <link rel="icon" href="/logo.png" sizes="96x96" type="image/png">
   <link rel="icon" href="/logo.png" sizes="192x192" type="image/png">
   <link rel="apple-touch-icon" href="/logo.png">
 
-  <!-- Structured data for Google -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -25,7 +28,6 @@
   }
   </script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -68,6 +70,7 @@
       margin-bottom: 3.5rem;
     }
 
+    /* ---- CORRECT LAYOUT ---- */
     .links {
       display: flex;
       flex-wrap: wrap;
@@ -79,6 +82,7 @@
       flex: 0 0 calc(33.333% - 1rem);
       max-width: 260px;
       min-width: 220px;
+
       display: flex;
       align-items: center;
       justify-content: center;
@@ -107,13 +111,51 @@
     }
 
     @media (max-width: 900px) {
-      .link-card { flex: 0 0 calc(50% - 1rem); }
+      .link-card {
+        flex: 0 0 calc(50% - 1rem);
+      }
     }
 
     @media (max-width: 600px) {
-      .link-card { flex: 0 0 100%; }
+      .link-card {
+        flex: 0 0 100%;
+      }
+
       h1 { font-size: 2.4rem; }
       .content { padding: 3rem 2rem; }
     }
   </style>
 </head>
+
+<body>
+  <main class="content">
+    <h1>William MacLean</h1>
+    <p class="subtitle">Personal site · Resume · Projects</p>
+
+    <div class="links">
+      <a href="contacts.html" class="link-card">Contact Info</a>
+      <a href="resume.html" class="link-card">View Resume</a>
+      <a href="AutocareExample.html" class="link-card">Autocare Example</a>
+      <a href="faq.html" class="link-card">FAQ</a>
+    </div>
+
+    <footer>
+      © 2026 William MacLean
+    </footer>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
