@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autocare Inc | Professional Auto Repair & Maintenance</title>
+  <meta name="description" content="Autocare Inc provides reliable auto repair and preventative maintenance with transparent pricing and certified technicians." />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#0f1115;
+      --panel:#161a22;
+      --accent:#d4af37; /* gold */
+      --accent-2:#1f6feb; /* blue */
+      --text:#e6e8ee;
+      --muted:#aab0c0;
+      --border:#23283a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(1200px 500px at 20% -10%, #1b2133, transparent 60%), var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(8px);
+      background: rgba(15,17,21,.75);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 72px;
+    }
+
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-weight: 700; letter-spacing: .2px;
+    }
+
+    .logo {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #f1d37a);
+      display: grid; place-items: center; color: #111; font-weight: 900;
+    }
+
+    .nav a { color: var(--muted); font-weight: 500; }
+    .nav a:hover { color: var(--text); }
+
+    .nav-links { display: flex; gap: 22px; align-items: center; }
+
+    .btn {
+      padding: 10px 16px; border-radius: 10px; font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent-2), #3b82f6);
+      border-color: transparent;
+    }
+
+    /* Hero */
+    .hero { padding: 96px 0 72px; }
+
+    .hero-grid {
+      display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex; gap: 8px; align-items: center;
+      background: rgba(212,175,55,.12);
+      color: var(--accent);
+      border: 1px solid rgba(212,175,55,.35);
+      padding: 6px 12px; border-radius: 999px; font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    h1 { font-size: clamp(32px, 4vw, 52px); line-height: 1.1; margin-bottom: 16px; }
+    .lead { color: var(--muted); font-size: 18px; margin-bottom: 28px; }
+
+    .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .card {
+      background: linear-gradient(180deg, #1a2031, var(--panel));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    .hero-card {
+      display: grid; gap: 14px;
+    }
+
+    .stat { display: flex; justify-content: space-between; color: var(--muted); }
+
+    /* Services */
+    section { padding: 72px 0; }
+
+    .section-head { margin-bottom: 36px; }
+    .section-head h2 { font-size: 36px; margin-bottom: 8px; }
+    .section-head p { color: var(--muted); }
+
+    .services {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+    }
+
+    .service h3 { margin-bottom: 8px; }
+
+    /* Trust */
+    .trust {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+      text-align: center;
+    }
+
+    .trust .card { padding: 18px; }
+
+    /* Reviews */
+    .reviews {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+    }
+
+    .stars {
+      color: var(--accent);
+      letter-spacing: 2px;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    /* About */
+    .about {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+    }
+
+    /* Contact */
+    .contact {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+    }
+
+    input, textarea {
+      width: 100%; padding: 12px 14px; border-radius: 10px;
+      border: 1px solid var(--border); background: #0c0f16; color: var(--text);
+    }
+
+    label { font-size: 14px; color: var(--muted); }
+
+    form { display: grid; gap: 14px; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 0; color: var(--muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero-grid, .about, .contact { grid-template-columns: 1fr; }
+      .services { grid-template-columns: 1fr 1fr; }
+      .trust { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .services { grid-template-columns: 1fr; }
+      .trust { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <div class="logo">TA</div>
+        <span>Autocare Inc</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a class="btn" href="#contact">Book Service</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="badge">Trusted Local Auto Service</div>
+        <h1>Reliable Auto Repair & Preventative Maintenance</h1>
+        <p class="lead">
+          Autocare Inc delivers honest diagnostics, quality workmanship, and clear communication—so you can drive with confidence.
+        </p>
+        <div class="hero-cta">
+          <a class="btn primary" href="#contact">Request an Appointment</a>
+          <a class="btn" href="#services">View Services</a>
+        </div>
+      </div>
+      <div class="card hero-card">
+        <strong>Why customers choose us</strong>
+        <div class="stat"><span>Certified technicians</span><span>✓</span></div>
+        <div class="stat"><span>Transparent pricing</span><span>✓</span></div>
+        <div class="stat"><span>Quality parts & warranty</span><span>✓</span></div>
+        <div class="stat"><span>On-time service</span><span>✓</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services">
+    <div class="container">
+      <div class="section-head">
+        <h2>Our Services</h2>
+        <p>Comprehensive care for gas and diesel vehicles.</p>
+      </div>
+      <div class="services">
+        <div class="card service">
+          <h3>Diagnostics & Repair</h3>
+          <p>Advanced diagnostics to identify issues quickly and repair them correctly the first time.</p>
+        </div>
+        <div class="card service">
+          <h3>Preventative Maintenance</h3>
+          <p>Oil changes, inspections, fluids, and scheduled maintenance to extend vehicle life.</p>
+        </div>
+        <div class="card service">
+          <h3>Brakes & Suspension</h3>
+          <p>Brake service, shocks, struts, and steering components for safe, smooth driving.</p>
+        </div>
+        <div class="card service">
+          <h3>Engine & Transmission</h3>
+          <p>Performance issues, cooling systems, timing, and drivetrain service.</p>
+        </div>
+        <div class="card service">
+          <h3>Tires & Alignment</h3>
+          <p>Tire sales, mounting, balancing, and precision alignments.</p>
+        </div>
+        <div class="card service">
+          <h3>Electrical Systems</h3>
+          <p>Battery, starter, alternator, sensors, and electrical troubleshooting.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust -->
+  <section>
+    <div class="container trust">
+      <div class="card"><strong>Licensed & Insured</strong><p class="muted">Peace of mind</p></div>
+      <div class="card"><strong>Warranty</strong><p class="muted">On parts & labor</p></div>
+      <div class="card"><strong>Local</strong><p class="muted">Community focused</p></div>
+      <div class="card"><strong>Fair Pricing</strong><p class="muted">No surprises</p></div>
+    </div>
+  </section>
+
+  <!-- Reviews -->
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <h2>5‑Star Customer Reviews</h2>
+        <p>Consistently rated five stars for honesty, quality, and service.</p>
+      </div>
+      <div class="reviews">
+        <div class="card">
+          <div class="stars">★★★★★</div>
+          <p>“Professional, honest, and fast. They explained everything clearly and the price was exactly as quoted.”</p>
+          <strong>— Local Customer</strong>
+        </div>
+        <div class="card">
+          <div class="stars">★★★★★</div>
+          <p>“Best auto shop I’ve dealt with. Quality work and no pressure upselling.”</p>
+          <strong>— Verified Client</strong>
+        </div>
+        <div class="card">
+          <div class="stars">★★★★★</div>
+          <p>“Reliable service every time. I trust Autocare with all my vehicles.”</p>
+          <strong>— Returning Customer</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="container about">
+      <div>
+        <h2>About Autocare Inc</h2>
+        <p class="lead">A commitment to integrity, safety, and long-term vehicle reliability.</p>
+        <p>
+          Founded to provide dependable automotive service without pressure or ambiguity, Autocare Inc prioritizes clear explanations and quality workmanship. Our technicians stay current with modern vehicle technology to service today’s cars and trucks effectively.
+        </p>
+      </div>
+      <div class="card">
+        <strong>Business Hours</strong>
+        <p>Mon–Fri: 8:00 AM – 5:30 PM</p>
+        <p>Sat–Sun: Closed</p>
+        <hr style="border:0;border-top:1px solid var(--border);margin:12px 0;">
+        <strong>Contact</strong>
+        <p>Phone: (XXX) XXX‑XXXX</p>
+        <p>Email: info@touchetteautocare.com</p>
+        <p>Address: City, Province</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="container contact">
+      <div>
+        <h2>Request an Appointment</h2>
+        <p class="lead">Tell us about your vehicle and we’ll follow up promptly.</p>
+      </div>
+      <div class="card">
+        <form onsubmit="event.preventDefault(); alert('Thank you. We will contact you shortly.');">
+          <div>
+            <label>Name</label>
+            <input required />
+          </div>
+          <div>
+            <label>Email</label>
+            <input type="email" required />
+          </div>
+          <div>
+            <label>Phone</label>
+            <input required />
+          </div>
+          <div>
+            <label>Message</label>
+            <textarea rows="4" placeholder="Vehicle year, make, model, and concern"></textarea>
+          </div>
+          <button class="btn primary" type="submit">Submit Request</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      © <span id="year"></span> Autocare Inc. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
