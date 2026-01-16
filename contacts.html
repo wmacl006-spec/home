@@ -192,6 +192,13 @@
       box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
     }
 
+    .form-status {
+      margin-top: 0.8rem;
+      font-size: 0.85rem;
+      color: #9cffc9;
+      display: none;
+    }
+
     footer {
       margin-top: 3.5rem;
       text-align: center;
@@ -267,6 +274,8 @@
           <input type="email" name="email" placeholder="Your email" required>
           <textarea name="message" rows="5" placeholder="Your message..." required></textarea>
           <button type="submit">Send Message</button>
+          <div class="form-status" id="formStatus">Message sent ✓</div>
+
         </form>
       </div>
 
