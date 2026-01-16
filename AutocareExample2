@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Professional Auto Repair & Maintenance</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Professional, honest, and reliable automotive repair and maintenance services." />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary:#0b1c2d;
+      --accent:#c1121f;
+      --light:#f5f7fa;
+      --dark:#111111;
+      --gray:#6b7280;
+      --radius:14px;
+    }
+
+    * { box-sizing:border-box; margin:0; padding:0; }
+
+    body {
+      font-family:'Inter',sans-serif;
+      background:var(--light);
+      color:var(--dark);
+      line-height:1.6;
+    }
+
+    a { text-decoration:none; color:inherit; }
+
+    /* Header */
+    header {
+      background:linear-gradient(135deg,var(--primary),#020b15);
+      color:white;
+      padding:20px 5vw;
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+
+    .nav {
+      max-width:1200px;
+      margin:auto;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .logo {
+      font-size:1.4rem;
+      font-weight:700;
+      letter-spacing:0.5px;
+    }
+
+    nav a {
+      margin-left:30px;
+      font-weight:500;
+      opacity:0.9;
+    }
+
+    nav a:hover { opacity:1; }
+
+    /* Hero */
+    .hero {
+      background:linear-gradient(135deg,#0b1c2d,#142d47);
+      color:white;
+      padding:120px 5vw;
+    }
+
+    .hero-inner {
+      max-width:1200px;
+      margin:auto;
+      display:grid;
+      grid-template-columns:1.2fr 0.8fr;
+      gap:60px;
+      align-items:center;
+    }
+
+    .hero h1 {
+      font-size:3rem;
+      line-height:1.15;
+      margin-bottom:20px;
+    }
+
+    .hero p {
+      font-size:1.1rem;
+      color:#d1d5db;
+      margin-bottom:30px;
+    }
+
+    .cta {
+      display:inline-block;
+      background:var(--accent);
+      color:white;
+      padding:14px 32px;
+      border-radius:999px;
+      font-weight:600;
+      box-shadow:0 10px 30px rgba(193,18,31,0.4);
+    }
+
+    .hero-card {
+      background:white;
+      color:var(--dark);
+      padding:40px;
+      border-radius:var(--radius);
+      box-shadow:0 40px 80px rgba(0,0,0,0.25);
+    }
+
+    .hero-card h3 { margin-bottom:15px; }
+
+    .hero-card ul { list-style:none; }
+    .hero-card li { margin-bottom:10px; color:#374151; }
+
+    /* Sections */
+    section {
+      padding:100px 5vw;
+    }
+
+    .section-inner {
+      max-width:1200px;
+      margin:auto;
+    }
+
+    .section-title {
+      font-size:2.2rem;
+      margin-bottom:15px;
+    }
+
+    .section-sub {
+      color:var(--gray);
+      margin-bottom:50px;
+      max-width:650px;
+    }
+
+    /* Services */
+    .services {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:30px;
+    }
+
+    .service {
+      background:white;
+      padding:35px;
+      border-radius:var(--radius);
+      box-shadow:0 20px 50px rgba(0,0,0,0.08);
+      transition:transform 0.25s ease;
+    }
+
+    .service:hover { transform:translateY(-6px); }
+
+    .service h4 { margin-bottom:10px; }
+    .service p { color:var(--gray); }
+
+    /* Trust */
+    .trust {
+      background:#0b1c2d;
+      color:white;
+    }
+
+    .trust-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:30px;
+      margin-top:40px;
+    }
+
+    .trust-item {
+      background:rgba(255,255,255,0.06);
+      padding:30px;
+      border-radius:var(--radius);
+    }
+
+    /* Reviews */
+    .reviews {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:30px;
+    }
+
+    .review {
+      background:white;
+      padding:30px;
+      border-radius:var(--radius);
+      box-shadow:0 15px 40px rgba(0,0,0,0.08);
+    }
+
+    .stars { color:#f59e0b; margin-bottom:10px; }
+
+    /* Footer */
+    footer {
+      background:#020b15;
+      color:#9ca3af;
+      padding:60px 5vw;
+    }
+
+    .footer-inner {
+      max-width:1200px;
+      margin:auto;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:40px;
+    }
+
+    footer h4 { color:white; margin-bottom:15px; }
+
+    .copyright {
+      text-align:center;
+      margin-top:40px;
+      font-size:0.9rem;
+    }
+
+    /* Responsive */
+    @media(max-width:900px){
+      .hero-inner{ grid-template-columns:1fr; }
+      .hero h1{ font-size:2.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">Autocare Inc</div>
+    <nav>
+      <a href="#services">Services</a>
+      <a href="#about">About</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1>Professional Auto Repair You Can Trust</h1>
+      <p>Certified technicians, transparent pricing, and dependable service for every vehicle we touch.</p>
+      <a class="cta" href="#contact">Book an Appointment</a>
+    </div>
+    <div class="hero-card">
+      <h3>Why Choose Us</h3>
+      <ul>
+        <li>✔ Licensed & insured technicians</li>
+        <li>✔ Honest diagnostics & clear pricing</li>
+        <li>✔ Modern equipment & tools</li>
+        <li>✔ Fast turnaround times</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="section-inner">
+    <h2 class="section-title">Our Services</h2>
+    <p class="section-sub">Comprehensive maintenance and repair services for cars, trucks, and SUVs.</p>
+
+    <div class="services">
+      <div class="service"><h4>Engine Diagnostics</h4><p>Advanced diagnostic tools to identify issues accurately and efficiently.</p></div>
+      <div class="service"><h4>Brake Services</h4><p>Complete brake inspections, repairs, and replacements.</p></div>
+      <div class="service"><h4>Oil & Fluid Changes</h4><p>Protect your engine with routine maintenance using quality fluids.</p></div>
+      <div class="service"><h4>Suspension & Steering</h4><p>Ensure safety and ride comfort with expert suspension service.</p></div>
+      <div class="service"><h4>Electrical Systems</h4><p>Battery, alternator, and electrical troubleshooting.</p></div>
+      <div class="service"><h4>General Repairs</h4><p>Reliable repairs performed to manufacturer standards.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="trust" id="about">
+  <div class="section-inner">
+    <h2 class="section-title">Built on Trust & Quality</h2>
+    <p class="section-sub">We treat every vehicle as if it were our own, delivering dependable workmanship backed by experience.</p>
+
+    <div class="trust-grid">
+      <div class="trust-item">Decades of combined industry experience</div>
+      <div class="trust-item">Clear communication at every step</div>
+      <div class="trust-item">Customer-first service philosophy</div>
+      <div class="trust-item">Work guaranteed for peace of mind</div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="section-inner">
+    <h2 class="section-title">5-Star Customer Reviews</h2>
+    <p class="section-sub">Our reputation is built on satisfied customers and consistent results.</p>
+
+    <div class="reviews">
+      <div class="review"><div class="stars">★★★★★</div><p>Professional, honest, and fast. I won't take my car anywhere else.</p><strong>— Verified Customer</strong></div>
+      <div class="review"><div class="stars">★★★★★</div><p>Clear pricing and excellent service. Highly recommended.</p><strong>— Local Client</strong></div>
+      <div class="review"><div class="stars">★★★★★</div><p>They diagnosed the issue quickly and fixed it right the first time.</p><strong>— Repeat Customer</strong></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-inner">
+    <h2 class="section-title">Contact Us</h2>
+    <p class="section-sub">Schedule service or request a quote today.</p>
+
+    <p><strong>Phone:</strong> (555) 123‑4567<br>
+       <strong>Email:</strong> info@autocare.com<br>
+       <strong>Location:</strong> Your City, Province</p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <h4>Autocare Inc</h4>
+      <p>Professional automotive repair and maintenance services.</p>
+    </div>
+    <div>
+      <h4>Hours</h4>
+      <p>Mon–Fri: 8:00am – 6:00pm<br>Sat: 9:00am – 2:00pm</p>
+    </div>
+    <div>
+      <h4>Service Area</h4>
+      <p>Proudly serving the local community and surrounding areas.</p>
+    </div>
+  </div>
+  <div class="copyright">© 2026 Autocare Inc. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
