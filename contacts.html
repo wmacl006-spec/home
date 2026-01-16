@@ -10,26 +10,15 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Favicon / Google Search image -->
-  <link rel="icon" href="/logo.png" sizes="48x48" type="image/png">
-  <link rel="icon" href="/logo.png" sizes="96x96" type="image/png">
-  <link rel="icon" href="/logo.png" sizes="192x192" type="image/png">
-  <link rel="apple-touch-icon" href="/logo.png">
-
   <style>
     :root {
       --pink: #B00B55;
       --black: #0f0f0f;
       --white: #ffffff;
-      --gray: #b5b5b5;
       --panel: #161616;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       min-height: 100vh;
@@ -47,10 +36,8 @@
       padding: 4rem 3rem;
     }
 
-    /* HEADER */
     .header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
       margin-bottom: 3rem;
     }
@@ -58,36 +45,26 @@
     h1 {
       font-family: 'Comfortaa', sans-serif;
       font-size: 2.4rem;
-      font-weight: 600;
-      color: #eaeaea;
     }
 
-    /* HOME BUTTON */
     .home-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
       padding: 0.6rem 1.1rem;
       background: var(--panel);
       border: 1px solid #242424;
       border-radius: 10px;
+      color: white;
       text-decoration: none;
-      color: var(--white);
       font-size: 0.85rem;
       font-weight: 600;
-      letter-spacing: 0.3px;
-      transition: transform 0.2s ease,
-                  box-shadow 0.2s ease,
-                  border-color 0.2s ease;
+      transition: 0.2s;
     }
 
     .home-button:hover {
-      transform: translateY(-2px);
       border-color: var(--pink);
-      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+      box-shadow: 0 10px 24px rgba(176,11,85,0.25);
+      transform: translateY(-2px);
     }
 
-    /* GRID */
     .contact-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -99,12 +76,12 @@
       border: 1px solid #242424;
       border-radius: 14px;
       padding: 2rem;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition: 0.2s;
     }
 
     .contact-card:hover {
       border-color: var(--pink);
-      box-shadow: 0 14px 32px rgba(176, 11, 85, 0.22);
+      box-shadow: 0 14px 32px rgba(176,11,85,0.22);
     }
 
     .contact-card.wide {
@@ -112,11 +89,11 @@
     }
 
     .contact-card h3 {
+      color: var(--pink);
       font-size: 0.85rem;
       letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--pink);
       margin-bottom: 1.2rem;
+      text-transform: uppercase;
     }
 
     .contact-card p,
@@ -128,16 +105,7 @@
       margin-bottom: 0.6rem;
     }
 
-    .contact-card a:hover {
-      color: var(--white);
-      text-decoration: underline;
-    }
-
-    .phone {
-      white-space: nowrap;
-    }
-
-    /* CONTACT FORM */
+    /* FORM */
     .contact-form {
       display: flex;
       flex-direction: column;
@@ -149,70 +117,55 @@
       background: #101010;
       border: 1px solid #242424;
       border-radius: 10px;
-      padding: 0.75rem 0.9rem;
-      color: var(--white);
-      font-family: 'Inter', sans-serif;
+      padding: 0.75rem;
+      color: white;
       font-size: 0.9rem;
-      resize: vertical;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .contact-form input::placeholder,
-    .contact-form textarea::placeholder {
-      color: #7d7d7d;
     }
 
     .contact-form input:focus,
     .contact-form textarea:focus {
       outline: none;
       border-color: var(--pink);
-      box-shadow: 0 0 0 2px rgba(176, 11, 85, 0.25);
+      box-shadow: 0 0 0 2px rgba(176,11,85,0.25);
     }
 
     .contact-form button {
       align-self: flex-start;
-      margin-top: 0.5rem;
       padding: 0.65rem 1.4rem;
       background: var(--panel);
       border: 1px solid #242424;
       border-radius: 10px;
-      color: var(--white);
+      color: white;
       font-size: 0.85rem;
       font-weight: 600;
-      letter-spacing: 0.4px;
       cursor: pointer;
-      transition: transform 0.2s ease,
-                  border-color 0.2s ease,
-                  box-shadow 0.2s ease;
+      transition: 0.2s;
     }
 
     .contact-form button:hover {
-      transform: translateY(-2px);
       border-color: var(--pink);
-      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+      box-shadow: 0 10px 24px rgba(176,11,85,0.25);
+      transform: translateY(-2px);
+    }
+
+    .form-status {
+      margin-top: 0.8rem;
+      font-size: 0.85rem;
+      color: #9cffc9;
+      display: none;
     }
 
     footer {
-      margin-top: 3.5rem;
+      margin-top: 3rem;
       text-align: center;
       font-size: 0.85rem;
       color: #8a8a8a;
     }
 
     @media (max-width: 900px) {
-      .contact-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .contact-card.wide {
-        grid-column: span 1;
-      }
-
-      .header {
-        flex-direction: column;
-        gap: 1.5rem;
-        align-items: flex-start;
-      }
+      .contact-grid { grid-template-columns: 1fr; }
+      .contact-card.wide { grid-column: span 1; }
+      .header { flex-direction: column; gap: 1.5rem; }
     }
   </style>
 </head>
@@ -227,46 +180,15 @@
 
     <section class="contact-grid">
 
-      <!-- WORK -->
-      <div class="contact-card">
-        <h3>Work</h3>
-        <p class="phone">519-807-8017</p>
-        <a href="mailto:work@williammaclean.ca">work@williammaclean.ca</a>
-      </div>
-
-      <!-- SCHOOL -->
-      <div class="contact-card">
-        <h3>School</h3>
-        <p class="phone">519-807-8017</p>
-        <a href="mailto:school@williammaclean.ca">school@williammaclean.ca</a>
-      </div>
-
-      <!-- OTHER -->
-      <div class="contact-card wide">
-        <h3>Other</h3>
-        <p class="phone">519-807-8017</p>
-        <a href="mailto:info@williammaclean.ca">info@williammaclean.ca</a>
-        <a href="https://maps.app.goo.gl/3dav2F3RiQnHjma57" target="_blank" rel="noopener">
-          808-545 Rideau St, Ottawa, ON K1N 0E3
-        </a>
-        <a href="https://www.instagram.com/william_maclean_06" target="_blank" rel="noopener">
-          Instagram – william_maclean_06
-        </a>
-        <a href="https://steamcommunity.com/id/Tabearus" target="_blank" rel="noopener">
-          Steam – Tabearus
-        </a>
-        <p>Discord – tabearus</p>
-      </div>
-
-      <!-- MESSAGE ME -->
       <div class="contact-card wide">
         <h3>Message Me</h3>
 
-        <form action="https://formspree.io/f/mlggdqnw" method="POST" class="contact-form">
+        <form class="contact-form" id="contactForm">
           <input type="text" name="name" placeholder="Your name" required>
           <input type="email" name="email" placeholder="Your email" required>
           <textarea name="message" rows="5" placeholder="Your message..." required></textarea>
           <button type="submit">Send Message</button>
+          <div class="form-status" id="formStatus">Message sent ✓</div>
         </form>
       </div>
 
@@ -277,5 +199,30 @@
     </footer>
 
   </main>
+
+  <script>
+    const form = document.getElementById("contactForm");
+    const status = document.getElementById("formStatus");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const response = await fetch("https://formspree.io/f/mlggdqnw", {
+        method: "POST",
+        body: new FormData(form),
+        headers: { "Accept": "application/json" }
+      });
+
+      if (response.ok) {
+        form.reset();
+        status.style.display = "block";
+
+        setTimeout(() => {
+          status.style.display = "none";
+        }, 5000);
+      }
+    });
+  </script>
+
 </body>
 </html>
