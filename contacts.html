@@ -10,7 +10,7 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
-   <!-- Favicon / Google Search image -->
+  <!-- Favicon / Google Search image -->
   <link rel="icon" href="/logo.png" sizes="48x48" type="image/png">
   <link rel="icon" href="/logo.png" sizes="96x96" type="image/png">
   <link rel="icon" href="/logo.png" sizes="192x192" type="image/png">
@@ -25,7 +25,11 @@
       --panel: #161616;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       min-height: 100vh;
@@ -133,6 +137,61 @@
       white-space: nowrap;
     }
 
+    /* CONTACT FORM */
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      background: #101010;
+      border: 1px solid #242424;
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      resize: vertical;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder {
+      color: #7d7d7d;
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      outline: none;
+      border-color: var(--pink);
+      box-shadow: 0 0 0 2px rgba(176, 11, 85, 0.25);
+    }
+
+    .contact-form button {
+      align-self: flex-start;
+      margin-top: 0.5rem;
+      padding: 0.65rem 1.4rem;
+      background: var(--panel);
+      border: 1px solid #242424;
+      border-radius: 10px;
+      color: var(--white);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      cursor: pointer;
+      transition: transform 0.2s ease,
+                  border-color 0.2s ease,
+                  box-shadow 0.2s ease;
+    }
+
+    .contact-form button:hover {
+      transform: translateY(-2px);
+      border-color: var(--pink);
+      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+    }
+
     footer {
       margin-top: 3.5rem;
       text-align: center;
@@ -171,45 +230,44 @@
       <!-- WORK -->
       <div class="contact-card">
         <h3>Work</h3>
-        
         <p class="phone">519-807-8017</p>
-        
         <a href="mailto:work@williammaclean.ca">work@williammaclean.ca</a>
-        
       </div>
 
       <!-- SCHOOL -->
       <div class="contact-card">
         <h3>School</h3>
-        
         <p class="phone">519-807-8017</p>
-        
         <a href="mailto:school@williammaclean.ca">school@williammaclean.ca</a>
-        
       </div>
 
-      <!-- Other (WIDE) -->
+      <!-- OTHER -->
       <div class="contact-card wide">
         <h3>Other</h3>
-        
         <p class="phone">519-807-8017</p>
-        
         <a href="mailto:info@williammaclean.ca">info@williammaclean.ca</a>
-        
         <a href="https://maps.app.goo.gl/3dav2F3RiQnHjma57" target="_blank" rel="noopener">
           808-545 Rideau St, Ottawa, ON K1N 0E3
         </a>
-        
         <a href="https://www.instagram.com/william_maclean_06" target="_blank" rel="noopener">
-          Instagram - william_maclean_06
+          Instagram – william_maclean_06
         </a>
-        
         <a href="https://steamcommunity.com/id/Tabearus" target="_blank" rel="noopener">
-          Steam - Tabeaurs
+          Steam – Tabearus
         </a>
-        
-        <p>Discord - tabearus</p>
-        
+        <p>Discord – tabearus</p>
+      </div>
+
+      <!-- MESSAGE ME -->
+      <div class="contact-card wide">
+        <h3>Message Me</h3>
+
+        <form action="https://formspree.io/f/mlggdqnw" method="POST" class="contact-form">
+          <input type="text" name="name" placeholder="Your name" required>
+          <input type="email" name="email" placeholder="Your email" required>
+          <textarea name="message" rows="5" placeholder="Your message..." required></textarea>
+          <button type="submit">Send Message</button>
+        </form>
       </div>
 
     </section>
