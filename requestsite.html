@@ -307,72 +307,73 @@
     <footer>© 2026 William MacLean</footer>
   </div>
 
-  <script>
-    const cards = document.querySelectorAll('.offer-card');
-    const totalEl = document.getElementById('total');
-    const itemsInput = document.getElementById('selected-items');
-    const priceInput = document.getElementById('total-price');
-    const status = document.getElementById('status');
+ <script>
+  const cards = document.querySelectorAll('.offer-card');
+  const totalEl = document.getElementById('total');
+  const itemsInput = document.getElementById('selected-items');
+  const priceInput = document.getElementById('total-price');
+  const status = document.getElementById('status');
 
-    const domainCard = [...cards].find(c => c.dataset.name === 'Custom Domain');
-    const emailCard  = [...cards].find(c => c.dataset.name === 'Custom Email');
+  const domainCard = [...cards].find(c => c.dataset.name === 'Custom Domain');
+  const emailCard  = [...cards].find(c => c.dataset.name === 'Custom Email');
 
-    function calculate() {
-      let total = 0;
-      let summary = [];
-
-      cards.forEach(card => {
-      card.addEventListener('click', e => {
-        if (e.target.tagName === 'INPUT') return;
-
-        // Toggle selected
-        card.classList.toggle('selected');
-
-        // If Custom Email is selected, force Custom Domain ON
-     if (card === emailCard && card.classList.contains('selected')) {
-         domainCard.classList.add('selected');
-     }
-
-        calculate();
-      });
-
-      const input = card.querySelector('input');
-      if (input) input.addEventListener('input', calculate);
-    });
-
-
-      totalEl.textContent = total.toFixed(2);
-      itemsInput.value = summary.join(', ');
-      priceInput.value = total.toFixed(2);
+  function calculate() {
+    // Enforce rule: Custom Email requires Custom Domain
+    if (emailCard.classList.contains('selected')) {
+      domainCard.classList.add('selected');
     }
 
+    let total = 0;
+    let summary = [];
+
     cards.forEach(card => {
-      card.addEventListener('click', e => {
-        if (e.target.tagName === 'INPUT') return;
-        card.classList.toggle('selected');
-        calculate();
-      });
+      if (!card.classList.contains('selected')) return;
 
-      const input = card.querySelector('input');
-      if (input) input.addEventListener('input', calculate);
+      const name = card.dataset.name;
+      const price = Number(card.dataset.price);
+      const qtyInput = card.querySelector('input');
+      const qty = qtyInput ? Number(qtyInput.value) : 1;
+
+      const cost = price * qty;
+      total += cost;
+
+      summary.push(`${name}${qtyInput ? ` (${qty})` : ''} – $${cost}`);
     });
 
-    document.getElementById('website-form').addEventListener('submit', async e => {
-      e.preventDefault();
+    totalEl.textContent = total.toFixed(2);
+    itemsInput.value = summary.join(', ');
+    priceInput.value = total.toFixed(2);
+  }
 
-      const res = await fetch('https://formspree.io/f/mlgggaqd', {
-        method: 'POST',
-        body: new FormData(e.target),
-        headers: { 'Accept': 'application/json' }
-      });
+  cards.forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT') return;
 
-      if (res.ok) {
-        status.style.display = 'block';
-        e.target.reset();
-        cards.forEach(c => c.classList.remove('selected'));
-        totalEl.textContent = '0';
-      }
+      card.classList.toggle('selected');
+      calculate();
     });
-  </script>
+
+    const input = card.querySelector('input');
+    if (input) input.addEventListener('input', calculate);
+  });
+
+  document.getElementById('website-form').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const res = await fetch('https://formspree.io/f/mlgggaqd', {
+      method: 'POST',
+      body: new FormData(e.target),
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (res.ok) {
+      status.style.display = 'block';
+      e.target.reset();
+      cards.forEach(c => c.classList.remove('selected'));
+      totalEl.textContent = '0';
+    }
+  });
+</script>
+
 </body>
 </html>
