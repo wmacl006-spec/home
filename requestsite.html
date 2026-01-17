@@ -1,394 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Website Builder – William MacLean</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Website Builder – William MacLean</title>
 
-  <link rel="icon" type="image/png" href="logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --pink: #B00B55;
-      --black: #0f0f0f;
-      --white: #ffffff;
-      --gray: #b5b5b5;
-      --panel: #161616;
-    }
+<style>
+:root {
+  --pink: #B00B55;
+  --black: #0f0f0f;
+  --white: #ffffff;
+  --gray: #b5b5b5;
+  --panel: #161616;
+}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at top, #1b1b1b, var(--black));
-      color: var(--white);
-      min-height: 100vh;
-    }
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #1b1b1b, var(--black));
+  color: var(--white);
+}
 
-    .home-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      padding: 0.6rem 1rem;
-      border-radius: 10px;
-      border: 1px solid #242424;
-      background: var(--panel);
-      color: var(--white);
-      font-weight: 600;
-      text-decoration: none;
-    }
+/* ---------- BACK BUTTON (CARD STYLE) ---------- */
+.home-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 0.55rem 0.9rem;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid #242424;
+  color: var(--white);
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 4rem 2rem;
-      text-align: center;
-    }
+.home-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--pink);
+  box-shadow: 0 8px 20px rgba(176,11,85,0.25);
+}
 
-    h1 {
-      font-family: 'Comfortaa', sans-serif;
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
-    }
+/* ---------- LAYOUT ---------- */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  text-align: center;
+}
 
-    .subtitle {
-      color: var(--gray);
-      margin-bottom: 2.5rem;
-    }
+h1 {
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 3rem;
+}
 
-    .offers {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(260px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2.5rem;
-      justify-items: center;
-    }
+.subtitle {
+  color: var(--gray);
+  margin-bottom: 2.5rem;
+}
 
-    .offer-card {
-      background: var(--panel);
-      border: 1px solid #242424;
-      border-radius: 14px;
-      padding: 1.6rem;
-      width: 100%;
-      max-width: 300px;
-      cursor: pointer;
-      position: relative;
-      transition: 0.2s ease;
-      text-align: left;
-    }
+/* ---------- CARDS ---------- */
+.offers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
+  gap: 1.5rem;
+  justify-items: center;
+  margin-bottom: 2.5rem;
+}
 
-    .offer-card.selected {
-      border-color: var(--pink);
-    }
+.offer-card {
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 14px;
+  padding: 1.6rem;
+  width: 100%;
+  max-width: 300px;
+  cursor: pointer;
+  position: relative;
+  text-align: left;
+  transition: 0.2s ease;
+}
 
-    .offer-card h3 {
-      color: var(--pink);
-      margin-bottom: 0.4rem;
-      font-family: 'Comfortaa', sans-serif;
-    }
+.offer-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--pink);
+  box-shadow: 0 12px 30px rgba(176,11,85,0.25);
+}
 
-    .price {
-      font-weight: 600;
-      margin-top: 0.6rem;
-    }
+.offer-card.selected {
+  border-color: var(--pink);
+}
 
-    .qty-wrapper {
-      display: none;
-      margin-top: 0.8rem;
-    }
+.offer-card h3 {
+  color: var(--pink);
+  font-family: 'Comfortaa', sans-serif;
+  margin-bottom: 0.4rem;
+}
 
-    .offer-card.selected .qty-wrapper {
-      display: block;
-    }
+.price {
+  margin-top: 0.6rem;
+  font-weight: 600;
+}
 
-    .qty-wrapper input {
-      width: 100%;
-      padding: 0.6rem;
-      background: #1f1f1f;
-      border: 1px solid #2a2a2a;
-      color: var(--white);
-      border-radius: 8px;
-    }
+/* ---------- CHECKLIST (FIXED ALIGNMENT) ---------- */
+.checklist {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.55rem;
+}
 
-    /* ---------- CHECKLIST ---------- */
-    .checklist {
-      margin-top: 0.8rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
+.checklist label {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items: center;
+  column-gap: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--gray);
+  cursor: pointer;
+}
 
-    .checklist label {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.6rem;
-      font-size: 0.9rem;
-      color: var(--gray);
-      cursor: pointer;
-    }
+.checklist input {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  border: 1px solid #3a3a3a;
+  background: #1f1f1f;
+  position: relative;
+}
 
-    .check-left {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+.checklist input:checked {
+  background: var(--pink);
+  border-color: var(--pink);
+}
 
-    .checklist input {
-      appearance: none;
-      width: 13px;
-      height: 13px;
-      border-radius: 4px;
-      border: 1px solid #3a3a3a;
-      background: #1f1f1f;
-      position: relative;
-      flex-shrink: 0;
-    }
+.checklist input:checked::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 1px;
+  width: 3px;
+  height: 6px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
 
-    .checklist input:checked {
-      background: var(--pink);
-      border-color: var(--pink);
-    }
+.check-price {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--white);
+}
 
-    .checklist input:checked::after {
-      content: "";
-      position: absolute;
-      top: 2px;
-      left: 4px;
-      width: 3px;
-      height: 6px;
-      border: solid white;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-    }
+/* ---------- SELECTED TAG ---------- */
+.selected-label {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--pink);
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: none;
+}
 
-    .check-price {
-      font-size: 0.85rem;
-      color: var(--white);
-      font-weight: 600;
-    }
+.offer-card.selected .selected-label {
+  display: block;
+}
 
-    .selected-label {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--pink);
-      font-size: 0.75rem;
-      padding: 3px 10px;
-      border-radius: 6px;
-      display: none;
-    }
+/* ---------- TOTAL ---------- */
+.total {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+}
 
-    .offer-card.selected .selected-label {
-      display: block;
-    }
+/* ---------- FORM (MATCHES CARDS) ---------- */
+form {
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 16px;
+  padding: 2.2rem;
+  max-width: 520px;
+  margin: 0 auto 3rem;
+  text-align: left;
+}
 
-    .total {
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin-bottom: 2.5rem;
-    }
+form h2 {
+  font-family: 'Comfortaa', sans-serif;
+  margin-bottom: 1.2rem;
+}
 
-    /* ---------- FORM ---------- */
-    form {
-      background: var(--panel);
-      padding: 2.2rem;
-      border-radius: 16px;
-      max-width: 520px;
-      margin: 0 auto 3rem;
-      border: 1px solid #242424;
-      text-align: left;
-    }
+input, textarea {
+  width: 100%;
+  padding: 0.9rem;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  border: 1px solid #2a2a2a;
+  background: #1f1f1f;
+  color: var(--white);
+}
 
-    form h2 {
-      font-family: 'Comfortaa', sans-serif;
-      margin-bottom: 1.2rem;
-    }
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--pink);
+}
 
-    input, textarea {
-      width: 100%;
-      padding: 0.9rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      border: 1px solid #2a2a2a;
-      background: #1f1f1f;
-      color: var(--white);
-    }
+button {
+  width: 100%;
+  padding: 0.9rem;
+  border-radius: 12px;
+  border: 1px solid var(--pink);
+  background: var(--pink);
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
 
-    button {
-      width: 100%;
-      padding: 0.9rem;
-      border-radius: 12px;
-      border: 1px solid var(--pink);
-      background: var(--pink);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-    }
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(176,11,85,0.4);
+}
 
-    footer {
-      text-align: center;
-      color: #8a8a8a;
-      font-size: 0.85rem;
-    }
-  </style>
+footer {
+  text-align: center;
+  color: #8a8a8a;
+  font-size: 0.85rem;
+}
+</style>
 </head>
 
 <body>
 <a href="/" class="home-btn">← Home</a>
 
 <div class="container">
-  <h1>Build Your Website</h1>
-  <p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
+<h1>Build Your Website</h1>
+<p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
 
-  <div class="offers">
+<div class="offers">
 
-    <div class="offer-card" data-name="Landing Page" data-price="1">
-      <h3>Landing Page</h3>
-      <p>Home page</p>
-      <div class="price">$1 / month</div>
-      <div class="selected-label">Added</div>
-    </div>
+<div class="offer-card" data-type="checklist" data-name="Custom Email">
+<h3>Custom Email</h3>
+<p>you@your-name.ca</p>
 
-    <div class="offer-card" data-name="Extra Pages" data-price="0.75">
-      <h3>Extra Pages</h3>
-      <div class="price">$0.75 × page</div>
-      <div class="qty-wrapper">
-        <input type="number" min="1" max="15" value="1">
-      </div>
-      <div class="selected-label">Added</div>
-    </div>
+<div class="checklist">
+<label>
+<input type="checkbox" data-price="0.5" value="Send from">
+<span>Send from</span>
+<span class="check-price">$0.50</span>
+</label>
 
-    <div class="offer-card" data-type="checklist" data-name="Custom Email">
-      <h3>Custom Email</h3>
-      <p>you@your-name.ca</p>
+<label>
+<input type="checkbox" data-price="0.5" value="Receive from">
+<span>Receive from</span>
+<span class="check-price">$0.50</span>
+</label>
+</div>
 
-      <div class="checklist">
-        <label>
-          <div class="check-left">
-            <input type="checkbox" data-price="0.5" value="Send from">
-            Send from
-          </div>
-          <span class="check-price">$0.50</span>
-        </label>
+<div class="selected-label">Added</div>
+</div>
 
-        <label>
-          <div class="check-left">
-            <input type="checkbox" data-price="0.5" value="Receive from">
-            Receive from
-          </div>
-          <span class="check-price">$0.50</span>
-        </label>
-      </div>
+</div>
 
-      <div class="selected-label">Added</div>
-    </div>
+<div class="total">Total: $<span id="total">0</span> / month</div>
 
-    <div class="offer-card" data-name="Custom Domain" data-price="4">
-      <h3>Custom Domain</h3>
-      <p>your-name.ca</p>
-      <div class="price">$4 / month</div>
-      <div class="selected-label">Added</div>
-    </div>
+<form action="https://formspree.io/f/mlgggaqd" method="POST">
+<h2>Send Request</h2>
+<input type="text" name="name" placeholder="Your Name" required>
+<input type="email" name="email" placeholder="Your Email" required>
+<textarea name="message" placeholder="Extra notes" required></textarea>
+<input type="hidden" name="selected_items" id="selected-items">
+<input type="hidden" name="total_price" id="total-price">
+<button type="submit">Send Request</button>
+</form>
 
-    <div class="offer-card" data-name="Revisions" data-price="1">
-      <h3>Revisions</h3>
-      <div class="price">$1 × revision</div>
-      <div class="qty-wrapper">
-        <input type="number" min="1" max="15" value="1">
-      </div>
-      <div class="selected-label">Added</div>
-    </div>
-
-  </div>
-
-  <div class="total">Total: $<span id="total">0</span> / month</div>
-
-  <form id="website-form" action="https://formspree.io/f/mlgggaqd" method="POST">
-    <h2>Send Request</h2>
-    <input type="text" name="name" placeholder="Your Name" required>
-    <input type="email" name="email" placeholder="Your Email" required>
-    <textarea name="message" placeholder="Extra notes" required></textarea>
-
-    <input type="hidden" name="selected_items" id="selected-items">
-    <input type="hidden" name="total_price" id="total-price">
-
-    <button type="submit">Send Request</button>
-  </form>
-
-  <footer>© 2026 William MacLean</footer>
+<footer>© 2026 William MacLean</footer>
 </div>
 
 <script>
-  const cards = document.querySelectorAll('.offer-card');
-  const totalEl = document.getElementById('total');
-  const itemsInput = document.getElementById('selected-items');
-  const priceInput = document.getElementById('total-price');
+const card = document.querySelector('.offer-card');
+const totalEl = document.getElementById('total');
+const itemsInput = document.getElementById('selected-items');
+const priceInput = document.getElementById('total-price');
 
-  function calculate() {
-    let total = 0;
-    let summary = [];
-
-    cards.forEach(card => {
-      const isChecklist = card.dataset.type === 'checklist';
-      const name = card.dataset.name;
-
-      if (isChecklist) {
-        const checked = card.querySelectorAll('.checklist input:checked');
-        if (!checked.length) return;
-
-        let cost = 0;
-        let details = [];
-
-        checked.forEach(c => {
-          cost += Number(c.dataset.price);
-          details.push(c.value);
-        });
-
-        total += cost;
-        summary.push(`${name} (${details.join(', ')}) – $${cost.toFixed(2)}`);
-        card.classList.add('selected');
-      } else if (card.classList.contains('selected')) {
-        const price = Number(card.dataset.price);
-        const qtyInput = card.querySelector('.qty-wrapper input');
-        const qty = qtyInput ? Number(qtyInput.value) : 1;
-        const cost = price * qty;
-
-        total += cost;
-        summary.push(`${name}${qtyInput ? ` (${qty})` : ''} – $${cost.toFixed(2)}`);
-      }
-    });
-
-    totalEl.textContent = total.toFixed(2);
-    itemsInput.value = summary.join(', ');
-    priceInput.value = total.toFixed(2);
+function calculate() {
+  const checked = card.querySelectorAll('input:checked');
+  if (!checked.length) {
+    card.classList.remove('selected');
+    totalEl.textContent = '0';
+    itemsInput.value = '';
+    priceInput.value = '0';
+    return;
   }
 
-  cards.forEach(card => {
-    if (card.dataset.type === 'checklist') {
-      card.querySelectorAll('.checklist input').forEach(cb => {
-        cb.addEventListener('change', () => {
-          card.classList.toggle(
-            'selected',
-            card.querySelectorAll('.checklist input:checked').length > 0
-          );
-          calculate();
-        });
-      });
-      return;
-    }
-
-    card.addEventListener('click', e => {
-      if (e.target.tagName === 'INPUT') return;
-      card.classList.toggle('selected');
-      calculate();
-    });
-
-    const qty = card.querySelector('.qty-wrapper input');
-    if (qty) qty.addEventListener('input', calculate);
+  let total = 0;
+  let items = [];
+  checked.forEach(c => {
+    total += Number(c.dataset.price);
+    items.push(c.value);
   });
+
+  card.classList.add('selected');
+  totalEl.textContent = total.toFixed(2);
+  itemsInput.value = `Custom Email (${items.join(', ')})`;
+  priceInput.value = total.toFixed(2);
+}
+
+document.querySelectorAll('.checklist input').forEach(cb =>
+  cb.addEventListener('change', calculate)
+);
 </script>
 </body>
 </html>
