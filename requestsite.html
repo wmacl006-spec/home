@@ -141,30 +141,23 @@
       margin-bottom: 2.5rem;
     }
 
-    .home-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 2rem;
-      padding: 0.6rem 1.1rem;
-
-      background: var(--panel);
-      border: 1px solid #242424;
+    .home-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 0.6rem 1rem;
       border-radius: 10px;
-
-      text-decoration: none;
+      border: 1px solid #242424;
+      background: var(--panel);
       color: var(--white);
-      font-size: 0.85rem;
       font-weight: 600;
-      letter-spacing: 0.3px;
-
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      text-decoration: none;
+      transition: 0.2s ease;
     }
 
-    .home-button:hover {
-      transform: translateY(-2px);
+    .home-btn:hover {
       border-color: var(--pink);
-      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+      box-shadow: 0 0 0 1px var(--pink);
     }
 
 
