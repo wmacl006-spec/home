@@ -203,7 +203,7 @@
 
 <div class="container">
 
-<a href="index.html" class="home-button">← Home</a>
+<a href="index.html" class="home-button">Home</a>
   
   <h1>Build Your Order</h1>
   <p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
@@ -326,7 +326,7 @@
     oneTimeEl.textContent = oneTime.toFixed(2);
     monthlyEl.textContent = monthly.toFixed(2);
     itemsInput.value = summary.join(', ');
-    priceInput.value = `One-time: $${oneTime}, Monthly: $${monthly}`;
+    priceInput.value = `One-time: $${oneTime}+5, Monthly: $${monthly}`;
   }
 
   function syncForcedSelections() {
