@@ -37,12 +37,6 @@
       color: var(--white);
       font-weight: 600;
       text-decoration: none;
-      transition: 0.2s ease;
-    }
-
-    .home-btn:hover {
-      border-color: var(--pink);
-      box-shadow: 0 0 0 1px var(--pink);
     }
 
     .container {
@@ -123,24 +117,48 @@
       border-radius: 8px;
     }
 
+    /* ---------- CHECKLIST (THEMED) ---------- */
     .checklist {
       margin-top: 0.8rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.6rem;
     }
 
     .checklist label {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.6rem;
       font-size: 0.9rem;
       color: var(--gray);
       cursor: pointer;
     }
 
     .checklist input {
-      accent-color: var(--pink);
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid #3a3a3a;
+      background: #1f1f1f;
+      position: relative;
+    }
+
+    .checklist input:checked {
+      background: var(--pink);
+      border-color: var(--pink);
+    }
+
+    .checklist input:checked::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 5px;
+      width: 4px;
+      height: 7px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
     }
 
     .selected-label {
@@ -175,11 +193,6 @@
       text-align: left;
     }
 
-    form h2 {
-      font-family: 'Comfortaa', sans-serif;
-      margin-bottom: 1.2rem;
-    }
-
     input, textarea {
       width: 100%;
       padding: 0.9rem;
@@ -188,10 +201,6 @@
       border: 1px solid #2a2a2a;
       background: #1f1f1f;
       color: var(--white);
-    }
-
-    textarea {
-      min-height: 110px;
     }
 
     button {
@@ -221,6 +230,7 @@
   <p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
 
   <div class="offers">
+
     <div class="offer-card" data-name="Landing Page" data-price="1">
       <h3>Landing Page</h3>
       <p>Home page</p>
@@ -237,7 +247,7 @@
       <div class="selected-label">Added</div>
     </div>
 
-    <div class="offer-card" data-name="Custom Email" data-price="1">
+    <div class="offer-card" data-type="checklist" data-name="Custom Email" data-price="1">
       <h3>Custom Email</h3>
       <p>you@your-name.ca</p>
 
@@ -249,19 +259,30 @@
       <div class="price">$1 / month</div>
       <div class="selected-label">Added</div>
     </div>
+
+    <div class="offer-card" data-name="Custom Domain" data-price="4">
+      <h3>Custom Domain</h3>
+      <p>your-name.ca</p>
+      <div class="price">$4 / month</div>
+      <div class="selected-label">Added</div>
+    </div>
+
+    <div class="offer-card" data-name="Revisions" data-price="1">
+      <h3>Revisions</h3>
+      <div class="price">$1 × revision</div>
+      <div class="qty-wrapper">
+        <input type="number" min="1" max="15" value="1">
+      </div>
+      <div class="selected-label">Added</div>
+    </div>
+
   </div>
 
   <div class="total">Total: $<span id="total">0</span> / month</div>
 
-  <form id="website-form">
-    <h2>Send Request</h2>
-    <input type="text" name="name" placeholder="Your Name" required>
-    <input type="email" name="email" placeholder="Your Email" required>
-    <textarea name="message" placeholder="Extra notes" required></textarea>
-
-    <input type="hidden" name="selected_items" id="selected-items">
-    <input type="hidden" name="total_price" id="total-price">
-
+  <form>
+    <input type="hidden" id="selected-items">
+    <input type="hidden" id="total-price">
     <button type="submit">Send Request</button>
   </form>
 
@@ -301,17 +322,25 @@
   }
 
   cards.forEach(card => {
+    const isChecklist = card.dataset.type === 'checklist';
+
     card.addEventListener('click', e => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
+      if (isChecklist) return;
+      if (e.target.tagName === 'INPUT') return;
       card.classList.toggle('selected');
       calculate();
     });
 
-    card.querySelectorAll('input').forEach(input => {
-      input.addEventListener('input', () => {
-        card.classList.add('selected');
+    card.querySelectorAll('.checklist input').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const checked = card.querySelectorAll('.checklist input:checked').length;
+        card.classList.toggle('selected', checked > 0);
         calculate();
       });
+    });
+
+    card.querySelectorAll('.qty-wrapper input').forEach(input => {
+      input.addEventListener('input', calculate);
     });
   });
 </script>
