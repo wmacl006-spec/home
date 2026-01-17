@@ -312,17 +312,28 @@
   }
 
   cards.forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.tagName === 'INPUT') return;
+  card.addEventListener('click', e => {
+    if (e.target.tagName === 'INPUT') return;
 
-      card.classList.toggle('selected');
+    const isDomain = card === domainCard;
+    const emailActive = emailCards.some(c =>
+      c.classList.contains('selected')
+    );
 
-      syncDomainSelection();
-      calculate();
-    });
+    // Prevent turning OFF domain if email is active
+    if (isDomain && emailActive && card.classList.contains('selected')) {
+      return;
+    }
 
-    card.querySelector('input')?.addEventListener('input', calculate);
+    card.classList.toggle('selected');
+
+    syncDomainSelection();
+    calculate();
   });
+
+  card.querySelector('input')?.addEventListener('input', calculate);
+});
+
 </script>
 
 
