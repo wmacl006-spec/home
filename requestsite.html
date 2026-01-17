@@ -1,368 +1,385 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Website Builder – William MacLean</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Website Builder – William MacLean</title>
 
-  <link rel="icon" type="image/png" href="logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --pink: #B00B55;
-      --black: #0f0f0f;
-      --white: #ffffff;
-      --gray: #b5b5b5;
-      --panel: #161616;
-    }
+<style>
+:root {
+  --pink:#B00B55;
+  --black:#0f0f0f;
+  --white:#ffffff;
+  --gray:#b5b5b5;
+  --panel:#161616;
+}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing:border-box; margin:0; padding:0; }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at top, #1b1b1b, var(--black));
-      color: var(--white);
-      min-height: 100vh;
-    }
+body {
+  font-family:'Inter',sans-serif;
+  background:radial-gradient(circle at top,#1b1b1b,var(--black));
+  color:var(--white);
+}
 
-    /* ---------- HOME BUTTON ---------- */
-    .home-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      padding: 0.6rem 1rem;
-      border-radius: 10px;
-      border: 1px solid #242424;
-      background: var(--panel);
-      color: var(--white);
-      font-weight: 600;
-      text-decoration: none;
-      transition: 0.2s ease;
-    }
+/* ---------- HOME BUTTON ---------- */
+.home-btn {
+  position:fixed;
+  top:20px;
+  left:20px;
+  padding:0.55rem 0.9rem;
+  border-radius:10px;
+  border:1px solid #242424;
+  background:var(--panel);
+  color:var(--white);
+  font-weight:600;
+  text-decoration:none;
+  transition:0.2s ease;
+}
 
-    .home-btn:hover {
-      border-color: var(--pink);
-      box-shadow: 0 0 0 1px var(--pink);
-    }
+.home-btn:hover {
+  border-color:var(--pink);
+  box-shadow:0 0 0 1px var(--pink);
+}
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 4rem 2rem;
-      text-align: center;
-    }
+/* ---------- LAYOUT ---------- */
+.container {
+  max-width:1100px;
+  margin:0 auto;
+  padding:4rem 2rem;
+  text-align:center;
+}
 
-    h1 {
-      font-family: 'Comfortaa', sans-serif;
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
-    }
+h1 {
+  font-family:'Comfortaa',sans-serif;
+  font-size:3rem;
+}
 
-    .subtitle {
-      color: var(--gray);
-      margin-bottom: 2.5rem;
-    }
+.subtitle {
+  color:var(--gray);
+  margin-bottom:2.5rem;
+}
 
-    /* ---------- CARD GRID ---------- */
-    .offers {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(260px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2.5rem;
-      justify-items: center;
-    }
+/* ---------- GRID ---------- */
+.offers {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(260px,1fr));
+  gap:1.5rem;
+  justify-items:center;
+  margin-bottom:2.5rem;
+}
 
-    /* 1 leftover */
-    .offer-card:last-child:nth-child(3n + 1) {
-      grid-column: 2 / span 1;
-    }
+/* ---------- CARDS ---------- */
+.offer-card {
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:14px;
+  padding:1.6rem;
+  width:100%;
+  max-width:300px;
+  cursor:pointer;
+  position:relative;
+  text-align:left;
+  transition:0.2s ease;
+}
 
-    /* 2 leftover */
-    .offer-card:nth-last-child(2):nth-child(3n + 1) {
-      grid-column: 2 / span 1;
-    }
+.offer-card:hover {
+  transform:translateY(-4px);
+  border-color:var(--pink);
+  box-shadow:0 12px 30px rgba(176,11,85,0.25);
+}
 
-    .offer-card:last-child:nth-child(3n + 2) {
-      grid-column: 3 / span 1;
-    }
+.offer-card.selected {
+  border-color:var(--pink);
+}
 
-    .offer-card {
-      background: var(--panel);
-      border: 1px solid #242424;
-      border-radius: 14px;
-      padding: 1.6rem;
-      width: 100%;
-      max-width: 300px;
-      cursor: pointer;
-      position: relative;
-      transition: 0.2s ease;
-      text-align: left;
-    }
+.offer-card h3 {
+  color:var(--pink);
+  font-family:'Comfortaa',sans-serif;
+}
 
-    .offer-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--pink);
-      box-shadow: 0 12px 30px rgba(176,11,85,0.25);
-    }
+.price {
+  margin-top:0.6rem;
+  font-weight:600;
+}
 
-    .offer-card.selected {
-      border-color: var(--pink);
-    }
+/* ---------- QTY ---------- */
+.qty-wrapper {
+  display:none;
+  margin-top:0.8rem;
+}
 
-    .offer-card h3 {
-      color: var(--pink);
-      margin-bottom: 0.4rem;
-      font-family: 'Comfortaa', sans-serif;
-    }
+.offer-card.selected .qty-wrapper {
+  display:block;
+}
 
-    .price {
-      font-weight: 600;
-      margin-top: 0.6rem;
-    }
+.qty-wrapper input {
+  width:100%;
+  padding:0.6rem;
+  border-radius:8px;
+  border:1px solid #2a2a2a;
+  background:#1f1f1f;
+  color:var(--white);
+}
 
-    .qty-wrapper {
-      display: none;
-      margin-top: 0.8rem;
-    }
+/* ---------- CHECKLIST ---------- */
+.checklist {
+  margin-top:0.8rem;
+  display:grid;
+  gap:0.55rem;
+}
 
-    .offer-card.selected .qty-wrapper {
-      display: block;
-    }
+.checklist label {
+  display:grid;
+  grid-template-columns:14px 1fr auto;
+  gap:0.5rem;
+  align-items:center;
+  font-size:0.9rem;
+  color:var(--gray);
+}
 
-    .qty-wrapper input {
-      width: 100%;
-      padding: 0.6rem;
-      background: #1f1f1f;
-      border: 1px solid #2a2a2a;
-      color: var(--white);
-      border-radius: 8px;
-    }
+.checklist input {
+  appearance:none;
+  width:11px;
+  height:11px;
+  border-radius:3px;
+  border:1px solid #3a3a3a;
+  background:#1f1f1f;
+}
 
-    .selected-label {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--pink);
-      font-size: 0.75rem;
-      padding: 3px 10px;
-      border-radius: 6px;
-      display: none;
-    }
+.checklist input:checked {
+  background:var(--pink);
+  border-color:var(--pink);
+}
 
-    .offer-card.selected .selected-label {
-      display: block;
-    }
+.checklist input:checked::after {
+  content:"";
+  position:absolute;
+  width:3px;
+  height:6px;
+  border:solid white;
+  border-width:0 2px 2px 0;
+  transform:rotate(45deg);
+  left:3px;
+  top:1px;
+}
 
-    .total {
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin-bottom: 2.5rem;
-    }
+.check-price {
+  font-size:0.85rem;
+  color:var(--white);
+  font-weight:600;
+}
 
-    /* ---------- FORM ---------- */
-    form {
-      background: var(--panel);
-      padding: 2.2rem;
-      border-radius: 16px;
-      max-width: 520px;
-      margin: 0 auto 3rem;
-      border: 1px solid #242424;
-      text-align: left;
-    }
+/* ---------- SELECTED TAG ---------- */
+.selected-label {
+  position:absolute;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--pink);
+  font-size:0.75rem;
+  padding:3px 10px;
+  border-radius:6px;
+  display:none;
+}
 
-    form h2 {
-      font-family: 'Comfortaa', sans-serif;
-      margin-bottom: 1.2rem;
-    }
+.offer-card.selected .selected-label {
+  display:block;
+}
 
-    input, textarea {
-      width: 100%;
-      padding: 0.9rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      border: 1px solid #2a2a2a;
-      background: #1f1f1f;
-      color: var(--white);
-      font-family: 'Inter', sans-serif;
-    }
+/* ---------- TOTAL ---------- */
+.total {
+  font-size:1.4rem;
+  font-weight:600;
+  margin-bottom:2.5rem;
+}
 
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--pink);
-    }
+/* ---------- FORM ---------- */
+form {
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:16px;
+  padding:2.2rem;
+  max-width:520px;
+  margin:0 auto 3rem;
+  text-align:left;
+}
 
-    textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
+form h2 {
+  font-family:'Comfortaa',sans-serif;
+  margin-bottom:1.2rem;
+}
 
-    button {
-      width: 100%;
-      padding: 0.9rem;
-      border-radius: 12px;
-      border: 1px solid var(--pink);
-      background: var(--pink);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
+input,textarea {
+  width:100%;
+  padding:0.9rem;
+  margin-bottom:1rem;
+  border-radius:10px;
+  border:1px solid #2a2a2a;
+  background:#1f1f1f;
+  color:var(--white);
+}
 
-    button:hover {
-      box-shadow: 0 12px 30px rgba(176,11,85,0.4);
-      transform: translateY(-1px);
-    }
+input:focus,textarea:focus {
+  outline:none;
+  border-color:var(--pink);
+}
 
-    .form-status {
-      display: none;
-      margin-top: 0.8rem;
-      color: #7CFCB0;
-      text-align: center;
-      font-weight: 600;
-    }
+button {
+  width:100%;
+  padding:0.9rem;
+  border-radius:12px;
+  border:1px solid var(--pink);
+  background:var(--pink);
+  font-weight:700;
+  cursor:pointer;
+  transition:0.2s ease;
+}
 
-    footer {
-      text-align: center;
-      color: #8a8a8a;
-      font-size: 0.85rem;
-    }
-  </style>
+button:hover {
+  transform:translateY(-1px);
+  box-shadow:0 12px 30px rgba(176,11,85,0.4);
+}
+
+footer {
+  text-align:center;
+  color:#8a8a8a;
+  font-size:0.85rem;
+}
+</style>
 </head>
 
 <body>
-  <a href="/" class="home-btn">← Home</a>
+<a href="/" class="home-btn">← Home</a>
 
-  <div class="container">
-    <h1>Build Your Website</h1>
-    <p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
+<div class="container">
+<h1>Build Your Website</h1>
+<p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
 
-    <div class="offers">
-      <div class="offer-card" data-name="Landing Page" data-price="1">
-        <h3>Landing Page</h3>
-        <p>Home page</p>
-        <div class="price">$1 / month</div>
-        <div class="selected-label">Added</div>
-      </div>
+<div class="offers">
 
-      <div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
-        <h3>Extra Pages</h3>
-        <div class="price">$0.75 × page</div>
-        <div class="qty-wrapper">
-          <input type="number" min="1" max="15" value="1">
-        </div>
-        <div class="selected-label">Added</div>
-      </div>
+<div class="offer-card" data-name="Landing Page" data-price="1">
+<h3>Landing Page</h3>
+<p>Home page</p>
+<div class="price">$1 / month</div>
+<div class="selected-label">Added</div>
+</div>
 
-      <div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
-        <h3>Forms</h3>
-        <div class="price">$1 × form</div>
-        <div class="qty-wrapper">
-          <input type="number" min="1" max="15" value="1">
-        </div>
-        <div class="selected-label">Added</div>
-      </div>
+<div class="offer-card" data-name="Custom Domain" data-price="4">
+<h3>Custom Domain</h3>
+<p>your-name.ca</p>
+<div class="price">$4 / month</div>
+<div class="selected-label">Added</div>
+</div>
 
-      <div class="offer-card" data-name="Custom Domain" data-price="4">
-        <h3>Custom Domain</h3>
-        <p>your-name.ca</p>
-        <div class="price">$4 / month</div>
-        <div class="selected-label">Added</div>
-      </div>
+<div class="offer-card" data-name="Custom Email" data-type="checklist" data-requires="Custom Domain">
+<h3>Custom Email</h3>
+<p>you@your-name.ca</p>
 
-      <div class="offer-card" data-name="Custom Email" data-price="1">
-        <h3>Custom Email</h3>
-        <p>you@your-name.ca</p>
-        <div class="price">$1 / month</div>
-        <div class="selected-label">Added</div>
-      </div>
+<div class="checklist">
+<label>
+<input type="checkbox" data-price="0.5" value="Send">
+<span>Send</span>
+<span class="check-price">$0.50</span>
+</label>
+<label>
+<input type="checkbox" data-price="0.5" value="Receive">
+<span>Receive</span>
+<span class="check-price">$0.50</span>
+</label>
+</div>
 
-      <div class="offer-card" data-name="Revisions" data-price="1" data-qty="true">
-        <h3>Revisions</h3>
-        <div class="price">$1 × revision</div>
-        <div class="qty-wrapper">
-          <input type="number" min="1" max="15" value="1">
-        </div>
-        <div class="selected-label">Added</div>
-      </div>
-    </div>
+<div class="selected-label">Added</div>
+</div>
 
-    <div class="total">Total: $<span id="total">0</span> / month</div>
+</div>
 
-    <form id="website-form">
-      <h2>Send Request</h2>
-      <input type="text" name="name" placeholder="Your Name" required>
-      <input type="email" name="email" placeholder="Your Email" required>
-      <textarea name="message" placeholder="Extra notes" required></textarea>
+<div class="total">Total: $<span id="total">0</span> / month</div>
 
-      <input type="hidden" name="selected_items" id="selected-items">
-      <input type="hidden" name="total_price" id="total-price">
+<form action="https://formspree.io/f/mlgggaqd" method="POST">
+<h2>Send Request</h2>
+<input type="text" name="name" placeholder="Your Name" required>
+<input type="email" name="email" placeholder="Your Email" required>
+<textarea name="message" placeholder="Extra notes" required></textarea>
+<input type="hidden" name="selected_items" id="selected-items">
+<input type="hidden" name="total_price" id="total-price">
+<button type="submit">Send Request</button>
+</form>
 
-      <button type="submit">Send Request</button>
-      <div class="form-status" id="status">Sent!</div>
-    </form>
+<footer>© 2026 William MacLean</footer>
+</div>
 
-    <footer>© 2026 William MacLean</footer>
-  </div>
+<script>
+const cards = document.querySelectorAll('.offer-card');
+const totalEl = document.getElementById('total');
+const itemsInput = document.getElementById('selected-items');
+const priceInput = document.getElementById('total-price');
 
-  <script>
-    const cards = document.querySelectorAll('.offer-card');
-    const totalEl = document.getElementById('total');
-    const itemsInput = document.getElementById('selected-items');
-    const priceInput = document.getElementById('total-price');
-    const status = document.getElementById('status');
+const cardMap = {};
+cards.forEach(c => cardMap[c.dataset.name] = c);
 
-    function calculate() {
-      let total = 0;
-      let summary = [];
+function calculate() {
+  let total = 0;
+  let summary = [];
 
-      cards.forEach(card => {
-        if (!card.classList.contains('selected')) return;
+  cards.forEach(card => {
+    card.classList.remove('selected');
 
-        const name = card.dataset.name;
-        const price = Number(card.dataset.price);
-        const qtyInput = card.querySelector('input');
-        const qty = qtyInput ? Number(qtyInput.value) : 1;
+    if (card.dataset.type === 'checklist') {
+      const checked = card.querySelectorAll('input:checked');
+      if (!checked.length) return;
 
-        const cost = price * qty;
-        total += cost;
-
-        summary.push(`${name}${qtyInput ? ` (${qty})` : ''} – $${cost}`);
+      let cost = 0;
+      let parts = [];
+      checked.forEach(c => {
+        cost += Number(c.dataset.price);
+        parts.push(c.value);
       });
 
-      totalEl.textContent = total.toFixed(2);
-      itemsInput.value = summary.join(', ');
-      priceInput.value = total.toFixed(2);
+      card.classList.add('selected');
+      total += cost;
+      summary.push(`${card.dataset.name} (${parts.join(', ')}) – $${cost.toFixed(2)}`);
+    } else if (card.classList.contains('manual')) {
+      return;
     }
+  });
 
-    cards.forEach(card => {
-      card.addEventListener('click', e => {
-        if (e.target.tagName === 'INPUT') return;
-        card.classList.toggle('selected');
-        calculate();
+  cards.forEach(card => {
+    if (card.classList.contains('selected') && card.dataset.requires) {
+      card.dataset.requires.split(',').forEach(req => {
+        cardMap[req.trim()]?.classList.add('selected');
       });
+    }
+  });
 
-      const input = card.querySelector('input');
-      if (input) input.addEventListener('input', calculate);
+  cards.forEach(card => {
+    if (card.classList.contains('selected') && card.dataset.price) {
+      const price = Number(card.dataset.price);
+      total += price;
+      summary.push(`${card.dataset.name} – $${price.toFixed(2)}`);
+    }
+  });
+
+  totalEl.textContent = total.toFixed(2);
+  itemsInput.value = summary.join(', ');
+  priceInput.value = total.toFixed(2);
+}
+
+document.querySelectorAll('.offer-card').forEach(card => {
+  if (!card.dataset.type) {
+    card.addEventListener('click', () => {
+      card.classList.toggle('manual');
+      calculate();
     });
+  }
+});
 
-    document.getElementById('website-form').addEventListener('submit', async e => {
-      e.preventDefault();
-
-      const res = await fetch('https://formspree.io/f/mlgggaqd', {
-        method: 'POST',
-        body: new FormData(e.target),
-        headers: { 'Accept': 'application/json' }
-      });
-
-      if (res.ok) {
-        status.style.display = 'block';
-        e.target.reset();
-        cards.forEach(c => c.classList.remove('selected'));
-        totalEl.textContent = '0';
-      }
-    });
-  </script>
+document.querySelectorAll('.checklist input').forEach(cb => {
+  cb.addEventListener('change', calculate);
+});
+</script>
 </body>
 </html>
