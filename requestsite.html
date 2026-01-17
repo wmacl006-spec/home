@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Resume Website Offers – William MacLean</title>
 
+  <link rel="icon" type="image/png" href="logo.png">
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -49,7 +51,7 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 1.5rem;
-      margin-bottom: 3rem;
+      margin-bottom: 2rem;
     }
 
     .offer-card {
@@ -59,7 +61,14 @@
       padding: 2rem 1.5rem;
       flex: 0 0 280px;
       max-width: 280px;
+      cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      text-align: left;
+    }
+
+    .offer-card.selected {
+      border-color: var(--pink);
+      box-shadow: 0 12px 30px rgba(176, 11, 85, 0.35);
     }
 
     .offer-card:hover {
@@ -75,14 +84,21 @@
 
     .offer-card p {
       color: var(--white);
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.5rem;
       font-size: 0.95rem;
     }
 
     .offer-card .price {
       font-weight: 600;
       font-size: 1.1rem;
-      margin-bottom: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .plan-label {
+      font-size: 1rem;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+      text-align: left;
     }
 
     form {
@@ -160,22 +176,23 @@
     <h1>Resume Website Offers</h1>
     <p class="subtitle">Stand out from other students with a professional personal site.</p>
 
+    <div class="plan-label">Select a plan:</div>
     <div class="offers">
-      <div class="offer-card">
+      <div class="offer-card" data-plan="Starter">
         <h3>Starter</h3>
         <p>Single-page resume site using pre-made template.</p>
         <p>Paste your content and get live in 48 hours.</p>
         <div class="price">$40</div>
       </div>
 
-      <div class="offer-card">
+      <div class="offer-card" data-plan="Standard">
         <h3>Standard</h3>
         <p>Single-page resume site with light customization.</p>
         <p>Includes PDF download, mobile optimization, and 1 revision.</p>
         <div class="price">$75</div>
       </div>
 
-      <div class="offer-card">
+      <div class="offer-card" data-plan="Premium">
         <h3>Premium</h3>
         <p>Fully customized site with domain setup, resume wording polish, and priority delivery.</p>
         <div class="price">$120</div>
@@ -187,6 +204,7 @@
       <input type="text" name="name" placeholder="Your Name" required>
       <input type="email" name="email" placeholder="Your Email" required>
       <textarea name="message" rows="5" placeholder="Brief info about your resume / site needs" required></textarea>
+      <input type="hidden" name="plan" id="selected-plan" value="">
       <button type="submit">Send Request</button>
       <div class="form-status" id="form-status">Message sent successfully.</div>
     </form>
@@ -195,11 +213,30 @@
   </div>
 
   <script>
+    // Handle plan selection
+    const offerCards = document.querySelectorAll('.offer-card');
+    const planInput = document.getElementById('selected-plan');
+
+    offerCards.forEach(card => {
+      card.addEventListener('click', () => {
+        offerCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        planInput.value = card.dataset.plan; // add plan to hidden input
+      });
+    });
+
+    // Form submission
     const form = document.getElementById('resume-request-form');
     const status = document.getElementById('form-status');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      if (!planInput.value) {
+        alert('Please select a plan before submitting.');
+        return;
+      }
+
       const button = form.querySelector('button');
       button.disabled = true;
 
@@ -211,6 +248,8 @@
 
       if (response.ok) {
         form.reset();
+        planInput.value = '';
+        offerCards.forEach(c => c.classList.remove('selected'));
         status.textContent = 'Request sent successfully!';
         status.style.display = 'block';
       } else {
