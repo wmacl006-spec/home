@@ -78,12 +78,6 @@
       text-align: left;
     }
 
-    .offer-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--pink);
-      box-shadow: 0 12px 30px rgba(176,11,85,0.25);
-    }
-
     .offer-card.selected {
       border-color: var(--pink);
     }
@@ -117,7 +111,7 @@
       border-radius: 8px;
     }
 
-    /* ---------- CHECKLIST (THEMED) ---------- */
+    /* ---------- CHECKLIST ---------- */
     .checklist {
       margin-top: 0.8rem;
       display: flex;
@@ -128,20 +122,28 @@
     .checklist label {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 0.6rem;
       font-size: 0.9rem;
       color: var(--gray);
       cursor: pointer;
     }
 
+    .check-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
     .checklist input {
       appearance: none;
-      width: 16px;
-      height: 16px;
+      width: 13px;
+      height: 13px;
       border-radius: 4px;
       border: 1px solid #3a3a3a;
       background: #1f1f1f;
       position: relative;
+      flex-shrink: 0;
     }
 
     .checklist input:checked {
@@ -152,13 +154,19 @@
     .checklist input:checked::after {
       content: "";
       position: absolute;
-      top: 3px;
-      left: 5px;
-      width: 4px;
-      height: 7px;
+      top: 2px;
+      left: 4px;
+      width: 3px;
+      height: 6px;
       border: solid white;
       border-width: 0 2px 2px 0;
       transform: rotate(45deg);
+    }
+
+    .check-price {
+      font-size: 0.85rem;
+      color: var(--white);
+      font-weight: 600;
     }
 
     .selected-label {
@@ -183,6 +191,7 @@
       margin-bottom: 2.5rem;
     }
 
+    /* ---------- FORM ---------- */
     form {
       background: var(--panel);
       padding: 2.2rem;
@@ -191,6 +200,11 @@
       margin: 0 auto 3rem;
       border: 1px solid #242424;
       text-align: left;
+    }
+
+    form h2 {
+      font-family: 'Comfortaa', sans-serif;
+      margin-bottom: 1.2rem;
     }
 
     input, textarea {
@@ -247,16 +261,28 @@
       <div class="selected-label">Added</div>
     </div>
 
-    <div class="offer-card" data-type="checklist" data-name="Custom Email" data-price="1">
+    <div class="offer-card" data-type="checklist" data-name="Custom Email">
       <h3>Custom Email</h3>
       <p>you@your-name.ca</p>
 
       <div class="checklist">
-        <label><input type="checkbox" value="Send from">Send from</label>
-        <label><input type="checkbox" value="Receive from">Receive from</label>
+        <label>
+          <div class="check-left">
+            <input type="checkbox" data-price="0.5" value="Send from">
+            Send from
+          </div>
+          <span class="check-price">$0.50</span>
+        </label>
+
+        <label>
+          <div class="check-left">
+            <input type="checkbox" data-price="0.5" value="Receive from">
+            Receive from
+          </div>
+          <span class="check-price">$0.50</span>
+        </label>
       </div>
 
-      <div class="price">$1 / month</div>
       <div class="selected-label">Added</div>
     </div>
 
@@ -280,9 +306,15 @@
 
   <div class="total">Total: $<span id="total">0</span> / month</div>
 
-  <form>
-    <input type="hidden" id="selected-items">
-    <input type="hidden" id="total-price">
+  <form id="website-form" action="https://formspree.io/f/mlgggaqd" method="POST">
+    <h2>Send Request</h2>
+    <input type="text" name="name" placeholder="Your Name" required>
+    <input type="email" name="email" placeholder="Your Email" required>
+    <textarea name="message" placeholder="Extra notes" required></textarea>
+
+    <input type="hidden" name="selected_items" id="selected-items">
+    <input type="hidden" name="total_price" id="total-price">
+
     <button type="submit">Send Request</button>
   </form>
 
@@ -300,20 +332,33 @@
     let summary = [];
 
     cards.forEach(card => {
-      if (!card.classList.contains('selected')) return;
-
+      const isChecklist = card.dataset.type === 'checklist';
       const name = card.dataset.name;
-      const price = Number(card.dataset.price);
 
-      const qtyInput = card.querySelector('.qty-wrapper input');
-      const checks = card.querySelectorAll('.checklist input:checked');
+      if (isChecklist) {
+        const checked = card.querySelectorAll('.checklist input:checked');
+        if (!checked.length) return;
 
-      let detail = '';
-      if (qtyInput) detail = ` (${qtyInput.value})`;
-      if (checks.length) detail = ` (${[...checks].map(c => c.value).join(', ')})`;
+        let cost = 0;
+        let details = [];
 
-      total += price;
-      summary.push(`${name}${detail} – $${price}`);
+        checked.forEach(c => {
+          cost += Number(c.dataset.price);
+          details.push(c.value);
+        });
+
+        total += cost;
+        summary.push(`${name} (${details.join(', ')}) – $${cost.toFixed(2)}`);
+        card.classList.add('selected');
+      } else if (card.classList.contains('selected')) {
+        const price = Number(card.dataset.price);
+        const qtyInput = card.querySelector('.qty-wrapper input');
+        const qty = qtyInput ? Number(qtyInput.value) : 1;
+        const cost = price * qty;
+
+        total += cost;
+        summary.push(`${name}${qtyInput ? ` (${qty})` : ''} – $${cost.toFixed(2)}`);
+      }
     });
 
     totalEl.textContent = total.toFixed(2);
@@ -322,26 +367,27 @@
   }
 
   cards.forEach(card => {
-    const isChecklist = card.dataset.type === 'checklist';
+    if (card.dataset.type === 'checklist') {
+      card.querySelectorAll('.checklist input').forEach(cb => {
+        cb.addEventListener('change', () => {
+          card.classList.toggle(
+            'selected',
+            card.querySelectorAll('.checklist input:checked').length > 0
+          );
+          calculate();
+        });
+      });
+      return;
+    }
 
     card.addEventListener('click', e => {
-      if (isChecklist) return;
       if (e.target.tagName === 'INPUT') return;
       card.classList.toggle('selected');
       calculate();
     });
 
-    card.querySelectorAll('.checklist input').forEach(cb => {
-      cb.addEventListener('change', () => {
-        const checked = card.querySelectorAll('.checklist input:checked').length;
-        card.classList.toggle('selected', checked > 0);
-        calculate();
-      });
-    });
-
-    card.querySelectorAll('.qty-wrapper input').forEach(input => {
-      input.addEventListener('input', calculate);
-    });
+    const qty = card.querySelector('.qty-wrapper input');
+    if (qty) qty.addEventListener('input', calculate);
   });
 </script>
 </body>
