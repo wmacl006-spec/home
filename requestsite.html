@@ -187,7 +187,7 @@
 
   <div class="offers">
 
-    <div class="offer-card" data-name="Landing Page" data-price="1">
+    <div class="offer-card" id="landing-card" data-name="Landing Page" data-price="1">
       <h3>Landing Page</h3>
       <div class="price">$1 / month</div>
       <div class="selected-label">Added</div>
@@ -271,8 +271,14 @@
   const priceInput = document.getElementById('total-price');
 
   const domainCard = document.getElementById('domain-card');
+  const landingCard = document.getElementById('landing-card');
+
   const emailCards = [...cards].filter(card =>
     card.dataset.name.includes('Email')
+  );
+
+  const landingDependents = [...cards].filter(card =>
+    ['Extra Pages', 'Forms', 'Revisions'].includes(card.dataset.name)
   );
 
   function calculate() {
@@ -300,43 +306,53 @@
     priceInput.value = `One-time: $${oneTime}, Monthly: $${monthly}`;
   }
 
-  function syncDomainSelection() {
-  const anyEmailSelected = emailCards.some(card =>
-    card.classList.contains('selected')
-  );
-
-  // Only ever FORCE domain ON
-  if (anyEmailSelected) {
-    domainCard.classList.add('selected');
-  }
-}
-
-
-  cards.forEach(card => {
-  card.addEventListener('click', e => {
-    if (e.target.tagName === 'INPUT') return;
-
-    const isDomain = card === domainCard;
-    const emailActive = emailCards.some(c =>
-      c.classList.contains('selected')
+  function syncForcedSelections() {
+    const emailActive = emailCards.some(card =>
+      card.classList.contains('selected')
     );
 
-    // Prevent turning OFF domain if email is active
-    if (isDomain && emailActive && card.classList.contains('selected')) {
-      return;
-    }
+    const landingExtrasActive = landingDependents.some(card =>
+      card.classList.contains('selected')
+    );
 
-    card.classList.toggle('selected');
+    // Force Domain if email selected
+    if (emailActive) domainCard.classList.add('selected');
 
-    syncDomainSelection();
-    calculate();
+    // Force Landing Page if extras selected
+    if (landingExtrasActive) landingCard.classList.add('selected');
+  }
+
+  cards.forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT') return;
+
+      const isDomain = card === domainCard;
+      const isLanding = card === landingCard;
+
+      const emailActive = emailCards.some(c =>
+        c.classList.contains('selected')
+      );
+
+      const landingExtrasActive = landingDependents.some(c =>
+        c.classList.contains('selected')
+      );
+
+      // Prevent turning off Domain if emails active
+      if (isDomain && emailActive && card.classList.contains('selected')) return;
+
+      // Prevent turning off Landing Page if extras active
+      if (isLanding && landingExtrasActive && card.classList.contains('selected')) return;
+
+      card.classList.toggle('selected');
+
+      syncForcedSelections();
+      calculate();
+    });
+
+    card.querySelector('input')?.addEventListener('input', calculate);
   });
-
-  card.querySelector('input')?.addEventListener('input', calculate);
-});
-
+  
 </script>
-
 
 </body>
 </html>
