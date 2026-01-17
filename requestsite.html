@@ -26,10 +26,30 @@
       min-height: 100vh;
     }
 
+    /* ---------- HOME BUTTON ---------- */
+    .home-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 0.6rem 1rem;
+      border-radius: 10px;
+      border: 1px solid #242424;
+      background: var(--panel);
+      color: var(--white);
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.2s ease;
+    }
+
+    .home-btn:hover {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 1px var(--pink);
+    }
+
     .container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 3rem 2rem;
+      padding: 4rem 2rem;
       text-align: center;
     }
 
@@ -41,16 +61,30 @@
 
     .subtitle {
       color: var(--gray);
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
     }
 
+    /* ---------- CARD GRID ---------- */
     .offers {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(260px, 1fr));
       gap: 1.5rem;
-      margin-bottom: 2rem;
-      text-align: left;
+      margin-bottom: 2.5rem;
+      justify-items: center;
+    }
+
+    /* 1 leftover */
+    .offer-card:last-child:nth-child(3n + 1) {
+      grid-column: 2 / span 1;
+    }
+
+    /* 2 leftover */
+    .offer-card:nth-last-child(2):nth-child(3n + 1) {
+      grid-column: 2 / span 1;
+    }
+
+    .offer-card:last-child:nth-child(3n + 2) {
+      grid-column: 3 / span 1;
     }
 
     .offer-card {
@@ -58,10 +92,12 @@
       border: 1px solid #242424;
       border-radius: 14px;
       padding: 1.6rem;
-      width: 280px;
+      width: 100%;
+      max-width: 300px;
       cursor: pointer;
       position: relative;
       transition: 0.2s ease;
+      text-align: left;
     }
 
     .offer-card:hover {
@@ -76,7 +112,8 @@
 
     .offer-card h3 {
       color: var(--pink);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
+      font-family: 'Comfortaa', sans-serif;
     }
 
     .price {
@@ -95,11 +132,11 @@
 
     .qty-wrapper input {
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.6rem;
       background: #1f1f1f;
-      border: none;
+      border: 1px solid #2a2a2a;
       color: var(--white);
-      border-radius: 6px;
+      border-radius: 8px;
     }
 
     .selected-label {
@@ -109,7 +146,7 @@
       transform: translateX(-50%);
       background: var(--pink);
       font-size: 0.75rem;
-      padding: 2px 8px;
+      padding: 3px 10px;
       border-radius: 6px;
       display: none;
     }
@@ -119,47 +156,71 @@
     }
 
     .total {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       font-weight: 600;
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
     }
 
+    /* ---------- FORM ---------- */
     form {
       background: var(--panel);
-      padding: 2rem;
-      border-radius: 14px;
-      max-width: 500px;
+      padding: 2.2rem;
+      border-radius: 16px;
+      max-width: 520px;
       margin: 0 auto 3rem;
       border: 1px solid #242424;
       text-align: left;
+    }
+
+    form h2 {
+      font-family: 'Comfortaa', sans-serif;
+      margin-bottom: 1.2rem;
     }
 
     input, textarea {
       width: 100%;
       padding: 0.9rem;
       margin-bottom: 1rem;
-      border-radius: 6px;
-      border: none;
+      border-radius: 10px;
+      border: 1px solid #2a2a2a;
       background: #1f1f1f;
       color: var(--white);
+      font-family: 'Inter', sans-serif;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--pink);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
     }
 
     button {
       width: 100%;
       padding: 0.9rem;
-      border-radius: 10px;
-      border: 1px solid #242424;
-      background: var(--panel);
-      color: var(--white);
-      font-weight: 600;
+      border-radius: 12px;
+      border: 1px solid var(--pink);
+      background: var(--pink);
+      color: white;
+      font-weight: 700;
       cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      box-shadow: 0 12px 30px rgba(176,11,85,0.4);
+      transform: translateY(-1px);
     }
 
     .form-status {
       display: none;
-      margin-top: 0.6rem;
+      margin-top: 0.8rem;
       color: #7CFCB0;
       text-align: center;
+      font-weight: 600;
     }
 
     footer {
@@ -171,23 +232,23 @@
 </head>
 
 <body>
+  <a href="/" class="home-btn">← Home</a>
+
   <div class="container">
     <h1>Build Your Website</h1>
     <p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
 
     <div class="offers">
-      <!-- FIXED PRICE -->
-      <div class="offer-card" data-name="Single-page site" data-price="1">
+      <div class="offer-card" data-name="Landing Page" data-price="1">
         <h3>Landing Page</h3>
         <p>Home page</p>
-        <div class="price">$1 per month</div>
+        <div class="price">$1 / month</div>
         <div class="selected-label">Added</div>
       </div>
 
-      <!-- QUANTITY BASED -->
-      <div class="offer-card" data-name="Extra pages" data-price="0.75" data-qty="true">
+      <div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
         <h3>Extra Pages</h3>
-        <div class="price">$0.75 × pages per month</div>
+        <div class="price">$0.75 × page</div>
         <div class="qty-wrapper">
           <input type="number" min="1" max="15" value="1">
         </div>
@@ -196,40 +257,41 @@
 
       <div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
         <h3>Forms</h3>
-        <div class="price">$1 × form per month</div>
+        <div class="price">$1 × form</div>
         <div class="qty-wrapper">
           <input type="number" min="1" max="15" value="1">
         </div>
         <div class="selected-label">Added</div>
       </div>
 
-      <div class="offer-card" data-name="Custom domain" data-price="4">
+      <div class="offer-card" data-name="Custom Domain" data-price="4">
         <h3>Custom Domain</h3>
         <p>your-name.ca</p>
         <div class="price">$4 / month</div>
         <div class="selected-label">Added</div>
       </div>
 
-      <div class="offer-card" data-name="Custom email" data-price="1">
-        <h3>Custom Email Forwarding</h3>
+      <div class="offer-card" data-name="Custom Email" data-price="1">
+        <h3>Custom Email</h3>
         <p>you@your-name.ca</p>
         <div class="price">$1 / month</div>
         <div class="selected-label">Added</div>
       </div>
-    </div>
 
-    <div class="offer-card" data-name="Revisions" data-price="1" data-qty="true">
-        <h3>Revisions per month</h3>
-        <div class="price">$1 × Revisions per month</div>
+      <div class="offer-card" data-name="Revisions" data-price="1" data-qty="true">
+        <h3>Revisions</h3>
+        <div class="price">$1 × revision</div>
         <div class="qty-wrapper">
           <input type="number" min="1" max="15" value="1">
         </div>
         <div class="selected-label">Added</div>
       </div>
+    </div>
 
     <div class="total">Total: $<span id="total">0</span> / month</div>
 
     <form id="website-form">
+      <h2>Send Request</h2>
       <input type="text" name="name" placeholder="Your Name" required>
       <input type="email" name="email" placeholder="Your Email" required>
       <textarea name="message" placeholder="Extra notes" required></textarea>
@@ -269,23 +331,20 @@
         summary.push(`${name}${qtyInput ? ` (${qty})` : ''} – $${cost}`);
       });
 
-      totalEl.textContent = total;
+      totalEl.textContent = total.toFixed(2);
       itemsInput.value = summary.join(', ');
-      priceInput.value = total;
+      priceInput.value = total.toFixed(2);
     }
 
     cards.forEach(card => {
       card.addEventListener('click', e => {
         if (e.target.tagName === 'INPUT') return;
-
         card.classList.toggle('selected');
         calculate();
       });
 
       const input = card.querySelector('input');
-      if (input) {
-        input.addEventListener('input', calculate);
-      }
+      if (input) input.addEventListener('input', calculate);
     });
 
     document.getElementById('website-form').addEventListener('submit', async e => {
