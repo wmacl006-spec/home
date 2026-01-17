@@ -207,11 +207,12 @@
       <div class="selected-label">Added</div>
     </div>
 
-    <div class="offer-card" data-name="Custom Domain" data-price="4">
+    <div class="offer-card" id="domain-card" data-name="Custom Domain" data-price="4">
       <h3>Custom Domain</h3>
       <div class="price">$4 / month</div>
       <div class="selected-label">Added</div>
     </div>
+
 
     <div class="offer-card" data-name="Receive Custom Email" data-price="0.5">
       <h3>Receive To Custom Email</h3>
@@ -268,6 +269,11 @@
   const itemsInput = document.getElementById('selected-items');
   const priceInput = document.getElementById('total-price');
 
+  const domainCard = document.getElementById('domain-card');
+  const emailCards = [...cards].filter(card =>
+    card.dataset.name.includes('Email')
+  );
+
   function calculate() {
     let oneTime = 0;
     let monthly = 0;
@@ -293,15 +299,32 @@
     priceInput.value = `One-time: $${oneTime}, Monthly: $${monthly}`;
   }
 
+  function syncDomainSelection() {
+    const anyEmailSelected = emailCards.some(card =>
+      card.classList.contains('selected')
+    );
+
+    if (anyEmailSelected) {
+      domainCard.classList.add('selected');
+    } else {
+      domainCard.classList.remove('selected');
+    }
+  }
+
   cards.forEach(card => {
     card.addEventListener('click', e => {
       if (e.target.tagName === 'INPUT') return;
+
       card.classList.toggle('selected');
+
+      syncDomainSelection();
       calculate();
     });
+
     card.querySelector('input')?.addEventListener('input', calculate);
   });
 </script>
+
 
 </body>
 </html>
