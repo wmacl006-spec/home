@@ -300,16 +300,16 @@
   }
 
   function syncDomainSelection() {
-    const anyEmailSelected = emailCards.some(card =>
-      card.classList.contains('selected')
-    );
+  const anyEmailSelected = emailCards.some(card =>
+    card.classList.contains('selected')
+  );
 
-    if (anyEmailSelected) {
-      domainCard.classList.add('selected');
-    } else {
-      domainCard.classList.remove('selected');
-    }
+  // Only ever FORCE domain ON
+  if (anyEmailSelected) {
+    domainCard.classList.add('selected');
   }
+}
+
 
   cards.forEach(card => {
   card.addEventListener('click', e => {
