@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Website Offers – William MacLean</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink: #B00B55;
+      --black: #0f0f0f;
+      --white: #ffffff;
+      --gray: #b5b5b5;
+      --panel: #161616;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #1b1b1b, var(--black));
+      color: var(--white);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--gray);
+      margin-bottom: 3rem;
+    }
+
+    .offers {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .offer-card {
+      background: var(--panel);
+      border: 1px solid #242424;
+      border-radius: 14px;
+      padding: 2rem 1.5rem;
+      flex: 0 0 280px;
+      max-width: 280px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .offer-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--pink);
+      box-shadow: 0 12px 30px rgba(176, 11, 85, 0.25);
+    }
+
+    .offer-card h3 {
+      color: var(--pink);
+      margin-bottom: 1rem;
+    }
+
+    .offer-card p {
+      color: var(--white);
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .offer-card .price {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    form {
+      background: var(--panel);
+      padding: 2rem;
+      border-radius: 14px;
+      max-width: 500px;
+      margin: 0 auto 3rem;
+      text-align: left;
+      border: 1px solid #242424;
+    }
+
+    form h3 {
+      color: var(--pink);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0.9rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: none;
+      background: #1f1f1f;
+      color: var(--white);
+      font-family: inherit;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.9rem;
+      border-radius: 10px;
+      border: 1px solid #242424;
+      background: var(--panel);
+      color: var(--white);
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      border-color: var(--pink);
+      box-shadow: 0 12px 28px rgba(176,11,85,0.25);
+    }
+
+    .form-status {
+      display: none;
+      color: #7CFCB0;
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      color: #8a8a8a;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 900px) {
+      .offer-card { flex: 0 0 calc(50% - 1rem); }
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2.4rem; }
+      .offer-card { flex: 0 0 100%; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Resume Website Offers</h1>
+    <p class="subtitle">Stand out from other students with a professional personal site.</p>
+
+    <div class="offers">
+      <div class="offer-card">
+        <h3>Starter</h3>
+        <p>Single-page resume site using pre-made template.</p>
+        <p>Paste your content and get live in 48 hours.</p>
+        <div class="price">$40</div>
+      </div>
+
+      <div class="offer-card">
+        <h3>Standard</h3>
+        <p>Single-page resume site with light customization.</p>
+        <p>Includes PDF download, mobile optimization, and 1 revision.</p>
+        <div class="price">$75</div>
+      </div>
+
+      <div class="offer-card">
+        <h3>Premium</h3>
+        <p>Fully customized site with domain setup, resume wording polish, and priority delivery.</p>
+        <div class="price">$120</div>
+      </div>
+    </div>
+
+    <form id="resume-request-form">
+      <h3>Request Your Resume Website</h3>
+      <input type="text" name="name" placeholder="Your Name" required>
+      <input type="email" name="email" placeholder="Your Email" required>
+      <textarea name="message" rows="5" placeholder="Brief info about your resume / site needs" required></textarea>
+      <button type="submit">Send Request</button>
+      <div class="form-status" id="form-status">Message sent successfully.</div>
+    </form>
+
+    <footer>© 2026 William MacLean</footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('resume-request-form');
+    const status = document.getElementById('form-status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const button = form.querySelector('button');
+      button.disabled = true;
+
+      const response = await fetch('https://formspree.io/f/mlgggaqd', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (response.ok) {
+        form.reset();
+        status.textContent = 'Request sent successfully!';
+        status.style.display = 'block';
+      } else {
+        status.textContent = 'Something went wrong. Please try again.';
+        status.style.display = 'block';
+      }
+
+      button.disabled = false;
+    });
+  </script>
+</body>
+</html>
