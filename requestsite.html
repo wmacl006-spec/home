@@ -26,7 +26,6 @@
       min-height: 100vh;
     }
 
-    /* ---------- HOME BUTTON ---------- */
     .home-btn {
       position: fixed;
       top: 20px;
@@ -64,27 +63,12 @@
       margin-bottom: 2.5rem;
     }
 
-    /* ---------- CARD GRID ---------- */
     .offers {
       display: grid;
       grid-template-columns: repeat(3, minmax(260px, 1fr));
       gap: 1.5rem;
       margin-bottom: 2.5rem;
       justify-items: center;
-    }
-
-    /* 1 leftover */
-    .offer-card:last-child:nth-child(3n + 1) {
-      grid-column: 2 / span 1;
-    }
-
-    /* 2 leftover */
-    .offer-card:nth-last-child(2):nth-child(3n + 1) {
-      grid-column: 2 / span 1;
-    }
-
-    .offer-card:last-child:nth-child(3n + 2) {
-      grid-column: 3 / span 1;
     }
 
     .offer-card {
@@ -139,6 +123,26 @@
       border-radius: 8px;
     }
 
+    .checklist {
+      margin-top: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .checklist label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--gray);
+      cursor: pointer;
+    }
+
+    .checklist input {
+      accent-color: var(--pink);
+    }
+
     .selected-label {
       position: absolute;
       bottom: 10px;
@@ -161,7 +165,6 @@
       margin-bottom: 2.5rem;
     }
 
-    /* ---------- FORM ---------- */
     form {
       background: var(--panel);
       padding: 2.2rem;
@@ -185,17 +188,10 @@
       border: 1px solid #2a2a2a;
       background: #1f1f1f;
       color: var(--white);
-      font-family: 'Inter', sans-serif;
-    }
-
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--pink);
     }
 
     textarea {
       min-height: 110px;
-      resize: vertical;
     }
 
     button {
@@ -207,20 +203,6 @@
       color: white;
       font-weight: 700;
       cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    button:hover {
-      box-shadow: 0 12px 30px rgba(176,11,85,0.4);
-      transform: translateY(-1px);
-    }
-
-    .form-status {
-      display: none;
-      margin-top: 0.8rem;
-      color: #7CFCB0;
-      text-align: center;
-      font-weight: 600;
     }
 
     footer {
@@ -232,137 +214,106 @@
 </head>
 
 <body>
-  <a href="/" class="home-btn">← Home</a>
+<a href="/" class="home-btn">← Home</a>
 
-  <div class="container">
-    <h1>Build Your Website</h1>
-    <p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
+<div class="container">
+  <h1>Build Your Website</h1>
+  <p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
 
-    <div class="offers">
-      <div class="offer-card" data-name="Landing Page" data-price="1">
-        <h3>Landing Page</h3>
-        <p>Home page</p>
-        <div class="price">$1 / month</div>
-        <div class="selected-label">Added</div>
-      </div>
-
-      <div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
-        <h3>Extra Pages</h3>
-        <div class="price">$0.75 × page</div>
-        <div class="qty-wrapper">
-          <input type="number" min="1" max="15" value="1">
-        </div>
-        <div class="selected-label">Added</div>
-      </div>
-
-      <div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
-        <h3>Forms</h3>
-        <div class="price">$1 × form</div>
-        <div class="qty-wrapper">
-          <input type="number" min="1" max="15" value="1">
-        </div>
-        <div class="selected-label">Added</div>
-      </div>
-
-      <div class="offer-card" data-name="Custom Domain" data-price="4">
-        <h3>Custom Domain</h3>
-        <p>your-name.ca</p>
-        <div class="price">$4 / month</div>
-        <div class="selected-label">Added</div>
-      </div>
-
-      <div class="offer-card" data-name="Custom Email" data-price="1">
-        <h3>Custom Email</h3>
-        <p>you@your-name.ca</p>
-        <div class="price">$1 / month</div>
-        <div class="selected-label">Added</div>
-      </div>
-
-      <div class="offer-card" data-name="Revisions" data-price="1" data-qty="true">
-        <h3>Revisions</h3>
-        <div class="price">$1 × revision</div>
-        <div class="qty-wrapper">
-          <input type="number" min="1" max="15" value="1">
-        </div>
-        <div class="selected-label">Added</div>
-      </div>
+  <div class="offers">
+    <div class="offer-card" data-name="Landing Page" data-price="1">
+      <h3>Landing Page</h3>
+      <p>Home page</p>
+      <div class="price">$1 / month</div>
+      <div class="selected-label">Added</div>
     </div>
 
-    <div class="total">Total: $<span id="total">0</span> / month</div>
+    <div class="offer-card" data-name="Extra Pages" data-price="0.75">
+      <h3>Extra Pages</h3>
+      <div class="price">$0.75 × page</div>
+      <div class="qty-wrapper">
+        <input type="number" min="1" max="15" value="1">
+      </div>
+      <div class="selected-label">Added</div>
+    </div>
 
-    <form id="website-form">
-      <h2>Send Request</h2>
-      <input type="text" name="name" placeholder="Your Name" required>
-      <input type="email" name="email" placeholder="Your Email" required>
-      <textarea name="message" placeholder="Extra notes" required></textarea>
+    <div class="offer-card" data-name="Custom Email" data-price="1">
+      <h3>Custom Email</h3>
+      <p>you@your-name.ca</p>
 
-      <input type="hidden" name="selected_items" id="selected-items">
-      <input type="hidden" name="total_price" id="total-price">
+      <div class="checklist">
+        <label><input type="checkbox" value="Send from">Send from</label>
+        <label><input type="checkbox" value="Receive from">Receive from</label>
+      </div>
 
-      <button type="submit">Send Request</button>
-      <div class="form-status" id="status">Sent!</div>
-    </form>
-
-    <footer>© 2026 William MacLean</footer>
+      <div class="price">$1 / month</div>
+      <div class="selected-label">Added</div>
+    </div>
   </div>
 
-  <script>
-    const cards = document.querySelectorAll('.offer-card');
-    const totalEl = document.getElementById('total');
-    const itemsInput = document.getElementById('selected-items');
-    const priceInput = document.getElementById('total-price');
-    const status = document.getElementById('status');
+  <div class="total">Total: $<span id="total">0</span> / month</div>
 
-    function calculate() {
-      let total = 0;
-      let summary = [];
+  <form id="website-form">
+    <h2>Send Request</h2>
+    <input type="text" name="name" placeholder="Your Name" required>
+    <input type="email" name="email" placeholder="Your Email" required>
+    <textarea name="message" placeholder="Extra notes" required></textarea>
 
-      cards.forEach(card => {
-        if (!card.classList.contains('selected')) return;
+    <input type="hidden" name="selected_items" id="selected-items">
+    <input type="hidden" name="total_price" id="total-price">
 
-        const name = card.dataset.name;
-        const price = Number(card.dataset.price);
-        const qtyInput = card.querySelector('input');
-        const qty = qtyInput ? Number(qtyInput.value) : 1;
+    <button type="submit">Send Request</button>
+  </form>
 
-        const cost = price * qty;
-        total += cost;
+  <footer>© 2026 William MacLean</footer>
+</div>
 
-        summary.push(`${name}${qtyInput ? ` (${qty})` : ''} – $${cost}`);
-      });
+<script>
+  const cards = document.querySelectorAll('.offer-card');
+  const totalEl = document.getElementById('total');
+  const itemsInput = document.getElementById('selected-items');
+  const priceInput = document.getElementById('total-price');
 
-      totalEl.textContent = total.toFixed(2);
-      itemsInput.value = summary.join(', ');
-      priceInput.value = total.toFixed(2);
-    }
+  function calculate() {
+    let total = 0;
+    let summary = [];
 
     cards.forEach(card => {
-      card.addEventListener('click', e => {
-        if (e.target.tagName === 'INPUT') return;
-        card.classList.toggle('selected');
+      if (!card.classList.contains('selected')) return;
+
+      const name = card.dataset.name;
+      const price = Number(card.dataset.price);
+
+      const qtyInput = card.querySelector('.qty-wrapper input');
+      const checks = card.querySelectorAll('.checklist input:checked');
+
+      let detail = '';
+      if (qtyInput) detail = ` (${qtyInput.value})`;
+      if (checks.length) detail = ` (${[...checks].map(c => c.value).join(', ')})`;
+
+      total += price;
+      summary.push(`${name}${detail} – $${price}`);
+    });
+
+    totalEl.textContent = total.toFixed(2);
+    itemsInput.value = summary.join(', ');
+    priceInput.value = total.toFixed(2);
+  }
+
+  cards.forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
+      card.classList.toggle('selected');
+      calculate();
+    });
+
+    card.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', () => {
+        card.classList.add('selected');
         calculate();
       });
-
-      const input = card.querySelector('input');
-      if (input) input.addEventListener('input', calculate);
     });
-
-    document.getElementById('website-form').addEventListener('submit', async e => {
-      e.preventDefault();
-
-      const res = await fetch('https://formspree.io/f/mlgggaqd', {
-        method: 'POST',
-        body: new FormData(e.target),
-        headers: { 'Accept': 'application/json' }
-      });
-
-      if (res.ok) {
-        status.style.display = 'block';
-        e.target.reset();
-        cards.forEach(c => c.classList.remove('selected'));
-        totalEl.textContent = '0';
-      }
-    });
-  </script>
+  });
+</script>
 </body>
 </html>
