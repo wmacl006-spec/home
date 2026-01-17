@@ -314,23 +314,32 @@
     const priceInput = document.getElementById('total-price');
     const status = document.getElementById('status');
 
+    const domainCard = [...cards].find(c => c.dataset.name === 'Custom Domain');
+    const emailCard  = [...cards].find(c => c.dataset.name === 'Custom Email');
+
     function calculate() {
       let total = 0;
       let summary = [];
 
       cards.forEach(card => {
-        if (!card.classList.contains('selected')) return;
+      card.addEventListener('click', e => {
+        if (e.target.tagName === 'INPUT') return;
 
-        const name = card.dataset.name;
-        const price = Number(card.dataset.price);
-        const qtyInput = card.querySelector('input');
-        const qty = qtyInput ? Number(qtyInput.value) : 1;
+        // Toggle selected
+        card.classList.toggle('selected');
 
-        const cost = price * qty;
-        total += cost;
+        // If Custom Email is selected, force Custom Domain ON
+     if (card === emailCard && card.classList.contains('selected')) {
+         domainCard.classList.add('selected');
+     }
 
-        summary.push(`${name}${qtyInput ? ` (${qty})` : ''} – $${cost}`);
+        calculate();
       });
+
+      const input = card.querySelector('input');
+      if (input) input.addEventListener('input', calculate);
+    });
+
 
       totalEl.textContent = total.toFixed(2);
       itemsInput.value = summary.join(', ');
