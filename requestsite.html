@@ -6,7 +6,6 @@
   <title>Resume Website Offers – William MacLean</title>
 
   <link rel="icon" type="image/png" href="logo.png">
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -82,11 +81,11 @@
       max-width: 280px;
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      position: relative;
     }
 
     .offer-card.selected {
       border-color: var(--pink);
-      box-shadow: 0 0 0 3px #ffffff80, 0 12px 30px rgba(176, 11, 85, 0.35); /* white highlight + shadow */
     }
 
     .offer-card:hover {
@@ -110,6 +109,24 @@
       font-weight: 600;
       font-size: 1.1rem;
       margin-top: 0.5rem;
+    }
+
+    /* Selected label under card */
+    .selected-label {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--pink);
+      color: var(--white);
+      font-size: 0.8rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .offer-card.selected .selected-label {
+      display: inline-block;
     }
 
     .plan-label {
@@ -203,6 +220,7 @@
         <p>Single-page resume site using pre-made template.</p>
         <p>Paste your content and get live in 48 hours.</p>
         <div class="price">$40</div>
+        <div class="selected-label">Selected</div>
       </div>
 
       <div class="offer-card" data-plan="Standard">
@@ -210,14 +228,16 @@
         <p>Single-page resume site with light customization.</p>
         <p>Includes PDF download, mobile optimization, and 1 revision.</p>
         <div class="price">$75</div>
+        <div class="selected-label">Selected</div>
       </div>
 
       <div class="offer-card" data-plan="Premium">
         <h3>Premium</h3>
         <p>Fully customized site with domain setup, resume wording polish, and priority delivery.</p>
         <div class="price">$120</div>
+        <div class="selected-label">Selected</div>
       </div>
-      <!-- Add more plans easily by copying the above div and updating data-plan/title/description/price -->
+      <!-- Add more plans by copying an .offer-card div -->
     </div>
 
     <form id="resume-request-form">
@@ -242,7 +262,7 @@
       card.addEventListener('click', () => {
         offerCards.forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
-        planInput.value = card.dataset.plan; // store selected plan in hidden input
+        planInput.value = card.dataset.plan; // store selected plan
       });
     });
 
