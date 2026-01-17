@@ -44,27 +44,12 @@
       margin-bottom: 2.5rem;
     }
 
-    /* ---------- CARD GRID ---------- */
     .offers {
       display: grid;
       grid-template-columns: repeat(3, minmax(260px, 1fr));
       gap: 1.5rem;
       margin-bottom: 2.5rem;
       justify-items: center;
-    }
-
-    /* 1 leftover */
-    .offer-card:last-child:nth-child(3n + 1) {
-      grid-column: 2 / span 1;
-    }
-
-    /* 2 leftover */
-    .offer-card:nth-last-child(2):nth-child(3n + 1) {
-      grid-column: 2 / span 1;
-    }
-
-    .offer-card:last-child:nth-child(3n + 2) {
-      grid-column: 3 / span 1;
     }
 
     .offer-card {
@@ -139,30 +124,9 @@
       font-size: 1.4rem;
       font-weight: 600;
       margin-bottom: 2.5rem;
+      line-height: 1.6;
     }
 
-    .home-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      padding: 0.6rem 1rem;
-      border-radius: 10px;
-      border: 1px solid #242424;
-      background: var(--panel);
-      color: var(--white);
-      font-weight: 600;
-      text-decoration: none;
-      transition: 0.2s ease;
-    }
-
-    .home-btn:hover {
-      transform: translateY(-2px);
-      border-color: var(--pink);
-      box-shadow: 0 12px 30px rgba(176,11,85,0.25);
-    }
-
-
-    /* ---------- FORM ---------- */
     form {
       background: var(--panel);
       padding: 2.2rem;
@@ -186,17 +150,6 @@
       border: 1px solid #2a2a2a;
       background: #1f1f1f;
       color: var(--white);
-      font-family: 'Inter', sans-serif;
-    }
-
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--pink);
-    }
-
-    textarea {
-      min-height: 110px;
-      resize: vertical;
     }
 
     button {
@@ -208,12 +161,6 @@
       color: white;
       font-weight: 700;
       cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    button:hover {
-      box-shadow: 0 12px 30px rgba(176,11,85,0.4);
-      transform: translateY(-1px);
     }
 
     .form-status {
@@ -233,156 +180,120 @@
 </head>
 
 <body>
-  <a href="/" class="home-btn">Home</a>
 
-  <div class="container">
-    <h1>Build Your Website</h1>
-    <p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
+<div class="container">
+  <h1>Build Your Website</h1>
+  <p class="subtitle">Select features & quantities. Billing starts after site launch.</p>
 
-    <div class="offers">
-      
-      <div class="offer-card" data-name="Landing Page" data-price="1">
-        <h3>Landing Page</h3>
-        <p>Home page</p>
-        <div class="price">$1 / month</div>
-        <div class="selected-label">Added</div>
-      </div>
+  <div class="offers">
 
-      <div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
-        <h3>Extra Pages</h3>
-        <div class="price">$0.75 × page</div>
-        <div class="qty-wrapper">
-          <input type="number" min="1" max="15" value="1">
-        </div>
-        <div class="selected-label">Added</div>
-      </div>
-
-      <div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
-        <h3>Forms</h3>
-        <div class="price">$1 × form</div>
-        <div class="qty-wrapper">
-          <input type="number" min="1" max="15" value="1">
-        </div>
-        <div class="selected-label">Added</div>
-      </div>
-
-      <div class="offer-card" data-name="Custom Domain" data-price="4">
-        <h3>Custom Domain</h3>
-        <p>your-name.ca</p>
-        <div class="price">$4 / month</div>
-        <div class="selected-label">Added</div>
-      </div>
-
-      <div class="offer-card" data-name="Custom Email" data-price="1">
-        <h3>Custom Email</h3>
-        <p>you@your-name.ca</p>
-        <div class="price">$1 / month</div>
-        <div class="selected-label">Added</div>
-      </div>
-
-      <div class="offer-card" data-name="Revisions" data-price="1.50" data-qty="true">
-        <h3>Revisions</h3>
-        <div class="price">$1.50 × revisions per month</div>
-        <div class="qty-wrapper">
-          <input type="number" min="1" max="15" value="1">
-        </div>
-        <div class="selected-label">Added</div>
-      </div>
-
-      <div class="offer-card" data-name="Business Cards" data-price="42.81" data-qty="true">
-        <h3>Business Cards</h3>
-        <div class="price">$42.81 × 100 Cards</div>
-        <div class="qty-wrapper">
-          <input type="number" min="1" max="15" value="1">
-        </div>
-        <div class="selected-label">Added</div>
-      </div>
-      
+    <div class="offer-card" data-name="Landing Page" data-price="1">
+      <h3>Landing Page</h3>
+      <div class="price">$1 / month</div>
+      <div class="selected-label">Added</div>
     </div>
 
-    <div class="total">Total: $<span id="total">0</span> / month</div>
+    <div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
+      <h3>Extra Pages</h3>
+      <div class="price">$0.75 × page</div>
+      <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
+      <div class="selected-label">Added</div>
+    </div>
 
-    <form id="website-form">
-      <h2>Send Request</h2>
-      <input type="text" name="name" placeholder="Your Name" required>
-      <input type="email" name="email" placeholder="Your Email" required>
-      <textarea name="message" placeholder="Extra notes" required></textarea>
+    <div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
+      <h3>Forms</h3>
+      <div class="price">$1 × form</div>
+      <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
+      <div class="selected-label">Added</div>
+    </div>
 
-      <input type="hidden" name="selected_items" id="selected-items">
-      <input type="hidden" name="total_price" id="total-price">
+    <div class="offer-card" data-name="Custom Domain" data-price="4">
+      <h3>Custom Domain</h3>
+      <div class="price">$4 / month</div>
+      <div class="selected-label">Added</div>
+    </div>
 
-      <button type="submit">Send Request</button>
-      <div class="form-status" id="status">Sent!</div>
-    </form>
+    <div class="offer-card" data-name="Custom Email" data-price="1">
+      <h3>Custom Email</h3>
+      <div class="price">$1 / month</div>
+      <div class="selected-label">Added</div>
+    </div>
 
-    <footer>© 2026 William MacLean</footer>
+    <div class="offer-card" data-name="Revisions" data-price="1.5" data-qty="true">
+      <h3>Revisions</h3>
+      <div class="price">$1.50 × revisions</div>
+      <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
+      <div class="selected-label">Added</div>
+    </div>
+
+    <!-- ONE-TIME -->
+    <div class="offer-card" data-name="Business Cards" data-price="42.81" data-qty="true" data-type="one-time">
+      <h3>Business Cards</h3>
+      <div class="price">$42.81 × 100 cards (one-time)</div>
+      <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
+      <div class="selected-label">Added</div>
+    </div>
+
   </div>
 
- <script>
+  <div class="total">
+    One-time: $<span id="oneTimeTotal">0.00</span><br>
+    Monthly: $<span id="monthlyTotal">0.00</span> / month
+  </div>
+
+  <form id="website-form">
+    <h2>Send Request</h2>
+    <input name="name" placeholder="Your Name" required>
+    <input name="email" type="email" placeholder="Your Email" required>
+    <textarea name="message" placeholder="Extra notes"></textarea>
+    <input type="hidden" name="selected_items" id="selected-items">
+    <input type="hidden" name="total_price" id="total-price">
+    <button>Send Request</button>
+    <div class="form-status" id="status">Sent!</div>
+  </form>
+
+  <footer>© 2026 William MacLean</footer>
+</div>
+
+<script>
   const cards = document.querySelectorAll('.offer-card');
-  const totalEl = document.getElementById('total');
+  const oneTimeEl = document.getElementById('oneTimeTotal');
+  const monthlyEl = document.getElementById('monthlyTotal');
   const itemsInput = document.getElementById('selected-items');
   const priceInput = document.getElementById('total-price');
-  const status = document.getElementById('status');
-
-  const domainCard = [...cards].find(c => c.dataset.name === 'Custom Domain');
-  const emailCard  = [...cards].find(c => c.dataset.name === 'Custom Email');
 
   function calculate() {
-    // Enforce rule: Custom Email requires Custom Domain
-    if (emailCard.classList.contains('selected')) {
-      domainCard.classList.add('selected');
-    }
-
-    let total = 0;
+    let oneTime = 0;
+    let monthly = 0;
     let summary = [];
 
     cards.forEach(card => {
       if (!card.classList.contains('selected')) return;
 
-      const name = card.dataset.name;
-      const price = Number(card.dataset.price);
-      const qtyInput = card.querySelector('input');
-      const qty = qtyInput ? Number(qtyInput.value) : 1;
-
+      const price = +card.dataset.price;
+      const qty = card.querySelector('input')?.value || 1;
+      const type = card.dataset.type === 'one-time' ? 'one-time' : 'monthly';
       const cost = price * qty;
-      total += cost;
 
-      summary.push(`${name}${qtyInput ? ` (${qty})` : ''} – $${cost}`);
+      if (type === 'one-time') oneTime += cost;
+      else monthly += cost;
+
+      summary.push(`${card.dataset.name} (${qty}) – $${cost} ${type}`);
     });
 
-    totalEl.textContent = total.toFixed(2);
+    oneTimeEl.textContent = oneTime.toFixed(2);
+    monthlyEl.textContent = monthly.toFixed(2);
     itemsInput.value = summary.join(', ');
-    priceInput.value = total.toFixed(2);
+    priceInput.value = `One-time: $${oneTime}, Monthly: $${monthly}`;
   }
 
   cards.forEach(card => {
     card.addEventListener('click', e => {
       if (e.target.tagName === 'INPUT') return;
-
       card.classList.toggle('selected');
       calculate();
     });
-
-    const input = card.querySelector('input');
-    if (input) input.addEventListener('input', calculate);
-  });
-
-  document.getElementById('website-form').addEventListener('submit', async e => {
-    e.preventDefault();
-
-    const res = await fetch('https://formspree.io/f/mlgggaqd', {
-      method: 'POST',
-      body: new FormData(e.target),
-      headers: { 'Accept': 'application/json' }
-    });
-
-    if (res.ok) {
-      status.style.display = 'block';
-      e.target.reset();
-      cards.forEach(c => c.classList.remove('selected'));
-      totalEl.textContent = '0';
-    }
+    card.querySelector('input')?.addEventListener('input', calculate);
   });
 </script>
 
