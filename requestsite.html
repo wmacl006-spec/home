@@ -351,6 +351,14 @@ footer{
   <div class="selected-label">Added</div>
 </div>
 
+  <div class="offer-card" data-name="Business Cards" data-price="75" data-onetime="true">
+  <h3>Business Cards</h3>
+  <p>Custom designed business cards (print-ready).</p>
+  <div class="price">$75 one-time</div>
+  <div class="selected-label">Added</div>
+</div>
+
+
 </div>
 
 <div class="billing-cards">
@@ -377,9 +385,22 @@ footer{
 <div class="side">
 
 <div class="total">
-  <div class="total-row"><span>Monthly</span><strong>$<span id="monthlyTotal">0.00</span></strong></div>
-  <div class="total-row highlight"><span>After Discount</span><strong>$<span id="discountedTotal">0.00</span></strong></div>
+  <div class="total-row">
+    <span>One-Time</span>
+    <strong>$<span id="oneTimeTotal">0.00</span></strong>
+  </div>
+
+  <div class="total-row">
+    <span>Monthly</span>
+    <strong>$<span id="monthlyTotal">0.00</span></strong>
+  </div>
+
+  <div class="total-row highlight">
+    <span>Monthly After Discount</span>
+    <strong>$<span id="discountedTotal">0.00</span></strong>
+  </div>
 </div>
+
 
 <form id="orderForm">
   <h2>Send Request</h2>
@@ -408,15 +429,28 @@ function dependentsSelected(names){
 }
 
 function calculate(){
-  let monthly=0;
-  cards.forEach(c=>{
-    if(!c.classList.contains('selected'))return;
-    const qty=c.querySelector('input')?.value||1;
-    monthly+=c.dataset.price*qty;
+  let monthly = 0;
+  let oneTime = 0;
+
+  cards.forEach(card => {
+    if (!card.classList.contains('selected')) return;
+
+    const price = parseFloat(card.dataset.price);
+    const qty = card.querySelector('input')?.value || 1;
+
+    if (card.dataset.onetime === "true") {
+      oneTime += price * qty;
+    } else {
+      monthly += price * qty;
+    }
   });
-  document.getElementById('monthlyTotal').textContent=monthly.toFixed(2);
-  document.getElementById('discountedTotal').textContent=(monthly*(1-discount/100)).toFixed(2);
+
+  document.getElementById('oneTimeTotal').textContent = oneTime.toFixed(2);
+  document.getElementById('monthlyTotal').textContent = monthly.toFixed(2);
+  document.getElementById('discountedTotal').textContent =
+    (monthly * (1 - discount / 100)).toFixed(2);
 }
+
 
 cards.forEach(card=>{
   card.addEventListener('click',e=>{
