@@ -495,9 +495,11 @@ let promoType = null;
 let appliedPromo = "";
   
 function calculate(){
-  let monthlyDiscountable = 0; // all monthly EXCEPT domain
-  let monthlyDomain = 0;       // domain only
-  let oneTime = 0;
+ let monthlyDiscountable = 0;   // billing discount eligible
+let monthlyPromoEligible = 0; // promo eligible (NO domain)
+let monthlyDomain = 0;        // domain only
+let oneTime = 0;
+
 
   cards.forEach(card => {
     if (!card.classList.contains('selected')) return;
@@ -509,24 +511,35 @@ function calculate(){
       oneTime += price * qty;
     } 
     else if (card.id === "domain-card") {
-      monthlyDomain += price * qty; // NO DISCOUNT
-    } 
-    else {
-      monthlyDiscountable += price * qty; // DISCOUNT APPLIES
-    }
+  monthlyDomain += price * qty; // NO billing discount, NO promo
+}
+else {
+  const total = price * qty;
+  monthlyDiscountable += total;      // billing discount applies
+  monthlyPromoEligible += total;     // promo applies
+}
+
   });
 
  let discountedMonthly =
   (monthlyDiscountable * (1 - discount / 100)) + monthlyDomain;
 
 // APPLY PROMO CODE
+let promoAdjusted = monthlyPromoEligible;
+
 if (promoType === "percent") {
-  discountedMonthly *= (1 - promoDiscount / 100);
+  promoAdjusted *= (1 - promoDiscount / 100);
 }
 
 if (promoType === "flat") {
-  discountedMonthly = Math.max(0, discountedMonthly - promoDiscount);
+  promoAdjusted = Math.max(0, promoAdjusted - promoDiscount);
 }
+
+let discountedMonthly =
+  (promoAdjusted + (monthlyDiscountable - monthlyPromoEligible)) *
+  (1 - discount / 100) +
+  monthlyDomain;
+
 
 
   document.getElementById('oneTimeTotal').textContent =
