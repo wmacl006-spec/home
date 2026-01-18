@@ -495,7 +495,12 @@ billingCards.forEach(b=>{
   });
 });
 
-document.getElementById('orderForm').addEventListener('submit', () => {
+const form = document.getElementById('orderForm');
+const sentMessage = document.getElementById('sentMessage');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault(); // 🚫 stop redirect
+
   const services = [...cards]
     .filter(c => c.classList.contains('selected'))
     .map(c => {
@@ -505,8 +510,33 @@ document.getElementById('orderForm').addEventListener('submit', () => {
     })
     .join('\n');
 
+  const billingCard = document.querySelector('.billing-card.selected');
+  const billingText = billingCard.querySelector('h3').textContent +
+    ` (${billingCard.querySelector('p').textContent})`;
+
   document.getElementById('servicesField').value = services;
+  document.getElementById('oneTimeField').value =
+    document.getElementById('oneTimeTotal').textContent;
+  document.getElementById('monthlyField').value =
+    document.getElementById('monthlyTotal').textContent;
+  document.getElementById('discountedField').value =
+    document.getElementById('discountedTotal').textContent;
+  document.getElementById('billingField').value = billingText;
+
+  await fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: { 'Accept': 'application/json' }
+  });
+
+  sentMessage.style.display = 'block';
+  form.reset();
+
+  setTimeout(() => {
+    sentMessage.style.display = 'none';
+  }, 4000);
 });
+
 
 
 calculate();
