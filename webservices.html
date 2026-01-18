@@ -563,36 +563,8 @@ billingCards.forEach(b=>{
 
 const form = document.getElementById('orderForm');
 const sentMessage = document.getElementById('sentMessage');
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault(); // stop redirect
-
-  const services = [...cards]
-    .filter(c => c.classList.contains('selected'))
-    .map(c => {
-      const qty = c.querySelector('input')?.value || 1;
-      const type = c.dataset.onetime === "true" ? "one-time" : "monthly";
-      return `${c.dataset.name} (${type}) x${qty}`;
-    })
-    .join('\n');
-
-  const billingCard = document.querySelector('.billing-card.selected');
-  const billingText = billingCard.querySelector('h3').textContent +
-    ` (${billingCard.querySelector('p').textContent})`;
-
-  document.getElementById('servicesField').value = services;
-  document.getElementById('oneTimeField').value =
-    document.getElementById('oneTimeTotal').textContent;
-  document.getElementById('monthlyField').value =
-    document.getElementById('monthlyTotal').textContent;
-  document.getElementById('discountedField').value =
-    document.getElementById('discountedTotal').textContent;
-  document.getElementById('billingField').value = billingText;
-
-  document.getElementById('promoField').value = appliedPromo;
-
-//////////////////////////////////////////////////////////////////////////////////////////
-  document.getElementById('applyPromo').addEventListener('click', async () => {
+////////////////////////////////////////////////////////////////////////////////////////////////////
+ document.getElementById('applyPromo').addEventListener('click', async () => {
   const code = document.getElementById('promoInput').value.trim().toUpperCase();
   const msg = document.getElementById('promoMessage');
 
@@ -633,6 +605,36 @@ form.addEventListener('submit', async (e) => {
     msg.style.color = "#ff6f6f";
   }
 });
+  /////////////////////////////////////////////////////////////////////////////
+form.addEventListener('submit', async (e) => {
+  e.preventDefault(); // stop redirect
+
+  const services = [...cards]
+    .filter(c => c.classList.contains('selected'))
+    .map(c => {
+      const qty = c.querySelector('input')?.value || 1;
+      const type = c.dataset.onetime === "true" ? "one-time" : "monthly";
+      return `${c.dataset.name} (${type}) x${qty}`;
+    })
+    .join('\n');
+
+  const billingCard = document.querySelector('.billing-card.selected');
+  const billingText = billingCard.querySelector('h3').textContent +
+    ` (${billingCard.querySelector('p').textContent})`;
+
+  document.getElementById('servicesField').value = services;
+  document.getElementById('oneTimeField').value =
+    document.getElementById('oneTimeTotal').textContent;
+  document.getElementById('monthlyField').value =
+    document.getElementById('monthlyTotal').textContent;
+  document.getElementById('discountedField').value =
+    document.getElementById('discountedTotal').textContent;
+  document.getElementById('billingField').value = billingText;
+
+  document.getElementById('promoField').value = appliedPromo;
+
+//////////////////////////////////////////////////////////////////////////////////////////
+ 
 //////////////////////////////////////////////////////////////////////
 
   await fetch(form.action, {
