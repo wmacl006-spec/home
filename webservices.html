@@ -262,6 +262,16 @@ footer{
     font-size: .95rem;
   }
 
+  .promo input{
+  flex:1;
+}
+
+.promo button{
+  width:auto;
+  padding:.7rem 1.1rem;
+}
+
+
   .selected-label {
     bottom: 8px;
     font-size: .7rem;
@@ -419,12 +429,23 @@ footer{
     <strong>$<span id="discountedTotal">0.00</span></strong>
   </div>
 
-<form id="orderForm" action="https://formspree.io/f/mlgggaqd" method="POST">
+  <div class="promo">
+  <label style="font-size:.9rem;color:var(--gray);">Promo Code</label>
+  <div style="display:flex;gap:.6rem;margin-top:.4rem;">
+    <input id="promoInput" placeholder="Enter code">
+    <button type="button" id="applyPromo">Apply</button>
+  </div>
+  <div id="promoMessage" style="margin-top:.5rem;font-size:.85rem;"></div>
+</div>
+
+
+  <form id="orderForm" action="https://formspree.io/f/mlgggaqd" method="POST">
 
   <h2>Send Request</h2>
   <input name="name" placeholder="Your Name" required>
   <input type="email" name="email" placeholder="Your Email" required>
   <textarea name="notes" placeholder="Extra notes"></textarea>
+
   
   <input type="hidden" name="services" id="servicesField">
 
@@ -432,6 +453,9 @@ footer{
 <input type="hidden" name="monthly_total" id="monthlyField">
 <input type="hidden" name="discounted_total" id="discountedField">
 <input type="hidden" name="billing_option" id="billingField">
+
+<input type="hidden" name="promo_code" id="promoField">
+
 
 <div id="sentMessage" style="display:none;margin-top:1rem;color:#6fff9f;font-weight:600;">
  ✓ Sent
@@ -462,6 +486,10 @@ function calculate(){
   let monthlyDiscountable = 0; // all monthly EXCEPT domain
   let monthlyDomain = 0;       // domain only
   let oneTime = 0;
+  let promoDiscount = 0;
+let promoType = null;
+let appliedPromo = "";
+
 
   cards.forEach(card => {
     if (!card.classList.contains('selected')) return;
@@ -480,8 +508,18 @@ function calculate(){
     }
   });
 
-  const discountedMonthly =
-    (monthlyDiscountable * (1 - discount / 100)) + monthlyDomain;
+ let discountedMonthly =
+  (monthlyDiscountable * (1 - discount / 100)) + monthlyDomain;
+
+// APPLY PROMO CODE
+if (promoType === "percent") {
+  discountedMonthly *= (1 - promoDiscount / 100);
+}
+
+if (promoType === "flat") {
+  discountedMonthly = Math.max(0, discountedMonthly - promoDiscount);
+}
+
 
   document.getElementById('oneTimeTotal').textContent =
     oneTime.toFixed(2);
@@ -550,6 +588,52 @@ form.addEventListener('submit', async (e) => {
   document.getElementById('discountedField').value =
     document.getElementById('discountedTotal').textContent;
   document.getElementById('billingField').value = billingText;
+
+  document.getElementById('promoField').value = appliedPromo;
+
+//////////////////////////////////////////////////////////////////////////////////////////
+  document.getElementById('applyPromo').addEventListener('click', async () => {
+  const code = document.getElementById('promoInput').value.trim().toUpperCase();
+  const msg = document.getElementById('promoMessage');
+
+  if (!code) return;
+
+  try {
+    const res = await fetch(
+      'https://omor-6878f-default-rtdb.firebaseio.com/promoCodes/' + code + '.json'
+    );
+    const data = await res.json();
+
+    if (!data) {
+      msg.textContent = "Invalid promo code";
+      msg.style.color = "#ff6f6f";
+      promoDiscount = 0;
+      promoType = null;
+      appliedPromo = "";
+      calculate();
+      return;
+    }
+
+    promoDiscount = data.value;
+    promoType = data.type;
+    appliedPromo = code;
+
+    document.getElementById('promoField').value = code;
+
+    msg.textContent =
+      data.type === "percent"
+        ? `✓ ${data.value}% discount applied`
+        : `✓ $${data.value} discount applied`;
+
+    msg.style.color = "#6fff9f";
+
+    calculate();
+  } catch {
+    msg.textContent = "Promo error. Try again.";
+    msg.style.color = "#ff6f6f";
+  }
+});
+//////////////////////////////////////////////////////////////////////
 
   await fetch(form.action, {
     method: 'POST',
