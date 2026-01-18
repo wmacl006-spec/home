@@ -1,468 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Services – William MacLean</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Services – William MacLean</title>
 
-  <link rel="icon" type="image/png" href="logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --pink: #B00B55;
-      --black: #0f0f0f;
-      --white: #ffffff;
-      --gray: #b5b5b5;
-      --panel: #161616;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at top, #1b1b1b, var(--black));
-      color: var(--white);
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 4rem 2rem;
-      text-align: center;
-    }
-
-    .home-button {
-      display: inline-block;
-      margin-bottom: 2.5rem;
-      padding: 0.8rem 1.6rem;
-      border-radius: 14px;
-      background: var(--panel);
-      border: 1px solid #242424;
-      color: var(--white);
-      font-weight: 600;
-      text-decoration: none;
-      transition: 0.2s ease;
-    }
-
-    .home-button:hover {
-      transform: translateY(-4px);
-      border-color: var(--pink);
-      box-shadow: 0 12px 30px rgba(176,11,85,0.25);
-    }
-
-    h1 {
-      font-family: 'Comfortaa', sans-serif;
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .subtitle {
-      color: var(--gray);
-      margin-bottom: 2.5rem;
-    }
-
-    /* OFFERS GRID */
-    .offers {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 300px));
-      gap: 1.5rem;
-      margin-bottom: 2.5rem;
-      justify-content: center;
-    }
-
-    .offer-card {
-      background: var(--panel);
-      border: 1px solid #242424;
-      border-radius: 14px;
-      padding: 1.6rem;
-      width: 100%;
-      max-width: 300px;
-      cursor: pointer;
-      position: relative;
-      transition: 0.2s ease;
-      text-align: left;
-    }
-
-    .offer-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--pink);
-      box-shadow: 0 12px 30px rgba(176,11,85,0.25);
-    }
-
-    .offer-card.selected {
-      border-color: var(--pink);
-    }
-
-    .offer-card h3 {
-      color: var(--pink);
-      margin-bottom: 0.4rem;
-      font-family: 'Comfortaa', sans-serif;
-    }
-
-    .price {
-      font-weight: 600;
-      margin-top: 0.6rem;
-    }
-
-    .qty-wrapper {
-      display: none;
-      margin-top: 0.8rem;
-    }
-
-    .offer-card.selected .qty-wrapper {
-      display: block;
-    }
-
-    .qty-wrapper input {
-      width: 100%;
-      padding: 0.6rem;
-      background: #1f1f1f;
-      border: 1px solid #2a2a2a;
-      color: var(--white);
-      border-radius: 8px;
-    }
-
-    .selected-label {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--pink);
-      font-size: 0.75rem;
-      padding: 3px 10px;
-      border-radius: 6px;
-      display: none;
-    }
-
-    .offer-card.selected .selected-label,
-    .billing-card.selected .selected-label {
-      display: block;
-    }
-
-    /* BILLING */
-    .billing-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.2rem;
-      max-width: 700px;
-      margin: 0 auto 2.5rem;
-    }
-
-    .billing-card {
-      background: var(--panel);
-      border: 1px solid #242424;
-      border-radius: 14px;
-      padding: 1.4rem;
-      cursor: pointer;
-      position: relative;
-      transition: 0.2s ease;
-      text-align: left;
-    }
-
-    .billing-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--pink);
-      box-shadow: 0 12px 30px rgba(176,11,85,0.25);
-    }
-
-    .billing-card.selected {
-      border-color: var(--pink);
-    }
-
-    .billing-card h3 {
-      font-family: 'Comfortaa', sans-serif;
-      color: var(--pink);
-      margin-bottom: 0.4rem;
-    }
-
-    .total {
-  background: var(--panel);
-  border: 1px solid #242424;
-  border-radius: 16px;
-  max-width: 420px;
-  margin: 0 auto 3rem;
-  padding: 1.6rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+<style>
+:root {
+  --pink:#B00B55;
+  --black:#0f0f0f;
+  --white:#fff;
+  --gray:#b5b5b5;
+  --panel:#161616;
 }
 
-.total-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1rem;
-  color: var(--gray);
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:Inter,sans-serif;
+  background:radial-gradient(circle at top,#1b1b1b,var(--black));
+  color:var(--white);
 }
 
-.total-row strong {
-  color: var(--white);
-  font-weight: 600;
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:3rem 2rem;
 }
 
-.total-row.highlight {
-  padding-top: 0.6rem;
-  margin-top: 0.6rem;
-  border-top: 1px solid #2a2a2a;
-  font-size: 1.15rem;
+.home-button{
+  display:inline-block;
+  margin-bottom:2rem;
+  padding:.8rem 1.6rem;
+  border-radius:14px;
+  background:var(--panel);
+  border:1px solid #242424;
+  color:#fff;
+  text-decoration:none;
+  font-weight:600;
 }
 
-.total-row.highlight strong {
-  color: var(--pink);
+h1{
+  font-family:Comfortaa,sans-serif;
+  font-size:2.8rem;
 }
 
+.subtitle{color:var(--gray);margin-bottom:2rem}
 
-    form {
-      background: var(--panel);
-      padding: 2.2rem;
-      border-radius: 16px;
-      max-width: 520px;
-      margin: 0 auto 3rem;
-      border: 1px solid #242424;
-      text-align: left;
-    }
+/* LAYOUT */
+.builder{
+  display:grid;
+  grid-template-columns:1fr 420px;
+  gap:2rem;
+}
 
-    form h2 {
-      font-family: 'Comfortaa', sans-serif;
-      margin-bottom: 1.2rem;
-    }
+@media(max-width:900px){
+  .builder{grid-template-columns:1fr}
+}
 
-    input, textarea {
-      width: 100%;
-      padding: 0.9rem;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      border: 1px solid #2a2a2a;
-      background: #1f1f1f;
-      color: var(--white);
-    }
+/* OFFERS */
+.offers{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,300px));
+  gap:1.5rem;
+  justify-content:center;
+}
 
-    button {
-      width: 100%;
-      padding: 0.9rem;
-      border-radius: 12px;
-      border: 1px solid var(--pink);
-      background: var(--pink);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-    }
+.offer-card{
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:14px;
+  padding:1.5rem;
+  cursor:pointer;
+  position:relative;
+  transition:.2s;
+  text-align:left;
+}
 
-    footer {
-      text-align: center;
-      color: #8a8a8a;
-      font-size: 0.85rem;
-    }
-  </style>
+.offer-card.selected{
+  border-color:var(--pink);
+  box-shadow:0 10px 25px rgba(176,11,85,.25);
+}
+
+.offer-card h3{
+  font-family:Comfortaa,sans-serif;
+  color:var(--pink);
+  margin-bottom:.4rem;
+}
+
+.price{margin-top:.6rem;font-weight:600}
+
+.qty-wrapper{display:none;margin-top:.8rem}
+.offer-card.selected .qty-wrapper{display:block}
+
+.qty-wrapper input{
+  width:100%;
+  padding:.6rem;
+  border-radius:8px;
+  border:1px solid #2a2a2a;
+  background:#1f1f1f;
+  color:#fff;
+}
+
+.selected-label{
+  position:absolute;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--pink);
+  font-size:.75rem;
+  padding:3px 10px;
+  border-radius:6px;
+  display:none;
+}
+
+.offer-card.selected .selected-label{display:block}
+
+/* RIGHT PANEL */
+.side{
+  position:sticky;
+  top:2rem;
+  display:flex;
+  flex-direction:column;
+  gap:1.5rem;
+}
+
+/* TOTAL */
+.total{
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:16px;
+  padding:1.6rem;
+}
+
+.total-row{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:.6rem;
+  color:var(--gray);
+}
+
+.total-row strong{color:#fff}
+
+.total-row.highlight{
+  border-top:1px solid #2a2a2a;
+  padding-top:.6rem;
+  font-size:1.1rem;
+}
+
+.total-row.highlight strong{color:var(--pink)}
+
+/* FORM */
+form{
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:16px;
+  padding:1.8rem;
+}
+
+form h2{
+  font-family:Comfortaa,sans-serif;
+  margin-bottom:1rem;
+}
+
+input,textarea{
+  width:100%;
+  padding:.9rem;
+  margin-bottom:1rem;
+  border-radius:10px;
+  border:1px solid #2a2a2a;
+  background:#1f1f1f;
+  color:#fff;
+}
+
+button{
+  width:100%;
+  padding:.9rem;
+  border-radius:12px;
+  border:none;
+  background:var(--pink);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+footer{
+  text-align:center;
+  color:#8a8a8a;
+  margin-top:3rem;
+}
+</style>
 </head>
 
 <body>
 <div class="container">
 
 <a href="index.html" class="home-button">Home</a>
-
 <h1>Build Your Order</h1>
-<p class="subtitle">Select features & quantities. Choose a billing plan to save.</p>
+<p class="subtitle">Select features & quantities</p>
 
+<div class="builder">
+
+<!-- LEFT -->
 <div class="offers">
 
-  <div class="offer-card" id="landing-card" data-name="Landing Page" data-price="1">
-    <h3>Landing Page</h3>
-    <p>Custom website landing page.</p>
-    <div class="price">$1 / month</div>
-    <div class="selected-label">Added</div>
-  </div>
+<div class="offer-card" id="landing" data-name="Landing Page" data-price="1">
+  <h3>Landing Page</h3>
+  <p>Custom landing page</p>
+  <div class="price">$1 / month</div>
+  <div class="selected-label">Added</div>
+</div>
 
-  <div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
-    <h3>Extra Pages</h3>
-    <p>Additional custom website pages.</p>
-    <div class="price">$0.75 × page</div>
-    <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
-    <div class="selected-label">Added</div>
-  </div>
+<div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
+  <h3>Extra Pages</h3>
+  <p>Additional pages</p>
+  <div class="price">$0.75 × page</div>
+  <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
+  <div class="selected-label">Added</div>
+</div>
 
-  <div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
-    <h3>Forms</h3>
-    <p>Email forms sent from your site.</p>
-    <div class="price">$1 × form</div>
-    <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
-    <div class="selected-label">Added</div>
-  </div>
+<div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
+  <h3>Forms</h3>
+  <p>Email forms</p>
+  <div class="price">$1 × form</div>
+  <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
+  <div class="selected-label">Added</div>
+</div>
 
-  <div class="offer-card" id="domain-card" data-name="Custom Domain" data-price="4">
-    <h3>Custom Domain</h3>
-    <p>Your own domain name.</p>
-    <div class="price">$4 / month</div>
-    <div class="selected-label">Added</div>
-  </div>
+<div class="offer-card" id="domain" data-name="Custom Domain" data-price="4">
+  <h3>Custom Domain</h3>
+  <p>Your own domain</p>
+  <div class="price">$4 / month</div>
+  <div class="selected-label">Added</div>
+</div>
 
-  <div class="offer-card" data-name="Receive Custom Email" data-price="0.5">
-    <h3>Receive Custom Email</h3>
-    <p>Receive emails on your domain.</p>
-    <div class="price">$0.50 / month</div>
-    <div class="selected-label">Added</div>
-  </div>
+<div class="offer-card" data-name="Receive Email" data-price="0.5">
+  <h3>Receive Custom Email</h3>
+  <div class="price">$0.50 / month</div>
+  <div class="selected-label">Added</div>
+</div>
 
-  <div class="offer-card" data-name="Send Custom Email" data-price="0.75">
-    <h3>Send Custom Email</h3>
-    <p>Send emails from your domain.</p>
-    <div class="price">$0.75 / month</div>
-    <div class="selected-label">Added</div>
-  </div>
-
-  <div class="offer-card" data-name="Revisions" data-price="1.5" data-qty="true">
-    <h3>Revisions</h3>
-    <p>Monthly revision allowance.</p>
-    <div class="price">$1.50 × revisions</div>
-    <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
-    <div class="selected-label">Added</div>
-  </div>
-
-  <div class="offer-card" data-name="Business Cards" data-price="42.81" data-qty="true" data-type="one-time">
-    <h3>Business Cards</h3>
-    <p>100 custom cards.</p>
-    <div class="price">$42.81 × 100</div>
-    <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
-    <div class="selected-label">Added</div>
-  </div>
+<div class="offer-card" data-name="Send Email" data-price="0.75">
+  <h3>Send Custom Email</h3>
+  <div class="price">$0.75 / month</div>
+  <div class="selected-label">Added</div>
+</div>
 
 </div>
 
-<div class="billing-cards">
-  <div class="billing-card selected" data-discount="0" data-label="Monthly">
-    <h3>Monthly</h3>
-    <p>Billed Monthly</p>
-    <p>No discount</p><br>
-    <div class="selected-label">Selected</div>
-  </div>
-
-  <div class="billing-card" data-discount="10" data-label="Semi-Annually">
-    <h3>Semi-Annually</h3>
-    <p>Billed Semi-Annually</p>
-    <p>Save 10%</p><br>
-    <div class="selected-label">Selected</div>
-  </div>
-
-  <div class="billing-card" data-discount="20" data-label="Annually">
-    <h3>Annually</h3>
-    <p>Billed Annually</p>
-    <p>Save 20%</p><br>
-    <div class="selected-label">Selected</div>
-  </div>
-</div>
+<!-- RIGHT -->
+<div class="side">
 
 <div class="total">
-  <div class="total-row">
-    <span>One-time</span>
-    <strong>$<span id="oneTimeTotal">0.00</span></strong>
-  </div>
-
-  <div class="total-row">
-    <span>Monthly</span>
-    <strong>$<span id="monthlyTotal">0.00</span></strong>
-  </div>
-
-  <div class="total-row highlight">
-    <span>After Discount</span>
-    <strong>$<span id="discountedTotal">0.00</span></strong>
-  </div>
+  <div class="total-row"><span>Monthly</span><strong>$<span id="monthly">0.00</span></strong></div>
 </div>
 
-
-<form>
+<form id="orderForm">
   <h2>Send Request</h2>
-  <input placeholder="Your Name" required>
-  <input type="email" placeholder="Your Email" required>
-  <textarea placeholder="Extra notes"></textarea>
-  <button>Send Request</button>
+  <input name="name" placeholder="Your Name" required>
+  <input type="email" name="email" placeholder="Your Email" required>
+  <textarea name="notes" placeholder="Extra notes"></textarea>
+  <button type="submit">Send Request</button>
 </form>
 
-<footer>© 2026 William MacLean</footer>
+</div>
+</div>
 
+<footer>© 2026 William MacLean</footer>
 </div>
 
 <script>
-const cards = document.querySelectorAll('.offer-card');
-const billingCards = document.querySelectorAll('.billing-card');
+const cards=[...document.querySelectorAll('.offer-card')];
+const landing=document.getElementById('landing');
+const domain=document.getElementById('domain');
+const monthlyEl=document.getElementById('monthly');
 
-const oneTimeEl = document.getElementById('oneTimeTotal');
-const monthlyEl = document.getElementById('monthlyTotal');
-const discountedEl = document.getElementById('discountedTotal');
-
-let billingDiscount = 0;
-let billingLabel = 'Monthly';
-
-function calculate() {
-  let oneTime = 0;
-  let monthly = 0;
-
-  cards.forEach(card => {
-    if (!card.classList.contains('selected')) return;
-
-    const price = +card.dataset.price;
-    const qty = card.querySelector('input')?.value || 1;
-    const type = card.dataset.type === 'one-time' ? 'one-time' : 'monthly';
-
-    if (type === 'one-time') oneTime += price * qty;
-    else monthly += price * qty;
-  });
-
-  const discountedMonthly = monthly * (1 - billingDiscount / 100);
-
-  oneTimeEl.textContent = oneTime.toFixed(2);
-  monthlyEl.textContent = monthly.toFixed(2);
-  discountedEl.textContent = discountedMonthly.toFixed(2);
+function hasDependents(base,names){
+  return cards.some(c=>c.classList.contains('selected') && names.includes(c.dataset.name));
 }
 
-const landingCard = document.getElementById('landing-card');
-const domainCard = document.getElementById('domain-card');
+function calc(){
+  let total=0;
+  cards.forEach(c=>{
+    if(!c.classList.contains('selected'))return;
+    const qty=c.querySelector('input')?.value||1;
+    total+=c.dataset.price*qty;
+  });
+  monthlyEl.textContent=total.toFixed(2);
+}
 
-cards.forEach(card => {
-  card.addEventListener('click', e => {
-    if (e.target.tagName === 'INPUT') return;
+cards.forEach(card=>{
+  card.addEventListener('click',e=>{
+    if(e.target.tagName==='INPUT')return;
 
-    const isSelected = card.classList.toggle('selected');
+    const name=card.dataset.name;
 
-    const name = card.dataset.name;
-
-    /* PAGE-BASED DEPENDENCIES */
-    if (
-      isSelected &&
-      (name === 'Extra Pages' || name === 'Forms' || name === 'Revisions')
-    ) {
-      landingCard.classList.add('selected');
+    if(card.classList.contains('selected')){
+      if(card===landing && hasDependents(landing,['Extra Pages','Forms'])) return;
+      if(card===domain && hasDependents(domain,['Send Email','Receive Email'])) return;
+      card.classList.remove('selected');
+    } else {
+      card.classList.add('selected');
+      if(['Extra Pages','Forms'].includes(name)) landing.classList.add('selected');
+      if(['Send Email','Receive Email'].includes(name)) domain.classList.add('selected');
     }
-
-    /* EMAIL DEPENDENCIES */
-    if (
-      isSelected &&
-      (name === 'Receive Custom Email' || name === 'Send Custom Email')
-    ) {
-      domainCard.classList.add('selected');
-    }
-
-    calculate();
+    calc();
   });
 
-  card.querySelector('input')?.addEventListener('input', calculate);
+  card.querySelector('input')?.addEventListener('input',calc);
 });
 
+document.getElementById('orderForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  let summary=cards.filter(c=>c.classList.contains('selected'))
+    .map(c=>`- ${c.dataset.name}`).join('%0D%0A');
 
-billingCards.forEach(card => {
-  card.addEventListener('click', () => {
-    billingCards.forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-
-    billingDiscount = +card.dataset.discount;
-    billingLabel = card.dataset.label;
-
-    calculate();
-  });
+  window.location.href=
+    `mailto:youremail@example.com?subject=New Service Request&body=${summary}`;
 });
 
-calculate();
+calc();
 </script>
-
 </body>
 </html>
