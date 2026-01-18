@@ -402,11 +402,15 @@ footer{
 </div>
 
 
-<form id="orderForm">
+<form id="orderForm" action="https://formspree.io/f/mlgggaqd" method="POST">
+
   <h2>Send Request</h2>
   <input name="name" placeholder="Your Name" required>
   <input type="email" name="email" placeholder="Your Email" required>
   <textarea name="notes" placeholder="Extra notes"></textarea>
+  
+  <input type="hidden" name="services" id="servicesField">
+
   <button type="submit">Send Request</button>
 </form>
 
@@ -482,19 +486,19 @@ billingCards.forEach(b=>{
   });
 });
 
-document.getElementById('orderForm').addEventListener('submit',e=>{
-  e.preventDefault();
-  
+document.getElementById('orderForm').addEventListener('submit', () => {
   const services = [...cards]
-  .filter(c => c.classList.contains('selected'))
-  .map(c => {
-    const type = c.dataset.onetime === "true" ? " (one-time)" : " (monthly)";
-    return c.dataset.name + type;
-  })
-  .join('\n');
+    .filter(c => c.classList.contains('selected'))
+    .map(c => {
+      const qty = c.querySelector('input')?.value || 1;
+      const type = c.dataset.onetime === "true" ? "one-time" : "monthly";
+      return `${c.dataset.name} (${type}) x${qty}`;
+    })
+    .join('\n');
 
-  window.location.href=`mailto:youremail@example.com?subject=New Order&body=${encodeURIComponent(services)}`;
+  document.getElementById('servicesField').value = services;
 });
+
 
 calculate();
 </script>
