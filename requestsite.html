@@ -374,15 +374,39 @@ function calculate() {
   discountedEl.textContent = discountedMonthly.toFixed(2);
 }
 
+const landingCard = document.getElementById('landing-card');
+const domainCard = document.getElementById('domain-card');
+
 cards.forEach(card => {
   card.addEventListener('click', e => {
     if (e.target.tagName === 'INPUT') return;
-    card.classList.toggle('selected');
+
+    const isSelected = card.classList.toggle('selected');
+
+    const name = card.dataset.name;
+
+    /* PAGE-BASED DEPENDENCIES */
+    if (
+      isSelected &&
+      (name === 'Extra Pages' || name === 'Forms' || name === 'Revisions')
+    ) {
+      landingCard.classList.add('selected');
+    }
+
+    /* EMAIL DEPENDENCIES */
+    if (
+      isSelected &&
+      (name === 'Receive Custom Email' || name === 'Send Custom Email')
+    ) {
+      domainCard.classList.add('selected');
+    }
+
     calculate();
   });
 
   card.querySelector('input')?.addEventListener('input', calculate);
 });
+
 
 billingCards.forEach(card => {
   card.addEventListener('click', () => {
