@@ -484,7 +484,15 @@ billingCards.forEach(b=>{
 
 document.getElementById('orderForm').addEventListener('submit',e=>{
   e.preventDefault();
-  const services=[...cards].filter(c=>c.classList.contains('selected')).map(c=>c.dataset.name).join('\n');
+  
+  const services = [...cards]
+  .filter(c => c.classList.contains('selected'))
+  .map(c => {
+    const type = c.dataset.onetime === "true" ? " (one-time)" : " (monthly)";
+    return c.dataset.name + type;
+  })
+  .join('\n');
+
   window.location.href=`mailto:youremail@example.com?subject=New Order&body=${encodeURIComponent(services)}`;
 });
 
