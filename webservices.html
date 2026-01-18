@@ -567,7 +567,7 @@ cards.forEach(card=>{
       card.classList.remove('selected');
     } else {
       card.classList.add('selected');
-      if(['Extra Pages','Forms'].includes(name)) website.classList.add('selected');
+      if(['Extra Pages','Forms','Revisions'].includes(name)) website.classList.add('selected');
       if(['Send Custom Email','Receive Custom Email'].includes(name)) domain.classList.add('selected');
     }
     calculate();
