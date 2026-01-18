@@ -457,7 +457,8 @@ function dependentsSelected(names){
 }
 
 function calculate(){
-  let monthly = 0;
+  let monthlyDiscountable = 0; // all monthly EXCEPT domain
+  let monthlyDomain = 0;       // domain only
   let oneTime = 0;
 
   cards.forEach(card => {
@@ -468,17 +469,27 @@ function calculate(){
 
     if (card.dataset.onetime === "true") {
       oneTime += price * qty;
-    } else {
-      monthly += price * qty;
+    } 
+    else if (card.id === "domain-card") {
+      monthlyDomain += price * qty; // NO DISCOUNT
+    } 
+    else {
+      monthlyDiscountable += price * qty; // DISCOUNT APPLIES
     }
   });
 
-  document.getElementById('oneTimeTotal').textContent = oneTime.toFixed(2);
-  document.getElementById('monthlyTotal').textContent = monthly.toFixed(2);
-  document.getElementById('discountedTotal').textContent =
-    (monthly * (1 - discount / 100)).toFixed(2);
-}
+  const discountedMonthly =
+    (monthlyDiscountable * (1 - discount / 100)) + monthlyDomain;
 
+  document.getElementById('oneTimeTotal').textContent =
+    oneTime.toFixed(2);
+
+  document.getElementById('monthlyTotal').textContent =
+    (monthlyDiscountable + monthlyDomain).toFixed(2);
+
+  document.getElementById('discountedTotal').textContent =
+    discountedMonthly.toFixed(2);
+}
 
 cards.forEach(card=>{
   card.addEventListener('click',e=>{
