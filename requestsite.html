@@ -34,24 +34,23 @@
     }
 
     .home-button {
-  display: inline-block;
-  margin-bottom: 2.5rem;
-  padding: 0.8rem 1.6rem;
-  border-radius: 14px;
-  background: var(--panel);
-  border: 1px solid #242424;
-  color: var(--white);
-  font-weight: 600;
-  text-decoration: none;
-  transition: 0.2s ease;
-}
+      display: inline-block;
+      margin-bottom: 2.5rem;
+      padding: 0.8rem 1.6rem;
+      border-radius: 14px;
+      background: var(--panel);
+      border: 1px solid #242424;
+      color: var(--white);
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.2s ease;
+    }
 
-.home-button:hover {
-  transform: translateY(-4px);
-  border-color: var(--pink);
-  box-shadow: 0 12px 30px rgba(176,11,85,0.25);
-}
-
+    .home-button:hover {
+      transform: translateY(-4px);
+      border-color: var(--pink);
+      box-shadow: 0 12px 30px rgba(176,11,85,0.25);
+    }
 
     h1 {
       font-family: 'Comfortaa', sans-serif;
@@ -64,16 +63,14 @@
       margin-bottom: 2.5rem;
     }
 
+    /* OFFERS GRID */
     .offers {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 300px));
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-
-  justify-content: center;
-}
-
-
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 300px));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      justify-content: center;
+    }
 
     .offer-card {
       background: var(--panel);
@@ -103,59 +100,6 @@
       margin-bottom: 0.4rem;
       font-family: 'Comfortaa', sans-serif;
     }
-
-    .billing-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.2rem;
-  max-width: 700px;
-  margin: 0 auto 2.5rem;
-}
-
-.billing-card {
-  background: var(--panel);
-  border: 1px solid #242424;
-  border-radius: 14px;
-  padding: 1.4rem;
-  cursor: pointer;
-  position: relative;
-  transition: 0.2s ease;
-  text-align: left;
-}
-
-.billing-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--pink);
-  box-shadow: 0 12px 30px rgba(176,11,85,0.25);
-}
-
-.billing-card.selected {
-  border-color: var(--pink);
-}
-
-.billing-card h3 {
-  font-family: 'Comfortaa', sans-serif;
-  color: var(--pink);
-  margin-bottom: 0.4rem;
-}
-
-.billing-card .selected-label {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--pink);
-  font-size: 0.75rem;
-  padding: 3px 10px;
-  border-radius: 6px;
-  display: none;
-}
-
-.billing-card.selected .selected-label {
-  display: block;
-}
-
-
 
     .price {
       font-weight: 600;
@@ -192,8 +136,45 @@
       display: none;
     }
 
-    .offer-card.selected .selected-label {
+    .offer-card.selected .selected-label,
+    .billing-card.selected .selected-label {
       display: block;
+    }
+
+    /* BILLING */
+    .billing-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .billing-card {
+      background: var(--panel);
+      border: 1px solid #242424;
+      border-radius: 14px;
+      padding: 1.4rem;
+      cursor: pointer;
+      position: relative;
+      transition: 0.2s ease;
+      text-align: left;
+    }
+
+    .billing-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--pink);
+      box-shadow: 0 12px 30px rgba(176,11,85,0.25);
+    }
+
+    .billing-card.selected {
+      border-color: var(--pink);
+    }
+
+    .billing-card h3 {
+      font-family: 'Comfortaa', sans-serif;
+      color: var(--pink);
+      margin-bottom: 0.4rem;
     }
 
     .total {
@@ -239,14 +220,6 @@
       cursor: pointer;
     }
 
-    .form-status {
-      display: none;
-      margin-top: 0.8rem;
-      color: #7CFCB0;
-      text-align: center;
-      font-weight: 600;
-    }
-
     footer {
       text-align: center;
       color: #8a8a8a;
@@ -256,157 +229,129 @@
 </head>
 
 <body>
-
 <div class="container">
 
 <a href="index.html" class="home-button">Home</a>
-  
-  <h1>Build Your Order</h1>
-  <p class="subtitle">Select features & quantities. Billing starts after completion and is billed semi annually.</p>
 
-  <div class="offers">
+<h1>Build Your Order</h1>
+<p class="subtitle">Select features & quantities. Choose a billing plan to save.</p>
 
-    <div class="offer-card" id="landing-card" data-name="Landing Page" data-price="1">
-      <h3>Landing Page</h3>
-      <p>Custom website landing page.</p>
-      <div class="price">$1 / month</div>
-      <div class="selected-label">Added</div>
-    </div>
+<div class="offers">
 
-    <div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
-      <h3>Extra Pages</h3>
-      <p>Additional custom website pages.</p>
-      <div class="price">$0.75 × page</div>
-      <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
-      <div class="selected-label">Added</div>
-    </div>
-
-    <div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
-      <h3>Forms</h3>
-      <p>A form sends you email responses directly from your website.</p>
-      <div class="price">$1 × form</div>
-      <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
-      <div class="selected-label">Added</div>
-    </div>
-
-    <div class="offer-card" id="domain-card" data-name="Custom Domain" data-price="4">
-      <h3>Custom Domain</h3>
-      <p>Your own domain name for use on a website or email address</p>
-      <div class="price">$4 / month</div>
-      <div class="selected-label">Added</div>
-    </div>
-
-
-    <div class="offer-card" data-name="Receive Custom Email" data-price="0.5">
-      <h3>Receive To Custom Email</h3>
-      <p>Receive emails sent to an email with custom domain.</p>
-      <p>you@your-domain.ca</p>
-      <div class="price">$0.50 / month</div>
-      <div class="selected-label">Added</div>
-    </div>
-    
-    <div class="offer-card" data-name="Send Custom Email" data-price="0.75">
-      <h3>Send From Custom Email</h3>
-      <p>Send emails from an email with custom domain.</p>
-      <p>you@your-domain.ca</p>
-      <div class="price">$0.75 / month</div>
-      <div class="selected-label">Added</div>
-    </div>
-
-    <div class="offer-card" data-name="Revisions" data-price="1.5" data-qty="true">
-      <h3>Revisions</h3>
-      <p>Up to how many revisions of custom website per month.</p>
-      <div class="price">$1.50 × revisions</div>
-      <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
-      <div class="selected-label">Added</div>
-    </div>
-
-    <!-- ONE-TIME -->
-    <div class="offer-card" data-name="Business Cards" data-price="42.81" data-qty="true" data-type="one-time">
-      <h3>Business Cards</h3>
-      <p>100 custom business cards.</p>
-      <div class="price">$42.81 × 100 cards</div>
-      <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
-      <div class="selected-label">Added</div>
-    </div>
-
+  <div class="offer-card" id="landing-card" data-name="Landing Page" data-price="1">
+    <h3>Landing Page</h3>
+    <p>Custom website landing page.</p>
+    <div class="price">$1 / month</div>
+    <div class="selected-label">Added</div>
   </div>
 
- <div class="billing-cards">
+  <div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
+    <h3>Extra Pages</h3>
+    <p>Additional custom website pages.</p>
+    <div class="price">$0.75 × page</div>
+    <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
+    <div class="selected-label">Added</div>
+  </div>
 
+  <div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
+    <h3>Forms</h3>
+    <p>Email forms sent from your site.</p>
+    <div class="price">$1 × form</div>
+    <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
+    <div class="selected-label">Added</div>
+  </div>
+
+  <div class="offer-card" id="domain-card" data-name="Custom Domain" data-price="4">
+    <h3>Custom Domain</h3>
+    <p>Your own domain name.</p>
+    <div class="price">$4 / month</div>
+    <div class="selected-label">Added</div>
+  </div>
+
+  <div class="offer-card" data-name="Receive Custom Email" data-price="0.5">
+    <h3>Receive Custom Email</h3>
+    <p>Receive emails on your domain.</p>
+    <div class="price">$0.50 / month</div>
+    <div class="selected-label">Added</div>
+  </div>
+
+  <div class="offer-card" data-name="Send Custom Email" data-price="0.75">
+    <h3>Send Custom Email</h3>
+    <p>Send emails from your domain.</p>
+    <div class="price">$0.75 / month</div>
+    <div class="selected-label">Added</div>
+  </div>
+
+  <div class="offer-card" data-name="Revisions" data-price="1.5" data-qty="true">
+    <h3>Revisions</h3>
+    <p>Monthly revision allowance.</p>
+    <div class="price">$1.50 × revisions</div>
+    <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
+    <div class="selected-label">Added</div>
+  </div>
+
+  <div class="offer-card" data-name="Business Cards" data-price="42.81" data-qty="true" data-type="one-time">
+    <h3>Business Cards</h3>
+    <p>100 custom cards.</p>
+    <div class="price">$42.81 × 100</div>
+    <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
+    <div class="selected-label">Added</div>
+  </div>
+
+</div>
+
+<div class="billing-cards">
   <div class="billing-card selected" data-discount="0" data-label="Monthly">
     <h3>Monthly</h3>
     <p>No discount</p>
-    <div class="price">$X / month</div>
     <div class="selected-label">Selected</div>
   </div>
 
   <div class="billing-card" data-discount="10" data-label="Semi-Annually">
     <h3>Semi-Annually</h3>
     <p>Save 10%</p>
-    <div class="price">Billed every 6 months</div>
     <div class="selected-label">Selected</div>
   </div>
 
   <div class="billing-card" data-discount="20" data-label="Annually">
     <h3>Annually</h3>
     <p>Save 20%</p>
-    <div class="price">Billed yearly</div>
     <div class="selected-label">Selected</div>
   </div>
-
 </div>
 
-
-  <div class="total">
+<div class="total">
   One-time: $<span id="oneTimeTotal">0.00</span><br>
   Monthly: $<span id="monthlyTotal">0.00</span><br>
   Discounted: $<span id="discountedTotal">0.00</span>
 </div>
 
+<form>
+  <h2>Send Request</h2>
+  <input placeholder="Your Name" required>
+  <input type="email" placeholder="Your Email" required>
+  <textarea placeholder="Extra notes"></textarea>
+  <button>Send Request</button>
+</form>
 
-  <form id="website-form">
-    <h2>Send Request</h2>
-    <input name="name" placeholder="Your Name" required>
-    <input name="email" type="email" placeholder="Your Email" required>
-    <textarea name="message" placeholder="Extra notes"></textarea>
-    <input type="hidden" name="selected_items" id="selected-items">
-    <input type="hidden" name="total_price" id="total-price">
-    <button>Send Request</button>
-    <div class="form-status" id="status">Sent!</div>
-  </form>
+<footer>© 2026 William MacLean</footer>
 
-  <footer>© 2026 William MacLean</footer>
 </div>
 
 <script>
-  const cards = document.querySelectorAll('.offer-card');
-  const oneTimeEl = document.getElementById('oneTimeTotal');
-  const monthlyEl = document.getElementById('monthlyTotal');
-  const itemsInput = document.getElementById('selected-items');
-  const priceInput = document.getElementById('total-price');
-
-  const domainCard = document.getElementById('domain-card');
-  const landingCard = document.getElementById('landing-card');
-
+const cards = document.querySelectorAll('.offer-card');
 const billingCards = document.querySelectorAll('.billing-card');
+
+const oneTimeEl = document.getElementById('oneTimeTotal');
+const monthlyEl = document.getElementById('monthlyTotal');
+const discountedEl = document.getElementById('discountedTotal');
+
 let billingDiscount = 0;
 let billingLabel = 'Monthly';
 
-
-
-  const emailCards = [...cards].filter(card =>
-    card.dataset.name.includes('Email')
-  );
-
-  const landingDependents = [...cards].filter(card =>
-    ['Extra Pages', 'Forms', 'Revisions'].includes(card.dataset.name)
-  );
-
-  function calculate() {
+function calculate() {
   let oneTime = 0;
   let monthly = 0;
-  let summary = [];
 
   cards.forEach(card => {
     if (!card.classList.contains('selected')) return;
@@ -414,12 +359,9 @@ let billingLabel = 'Monthly';
     const price = +card.dataset.price;
     const qty = card.querySelector('input')?.value || 1;
     const type = card.dataset.type === 'one-time' ? 'one-time' : 'monthly';
-    const cost = price * qty;
 
-    if (type === 'one-time') oneTime += cost;
-    else monthly += cost;
-
-    summary.push(`${card.dataset.name} (${qty}) – $${cost} ${type}`);
+    if (type === 'one-time') oneTime += price * qty;
+    else monthly += price * qty;
   });
 
   const discountedMonthly = monthly * (1 - billingDiscount / 100);
@@ -427,69 +369,19 @@ let billingLabel = 'Monthly';
   oneTimeEl.textContent = oneTime.toFixed(2);
   monthlyEl.textContent = monthly.toFixed(2);
   discountedEl.textContent = discountedMonthly.toFixed(2);
-
-  itemsInput.value = summary.join(', ');
-priceInput.value =
-  `One-time: $${oneTime.toFixed(2)}, ` +
-  `Monthly (${billingLabel}, ${billingDiscount}% off): ` +
-  `$${discountedMonthly.toFixed(2)}`;
 }
 
-
-  function syncForcedSelections() {
-    const emailActive = emailCards.some(card =>
-      card.classList.contains('selected')
-    );
-
-    const landingExtrasActive = landingDependents.some(card =>
-      card.classList.contains('selected')
-    );
-
-    // Force Domain if email selected
-    if (emailActive) domainCard.classList.add('selected');
-
-    // Force Landing Page if extras selected
-    if (landingExtrasActive) landingCard.classList.add('selected');
-  }
-
-  cards.forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.tagName === 'INPUT') return;
-
-      const isDomain = card === domainCard;
-      const isLanding = card === landingCard;
-
-      const emailActive = emailCards.some(c =>
-        c.classList.contains('selected')
-      );
-
-      const landingExtrasActive = landingDependents.some(c =>
-        c.classList.contains('selected')
-      );
-
-      // Prevent turning off Domain if emails active
-      if (isDomain && emailActive && card.classList.contains('selected')) return;
-
-      // Prevent turning off Landing Page if extras active
-      if (isLanding && landingExtrasActive && card.classList.contains('selected')) return;
-
-      card.classList.toggle('selected');
-
-      syncForcedSelections();
-      calculate();
-    });
-
-    card.querySelector('input')?.addEventListener('input', calculate);
-  });
-
-  billingRadios.forEach(radio => {
-  radio.addEventListener('change', () => {
-    billingDiscount = +radio.value;
+cards.forEach(card => {
+  card.addEventListener('click', e => {
+    if (e.target.tagName === 'INPUT') return;
+    card.classList.toggle('selected');
     calculate();
   });
+
+  card.querySelector('input')?.addEventListener('input', calculate);
 });
 
-  billingCards.forEach(card => {
+billingCards.forEach(card => {
   card.addEventListener('click', () => {
     billingCards.forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
@@ -501,8 +393,7 @@ priceInput.value =
   });
 });
 
-
-  
+calculate();
 </script>
 
 </body>
