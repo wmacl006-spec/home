@@ -17,6 +17,45 @@
       --panel: #161616;
     }
 
+    /* ---------- RESPONSIVE FIX ---------- */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .offers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .offer-card {
+    max-width: 100%;
+  }
+}
+
+/* Phones */
+@media (max-width: 768px) {
+  .container {
+    padding: 2.5rem 1.2rem;
+  }
+
+  .offers {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .offer-card {
+    max-width: 100%;
+    padding: 1.4rem;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+}
+
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
