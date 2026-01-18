@@ -302,60 +302,60 @@ footer{
 
 <div class="offers">
 
-<div class="offer-card" id="landing-card" data-name="Landing Page" data-price="1">
-  <h3>Landing Page</h3>
-  <p>Custom website landing page.</p>
-  <div class="price">$1 / month</div>
+<div class="offer-card" id="website-card" data-name="Website" data-price="2">
+  <h3>Website</h3>
+  <p>Custom website with a landing page.</p>
+  <div class="price">$2.34 / month</div>
   <div class="selected-label">Added</div>
 </div>
 
-<div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
+<div class="offer-card" data-name="Extra Pages" data-price="0.68" data-qty="true">
   <h3>Extra Pages</h3>
-  <p>Additional pages.</p>
-  <div class="price">$0.75 × page</div>
+  <p>Additional web pages.</p>
+  <div class="price">$0.68 × page</div>
   <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
   <div class="selected-label">Added</div>
 </div>
 
-<div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
+<div class="offer-card" data-name="Forms" data-price="1.12" data-qty="true">
   <h3>Forms</h3>
   <p>Email forms.</p>
-  <div class="price">$1 × form</div>
+  <div class="price">$1.12 × form</div>
   <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
   <div class="selected-label">Added</div>
 </div>
 
-  <div class="offer-card" data-name="Revisions" data-price="0.75" data-qty="true">
+  <div class="offer-card" data-name="Revisions" data-price="0.63" data-qty="true">
   <h3>Revisions</h3>
   <p>Revisions per month.</p>
-  <div class="price">$0.75 × Revision per month</div>
+  <div class="price">$0.63 × Revision per month</div>
   <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
   <div class="selected-label">Added</div>
 </div>
 
-<div class="offer-card" id="domain-card" data-name="Custom Domain" data-price="4">
+<div class="offer-card" id="domain-card" data-name="Custom Domain" data-price="4.65">
   <h3>Custom Domain</h3>
   <p>Your own domain.</p>
-  <div class="price">$4 / month</div>
+  <div class="price">$4.65 / month</div>
   <div class="selected-label">Added</div>
 </div>
 
-<div class="offer-card" data-name="Receive Custom Email" data-price="0.5">
+<div class="offer-card" data-name="Receive Custom Email" data-price="0.54">
   <h3>Receive Custom Email</h3>
-  <div class="price">$0.50 / month</div>
+  <div class="price">$0.54 / month</div>
   <div class="selected-label">Added</div>
 </div>
 
-<div class="offer-card" data-name="Send Custom Email" data-price="0.75">
+<div class="offer-card" data-name="Send Custom Email" data-price="0.86">
   <h3>Send Custom Email</h3>
-  <div class="price">$0.75 / month</div>
+  <div class="price">$0.86 / month</div>
   <div class="selected-label">Added</div>
 </div>
 
-  <div class="offer-card" data-name="Business Cards" data-price="75" data-onetime="true">
+  <div class="offer-card" data-name="Business Cards" data-price="43.94" data-onetime="true">
   <h3>Business Cards</h3>
   <p>Custom designed business cards (print-ready).</p>
-  <div class="price">$75 one-time</div>
+  <div class="price">$43.94 one-time</div>
   <div class="selected-label">Added</div>
 </div>
 
@@ -439,7 +439,7 @@ footer{
 <script>
 const cards=document.querySelectorAll('.offer-card');
 const billingCards=document.querySelectorAll('.billing-card');
-const landing=document.getElementById('landing-card');
+const website=document.getElementById('website-card');
 const domain=document.getElementById('domain-card');
 
 let discount=0;
@@ -479,12 +479,12 @@ cards.forEach(card=>{
     const name=card.dataset.name;
 
     if(card.classList.contains('selected')){
-      if(card===landing && dependentsSelected(['Extra Pages','Forms','Revisions'])) return;
+      if(card===website && dependentsSelected(['Extra Pages','Forms','Revisions'])) return;
       if(card===domain && dependentsSelected(['Send Custom Email','Receive Custom Email'])) return;
       card.classList.remove('selected');
     } else {
       card.classList.add('selected');
-      if(['Extra Pages','Forms'].includes(name)) landing.classList.add('selected');
+      if(['Extra Pages','Forms'].includes(name)) website.classList.add('selected');
       if(['Send Custom Email','Receive Custom Email'].includes(name)) domain.classList.add('selected');
     }
     calculate();
@@ -506,7 +506,7 @@ const form = document.getElementById('orderForm');
 const sentMessage = document.getElementById('sentMessage');
 
 form.addEventListener('submit', async (e) => {
-  e.preventDefault(); // 🚫 stop redirect
+  e.preventDefault(); // stop redirect
 
   const services = [...cards]
     .filter(c => c.classList.contains('selected'))
