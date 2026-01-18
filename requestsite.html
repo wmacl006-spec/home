@@ -104,28 +104,57 @@
       font-family: 'Comfortaa', sans-serif;
     }
 
-    .billing-options {
+    .billing-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto 2.5rem;
+}
+
+.billing-card {
   background: var(--panel);
   border: 1px solid #242424;
   border-radius: 14px;
   padding: 1.4rem;
-  max-width: 520px;
-  margin: 0 auto 2rem;
+  cursor: pointer;
+  position: relative;
+  transition: 0.2s ease;
   text-align: left;
 }
 
-.billing-options h3 {
-  font-family: 'Comfortaa', sans-serif;
-  margin-bottom: 0.8rem;
+.billing-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--pink);
+  box-shadow: 0 12px 30px rgba(176,11,85,0.25);
 }
 
-.billing-options label {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.5rem;
-  cursor: pointer;
+.billing-card.selected {
+  border-color: var(--pink);
 }
+
+.billing-card h3 {
+  font-family: 'Comfortaa', sans-serif;
+  color: var(--pink);
+  margin-bottom: 0.4rem;
+}
+
+.billing-card .selected-label {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--pink);
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: none;
+}
+
+.billing-card.selected .selected-label {
+  display: block;
+}
+
 
 
     .price {
@@ -303,23 +332,29 @@
 
   </div>
 
-  <div class="billing-options">
-  <h3>Billing Plan</h3>
+ <div class="billing-cards">
 
-  <label>
-    <input type="radio" name="billing" value="0" checked>
-    Monthly (no discount)
-  </label>
+  <div class="billing-card selected" data-discount="0" data-label="Monthly">
+    <h3>Monthly</h3>
+    <p>No discount</p>
+    <div class="price">$X / month</div>
+    <div class="selected-label">Selected</div>
+  </div>
 
-  <label>
-    <input type="radio" name="billing" value="10">
-    Semi-Annually (10% off)
-  </label>
+  <div class="billing-card" data-discount="10" data-label="Semi-Annually">
+    <h3>Semi-Annually</h3>
+    <p>Save 10%</p>
+    <div class="price">Billed every 6 months</div>
+    <div class="selected-label">Selected</div>
+  </div>
 
-  <label>
-    <input type="radio" name="billing" value="20">
-    Annually (20% off)
-  </label>
+  <div class="billing-card" data-discount="20" data-label="Annually">
+    <h3>Annually</h3>
+    <p>Save 20%</p>
+    <div class="price">Billed yearly</div>
+    <div class="selected-label">Selected</div>
+  </div>
+
 </div>
 
 
@@ -354,10 +389,10 @@
   const domainCard = document.getElementById('domain-card');
   const landingCard = document.getElementById('landing-card');
 
-  const billingRadios = document.querySelectorAll('input[name="billing"]');
-const discountedEl = document.getElementById('discountedTotal');
-
+const billingCards = document.querySelectorAll('.billing-card');
 let billingDiscount = 0;
+let billingLabel = 'Monthly';
+
 
 
   const emailCards = [...cards].filter(card =>
@@ -394,7 +429,10 @@ let billingDiscount = 0;
   discountedEl.textContent = discountedMonthly.toFixed(2);
 
   itemsInput.value = summary.join(', ');
-  priceInput.value = `One-time: $${oneTime.toFixed(2)}, Monthly after discount: $${discountedMonthly.toFixed(2)}`;
+priceInput.value =
+  `One-time: $${oneTime.toFixed(2)}, ` +
+  `Monthly (${billingLabel}, ${billingDiscount}% off): ` +
+  `$${discountedMonthly.toFixed(2)}`;
 }
 
 
@@ -450,6 +488,19 @@ let billingDiscount = 0;
     calculate();
   });
 });
+
+  billingCards.forEach(card => {
+  card.addEventListener('click', () => {
+    billingCards.forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+
+    billingDiscount = +card.dataset.discount;
+    billingLabel = card.dataset.label;
+
+    calculate();
+  });
+});
+
 
   
 </script>
