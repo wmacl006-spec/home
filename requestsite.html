@@ -104,6 +104,30 @@
       font-family: 'Comfortaa', sans-serif;
     }
 
+    .billing-options {
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 14px;
+  padding: 1.4rem;
+  max-width: 520px;
+  margin: 0 auto 2rem;
+  text-align: left;
+}
+
+.billing-options h3 {
+  font-family: 'Comfortaa', sans-serif;
+  margin-bottom: 0.8rem;
+}
+
+.billing-options label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+
     .price {
       font-weight: 600;
       margin-top: 0.6rem;
@@ -279,10 +303,32 @@
 
   </div>
 
+  <div class="billing-options">
+  <h3>Billing Plan</h3>
+
+  <label>
+    <input type="radio" name="billing" value="0" checked>
+    Monthly (no discount)
+  </label>
+
+  <label>
+    <input type="radio" name="billing" value="10">
+    Semi-Annually (10% off)
+  </label>
+
+  <label>
+    <input type="radio" name="billing" value="20">
+    Annually (20% off)
+  </label>
+</div>
+
+
   <div class="total">
-    One-time: $<span id="oneTimeTotal">0.00</span><br>
-    Monthly: $<span id="monthlyTotal">0.00</span>
-  </div>
+  One-time: $<span id="oneTimeTotal">0.00</span><br>
+  Monthly: $<span id="monthlyTotal">0.00</span><br>
+  Discounted: $<span id="discountedTotal">0.00</span>
+</div>
+
 
   <form id="website-form">
     <h2>Send Request</h2>
@@ -308,6 +354,12 @@
   const domainCard = document.getElementById('domain-card');
   const landingCard = document.getElementById('landing-card');
 
+  const billingRadios = document.querySelectorAll('input[name="billing"]');
+const discountedEl = document.getElementById('discountedTotal');
+
+let billingDiscount = 0;
+
+
   const emailCards = [...cards].filter(card =>
     card.dataset.name.includes('Email')
   );
@@ -317,29 +369,34 @@
   );
 
   function calculate() {
-    let oneTime = 0;
-    let monthly = 0;
-    let summary = [];
+  let oneTime = 0;
+  let monthly = 0;
+  let summary = [];
 
-    cards.forEach(card => {
-      if (!card.classList.contains('selected')) return;
+  cards.forEach(card => {
+    if (!card.classList.contains('selected')) return;
 
-      const price = +card.dataset.price;
-      const qty = card.querySelector('input')?.value || 1;
-      const type = card.dataset.type === 'one-time' ? 'one-time' : 'monthly';
-      const cost = price * qty;
+    const price = +card.dataset.price;
+    const qty = card.querySelector('input')?.value || 1;
+    const type = card.dataset.type === 'one-time' ? 'one-time' : 'monthly';
+    const cost = price * qty;
 
-      if (type === 'one-time') oneTime += cost;
-      else monthly += cost;
+    if (type === 'one-time') oneTime += cost;
+    else monthly += cost;
 
-      summary.push(`${card.dataset.name} (${qty}) – $${cost} ${type}`);
-    });
+    summary.push(`${card.dataset.name} (${qty}) – $${cost} ${type}`);
+  });
 
-    oneTimeEl.textContent = oneTime.toFixed(2);
-    monthlyEl.textContent = monthly.toFixed(2);
-    itemsInput.value = summary.join(', ');
-    priceInput.value = `One-time: $${oneTime}, Monthly: $${monthly}`;
-  }
+  const discountedMonthly = monthly * (1 - billingDiscount / 100);
+
+  oneTimeEl.textContent = oneTime.toFixed(2);
+  monthlyEl.textContent = monthly.toFixed(2);
+  discountedEl.textContent = discountedMonthly.toFixed(2);
+
+  itemsInput.value = summary.join(', ');
+  priceInput.value = `One-time: $${oneTime.toFixed(2)}, Monthly after discount: $${discountedMonthly.toFixed(2)}`;
+}
+
 
   function syncForcedSelections() {
     const emailActive = emailCards.some(card =>
@@ -386,6 +443,14 @@
 
     card.querySelector('input')?.addEventListener('input', calculate);
   });
+
+  billingRadios.forEach(radio => {
+  radio.addEventListener('change', () => {
+    billingDiscount = +radio.value;
+    calculate();
+  });
+});
+
   
 </script>
 
