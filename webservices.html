@@ -651,8 +651,12 @@ form.addEventListener('submit', async (e) => {
     .join('\n');
 
   const billingCard = document.querySelector('.billing-card.selected');
-  const billingText = billingCard.querySelector('h3').textContent +
-    ` (${billingCard.querySelector('p').textContent})`;
+  const paragraphs = billingCard.querySelectorAll('p');
+const lastParagraph = paragraphs[paragraphs.length - 1].textContent;
+
+const billingText = billingCard.querySelector('h3').textContent +
+  ` (${lastParagraph})`;
+
 
   document.getElementById('servicesField').value = services;
   document.getElementById('oneTimeField').value =
