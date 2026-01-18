@@ -268,8 +268,13 @@ footer{
 
 .promo button{
   width:auto;
-  padding:.7rem 1.1rem;
+  padding:.55rem 1rem;
+  font-size:.85rem;
+  border-radius:8px;
+  font-weight:600;
+  line-height:1;
 }
+
 
 
   .selected-label {
@@ -482,14 +487,14 @@ function dependentsSelected(names){
   return [...cards].some(c=>c.classList.contains('selected') && names.includes(c.dataset.name));
 }
 
+let promoDiscount = 0;
+let promoType = null;
+let appliedPromo = "";
+  
 function calculate(){
   let monthlyDiscountable = 0; // all monthly EXCEPT domain
   let monthlyDomain = 0;       // domain only
   let oneTime = 0;
-  let promoDiscount = 0;
-let promoType = null;
-let appliedPromo = "";
-
 
   cards.forEach(card => {
     if (!card.classList.contains('selected')) return;
@@ -606,6 +611,14 @@ const sentMessage = document.getElementById('sentMessage');
   }
 });
   /////////////////////////////////////////////////////////////////////////////
+document.getElementById('promoInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('applyPromo').click();
+  }
+});
+
+  
 form.addEventListener('submit', async (e) => {
   e.preventDefault(); // stop redirect
 
