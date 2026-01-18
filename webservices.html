@@ -541,7 +541,11 @@ function calculate(){
     monthlyDomain;
 
   document.getElementById('oneTimeTotal').textContent =
-    oneTime.toFixed(2);
+  oneTime.toFixed(2);
+
+document.getElementById('oneTimeTotalDisplay').textContent =
+  oneTime.toFixed(2);
+
 
   document.getElementById('monthlyTotal').textContent =
     (monthlyDiscountable + monthlyDomain).toFixed(2);
