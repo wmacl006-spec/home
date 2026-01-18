@@ -479,7 +479,7 @@ cards.forEach(card=>{
     const name=card.dataset.name;
 
     if(card.classList.contains('selected')){
-      if(card===landing && dependentsSelected(['Extra Pages','Forms'])) return;
+      if(card===landing && dependentsSelected(['Extra Pages','Forms','Revisions'])) return;
       if(card===domain && dependentsSelected(['Send Custom Email','Receive Custom Email'])) return;
       card.classList.remove('selected');
     } else {
