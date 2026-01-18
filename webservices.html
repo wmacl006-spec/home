@@ -429,7 +429,7 @@ footer{
   
   <div class="total-row highlight">
     <span>Total One-Time</span>
-    <strong>$<span id="oneTimeTotal">0.00</span></strong>
+    <span id="oneTimeTotalDisplay">0.00</span></strong>
   </div>
 
   <div class="total-row highlight">
@@ -495,52 +495,50 @@ let promoType = null;
 let appliedPromo = "";
   
 function calculate(){
- let monthlyDiscountable = 0;   // billing discount eligible
-let monthlyPromoEligible = 0; // promo eligible (NO domain)
-let monthlyDomain = 0;        // domain only
-let oneTime = 0;
-
+  let monthlyDiscountable = 0;   // billing discount eligible
+  let monthlyPromoEligible = 0; // promo eligible (NO domain)
+  let monthlyDomain = 0;        // domain only
+  let oneTime = 0;
 
   cards.forEach(card => {
     if (!card.classList.contains('selected')) return;
 
     const price = parseFloat(card.dataset.price);
     const qty = card.querySelector('input')?.value || 1;
+    const total = price * qty;
 
     if (card.dataset.onetime === "true") {
-      oneTime += price * qty;
-    } 
+      oneTime += total;
+    }
     else if (card.id === "domain-card") {
-  monthlyDomain += price * qty; // NO billing discount, NO promo
-}
-else {
-  const total = price * qty;
-  monthlyDiscountable += total;      // billing discount applies
-  monthlyPromoEligible += total;     // promo applies
-}
-
+      monthlyDomain += total; // NO billing discount, NO promo
+    }
+    else {
+      monthlyDiscountable += total;   // billing discount applies
+      monthlyPromoEligible += total;  // promo applies
+    }
   });
 
- let discountedMonthly =
-  (monthlyDiscountable * (1 - discount / 100)) + monthlyDomain;
+  // APPLY BILLING DISCOUNT FIRST
+  const billingAdjusted =
+    (monthlyDiscountable * (1 - discount / 100));
 
-// APPLY PROMO CODE
-let promoAdjusted = monthlyPromoEligible;
+  // APPLY PROMO ONLY TO ELIGIBLE ITEMS
+  let promoAdjusted = monthlyPromoEligible;
 
-if (promoType === "percent") {
-  promoAdjusted *= (1 - promoDiscount / 100);
-}
+  if (promoType === "percent") {
+    promoAdjusted *= (1 - promoDiscount / 100);
+  }
 
-if (promoType === "flat") {
-  promoAdjusted = Math.max(0, promoAdjusted - promoDiscount);
-}
+  if (promoType === "flat") {
+    promoAdjusted = Math.max(0, promoAdjusted - promoDiscount);
+  }
 
-let discountedMonthly =
-  (promoAdjusted + (monthlyDiscountable - monthlyPromoEligible)) *
-  (1 - discount / 100) +
-  monthlyDomain;
-
-
+  // FINAL MONTHLY TOTAL
+  const discountedMonthly =
+    promoAdjusted +
+    (billingAdjusted - monthlyPromoEligible) +
+    monthlyDomain;
 
   document.getElementById('oneTimeTotal').textContent =
     oneTime.toFixed(2);
@@ -551,6 +549,7 @@ let discountedMonthly =
   document.getElementById('discountedTotal').textContent =
     discountedMonthly.toFixed(2);
 }
+
 
 cards.forEach(card=>{
   card.addEventListener('click',e=>{
