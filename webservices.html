@@ -25,6 +25,13 @@ body{
   color:#fff;
 }
 
+footer{
+  text-align:center;
+  color:#8a8a8a;
+  font-size:.85rem;
+  margin:3rem auto 0;
+}
+  
 .container{
   max-width:1200px;
   margin:0 auto;
@@ -236,14 +243,6 @@ button{
   font-size:.78rem;
   border-radius:6px;
   font-weight:600;
-}
-
-
-footer{
-  text-align:center;
-  color:#8a8a8a;
-  font-size:.85rem;
-  margin:3rem auto 0;
 }
 
 /* MOBILE FIX */
@@ -588,7 +587,7 @@ billingCards.forEach(b=>{
 
 const form = document.getElementById('orderForm');
 const sentMessage = document.getElementById('sentMessage');
-////////////////////////////////////////////////////////////////////////////////////////////////////
+  
  document.getElementById('applyPromo').addEventListener('click', async () => {
   const code = document.getElementById('promoInput').value.trim().toUpperCase();
   const msg = document.getElementById('promoMessage');
@@ -630,7 +629,7 @@ const sentMessage = document.getElementById('sentMessage');
     msg.style.color = "#ff6f6f";
   }
 });
-  /////////////////////////////////////////////////////////////////////////////
+  
 document.getElementById('promoInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -669,10 +668,6 @@ const billingText = billingCard.querySelector('h3').textContent +
   document.getElementById('billingField').value = billingText;
 
   document.getElementById('promoField').value = appliedPromo;
-
-//////////////////////////////////////////////////////////////////////////////////////////
- 
-//////////////////////////////////////////////////////////////////////
 
   await fetch(form.action, {
     method: 'POST',
