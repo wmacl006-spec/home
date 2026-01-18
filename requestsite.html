@@ -22,41 +22,49 @@
 body{
   font-family:Inter,sans-serif;
   background:radial-gradient(circle at top,#1b1b1b,var(--black));
-  color:var(--white);
+  color:#fff;
 }
 
 .container{
   max-width:1200px;
-  margin:auto;
-  padding:3rem 2rem;
+  margin:0 auto;
+  padding:4rem 2rem;
+  text-align:center;
 }
 
+/* HOME BUTTON — UNCHANGED */
 .home-button{
   display:inline-block;
-  margin-bottom:2rem;
+  margin-bottom:2.5rem;
   padding:.8rem 1.6rem;
   border-radius:14px;
   background:var(--panel);
   border:1px solid #242424;
   color:#fff;
-  text-decoration:none;
   font-weight:600;
+  text-decoration:none;
+  transition:.2s;
+}
+.home-button:hover{
+  transform:translateY(-4px);
+  border-color:var(--pink);
+  box-shadow:0 12px 30px rgba(176,11,85,.25);
 }
 
 h1{
   font-family:Comfortaa,sans-serif;
-  font-size:2.8rem;
+  font-size:3rem;
+  margin-bottom:.5rem;
 }
+.subtitle{color:var(--gray);margin-bottom:2.5rem}
 
-.subtitle{color:var(--gray);margin-bottom:2rem}
-
-/* LAYOUT */
+/* MAIN SPLIT */
 .builder{
   display:grid;
   grid-template-columns:1fr 420px;
-  gap:2rem;
+  gap:2.5rem;
+  text-align:left;
 }
-
 @media(max-width:900px){
   .builder{grid-template-columns:1fr}
 }
@@ -67,31 +75,32 @@ h1{
   grid-template-columns:repeat(auto-fit,minmax(260px,300px));
   gap:1.5rem;
   justify-content:center;
+  margin-bottom:2.5rem;
 }
 
 .offer-card{
   background:var(--panel);
   border:1px solid #242424;
   border-radius:14px;
-  padding:1.5rem;
+  padding:1.6rem;
   cursor:pointer;
   position:relative;
   transition:.2s;
-  text-align:left;
 }
-
-.offer-card.selected{
+.offer-card:hover{
+  transform:translateY(-4px);
   border-color:var(--pink);
-  box-shadow:0 10px 25px rgba(176,11,85,.25);
+  box-shadow:0 12px 30px rgba(176,11,85,.25);
 }
+.offer-card.selected{border-color:var(--pink)}
 
 .offer-card h3{
-  font-family:Comfortaa,sans-serif;
   color:var(--pink);
+  font-family:Comfortaa,sans-serif;
   margin-bottom:.4rem;
 }
 
-.price{margin-top:.6rem;font-weight:600}
+.price{font-weight:600;margin-top:.6rem}
 
 .qty-wrapper{display:none;margin-top:.8rem}
 .offer-card.selected .qty-wrapper{display:block}
@@ -99,10 +108,10 @@ h1{
 .qty-wrapper input{
   width:100%;
   padding:.6rem;
-  border-radius:8px;
-  border:1px solid #2a2a2a;
   background:#1f1f1f;
+  border:1px solid #2a2a2a;
   color:#fff;
+  border-radius:8px;
 }
 
 .selected-label{
@@ -116,16 +125,45 @@ h1{
   border-radius:6px;
   display:none;
 }
+.offer-card.selected .selected-label,
+.billing-card.selected .selected-label{display:block}
 
-.offer-card.selected .selected-label{display:block}
+/* BILLING — UNCHANGED */
+.billing-cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1.2rem;
+  max-width:700px;
+  margin:0 auto 2.5rem;
+}
 
-/* RIGHT PANEL */
+.billing-card{
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:14px;
+  padding:1.4rem;
+  cursor:pointer;
+  position:relative;
+  transition:.2s;
+}
+.billing-card:hover{
+  transform:translateY(-4px);
+  border-color:var(--pink);
+  box-shadow:0 12px 30px rgba(176,11,85,.25);
+}
+.billing-card.selected{border-color:var(--pink)}
+
+.billing-card h3{
+  font-family:Comfortaa,sans-serif;
+  color:var(--pink);
+  margin-bottom:.4rem;
+}
+
+/* RIGHT SIDE */
 .side{
-  position:sticky;
-  top:2rem;
   display:flex;
   flex-direction:column;
-  gap:1.5rem;
+  gap:2rem;
 }
 
 /* TOTAL */
@@ -135,35 +173,30 @@ h1{
   border-radius:16px;
   padding:1.6rem;
 }
-
 .total-row{
   display:flex;
   justify-content:space-between;
-  margin-bottom:.6rem;
   color:var(--gray);
 }
-
 .total-row strong{color:#fff}
-
 .total-row.highlight{
   border-top:1px solid #2a2a2a;
+  margin-top:.6rem;
   padding-top:.6rem;
-  font-size:1.1rem;
+  font-size:1.15rem;
 }
-
 .total-row.highlight strong{color:var(--pink)}
 
 /* FORM */
 form{
   background:var(--panel);
-  border:1px solid #242424;
+  padding:2.2rem;
   border-radius:16px;
-  padding:1.8rem;
+  border:1px solid #242424;
 }
-
 form h2{
   font-family:Comfortaa,sans-serif;
-  margin-bottom:1rem;
+  margin-bottom:1.2rem;
 }
 
 input,textarea{
@@ -180,7 +213,7 @@ button{
   width:100%;
   padding:.9rem;
   border-radius:12px;
-  border:none;
+  border:1px solid var(--pink);
   background:var(--pink);
   color:#fff;
   font-weight:700;
@@ -190,6 +223,7 @@ button{
 footer{
   text-align:center;
   color:#8a8a8a;
+  font-size:.85rem;
   margin-top:3rem;
 }
 </style>
@@ -199,24 +233,27 @@ footer{
 <div class="container">
 
 <a href="index.html" class="home-button">Home</a>
+
 <h1>Build Your Order</h1>
-<p class="subtitle">Select features & quantities</p>
+<p class="subtitle">Select features & quantities. Choose a billing plan to save.</p>
 
 <div class="builder">
 
-<!-- LEFT -->
+<!-- LEFT SIDE -->
+<div>
+
 <div class="offers">
 
-<div class="offer-card" id="landing" data-name="Landing Page" data-price="1">
+<div class="offer-card" id="landing-card" data-name="Landing Page" data-price="1">
   <h3>Landing Page</h3>
-  <p>Custom landing page</p>
+  <p>Custom website landing page.</p>
   <div class="price">$1 / month</div>
   <div class="selected-label">Added</div>
 </div>
 
 <div class="offer-card" data-name="Extra Pages" data-price="0.75" data-qty="true">
   <h3>Extra Pages</h3>
-  <p>Additional pages</p>
+  <p>Additional pages.</p>
   <div class="price">$0.75 × page</div>
   <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
   <div class="selected-label">Added</div>
@@ -224,26 +261,26 @@ footer{
 
 <div class="offer-card" data-name="Forms" data-price="1" data-qty="true">
   <h3>Forms</h3>
-  <p>Email forms</p>
+  <p>Email forms.</p>
   <div class="price">$1 × form</div>
   <div class="qty-wrapper"><input type="number" min="1" value="1"></div>
   <div class="selected-label">Added</div>
 </div>
 
-<div class="offer-card" id="domain" data-name="Custom Domain" data-price="4">
+<div class="offer-card" id="domain-card" data-name="Custom Domain" data-price="4">
   <h3>Custom Domain</h3>
-  <p>Your own domain</p>
+  <p>Your own domain.</p>
   <div class="price">$4 / month</div>
   <div class="selected-label">Added</div>
 </div>
 
-<div class="offer-card" data-name="Receive Email" data-price="0.5">
+<div class="offer-card" data-name="Receive Custom Email" data-price="0.5">
   <h3>Receive Custom Email</h3>
   <div class="price">$0.50 / month</div>
   <div class="selected-label">Added</div>
 </div>
 
-<div class="offer-card" data-name="Send Email" data-price="0.75">
+<div class="offer-card" data-name="Send Custom Email" data-price="0.75">
   <h3>Send Custom Email</h3>
   <div class="price">$0.75 / month</div>
   <div class="selected-label">Added</div>
@@ -251,11 +288,32 @@ footer{
 
 </div>
 
-<!-- RIGHT -->
+<div class="billing-cards">
+  <div class="billing-card selected" data-discount="0">
+    <h3>Monthly</h3>
+    <p>No discount</p>
+    <div class="selected-label">Selected</div>
+  </div>
+  <div class="billing-card" data-discount="10">
+    <h3>Semi-Annually</h3>
+    <p>Save 10%</p>
+    <div class="selected-label">Selected</div>
+  </div>
+  <div class="billing-card" data-discount="20">
+    <h3>Annually</h3>
+    <p>Save 20%</p>
+    <div class="selected-label">Selected</div>
+  </div>
+</div>
+
+</div>
+
+<!-- RIGHT SIDE -->
 <div class="side">
 
 <div class="total">
-  <div class="total-row"><span>Monthly</span><strong>$<span id="monthly">0.00</span></strong></div>
+  <div class="total-row"><span>Monthly</span><strong>$<span id="monthlyTotal">0.00</span></strong></div>
+  <div class="total-row highlight"><span>After Discount</span><strong>$<span id="discountedTotal">0.00</span></strong></div>
 </div>
 
 <form id="orderForm">
@@ -273,23 +331,26 @@ footer{
 </div>
 
 <script>
-const cards=[...document.querySelectorAll('.offer-card')];
-const landing=document.getElementById('landing');
-const domain=document.getElementById('domain');
-const monthlyEl=document.getElementById('monthly');
+const cards=document.querySelectorAll('.offer-card');
+const billingCards=document.querySelectorAll('.billing-card');
+const landing=document.getElementById('landing-card');
+const domain=document.getElementById('domain-card');
 
-function hasDependents(base,names){
-  return cards.some(c=>c.classList.contains('selected') && names.includes(c.dataset.name));
+let discount=0;
+
+function dependentsSelected(names){
+  return [...cards].some(c=>c.classList.contains('selected') && names.includes(c.dataset.name));
 }
 
-function calc(){
-  let total=0;
+function calculate(){
+  let monthly=0;
   cards.forEach(c=>{
     if(!c.classList.contains('selected'))return;
     const qty=c.querySelector('input')?.value||1;
-    total+=c.dataset.price*qty;
+    monthly+=c.dataset.price*qty;
   });
-  monthlyEl.textContent=total.toFixed(2);
+  document.getElementById('monthlyTotal').textContent=monthly.toFixed(2);
+  document.getElementById('discountedTotal').textContent=(monthly*(1-discount/100)).toFixed(2);
 }
 
 cards.forEach(card=>{
@@ -299,30 +360,37 @@ cards.forEach(card=>{
     const name=card.dataset.name;
 
     if(card.classList.contains('selected')){
-      if(card===landing && hasDependents(landing,['Extra Pages','Forms'])) return;
-      if(card===domain && hasDependents(domain,['Send Email','Receive Email'])) return;
+      if(card===landing && dependentsSelected(['Extra Pages','Forms'])) return;
+      if(card===domain && dependentsSelected(['Send Custom Email','Receive Custom Email'])) return;
       card.classList.remove('selected');
     } else {
       card.classList.add('selected');
       if(['Extra Pages','Forms'].includes(name)) landing.classList.add('selected');
-      if(['Send Email','Receive Email'].includes(name)) domain.classList.add('selected');
+      if(['Send Custom Email','Receive Custom Email'].includes(name)) domain.classList.add('selected');
     }
-    calc();
+    calculate();
   });
 
-  card.querySelector('input')?.addEventListener('input',calc);
+  card.querySelector('input')?.addEventListener('input',calculate);
+});
+
+billingCards.forEach(b=>{
+  b.addEventListener('click',()=>{
+    billingCards.forEach(x=>x.classList.remove('selected'));
+    b.classList.add('selected');
+    discount=+b.dataset.discount;
+    calculate();
+  });
 });
 
 document.getElementById('orderForm').addEventListener('submit',e=>{
   e.preventDefault();
-  let summary=cards.filter(c=>c.classList.contains('selected'))
-    .map(c=>`- ${c.dataset.name}`).join('%0D%0A');
-
-  window.location.href=
-    `mailto:youremail@example.com?subject=New Service Request&body=${summary}`;
+  const services=[...cards].filter(c=>c.classList.contains('selected')).map(c=>c.dataset.name).join('\n');
+  window.location.href=`mailto:youremail@example.com?subject=New Order&body=${encodeURIComponent(services)}`;
 });
 
-calc();
+calculate();
 </script>
+
 </body>
 </html>
