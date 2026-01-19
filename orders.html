@@ -59,11 +59,12 @@ button{
 
 .delete{
   margin-top:.75rem;
-  background:#3a0f0f;
-  border:1px solid #5a1a1a;
-  color:#ffb3b3;
+  background:#1f2a1f;
+  border:1px solid #2f4a2f;
+  color:#9cffc9;
   font-size:.8rem;
 }
+
 
 .login{
   max-width:360px;
@@ -195,7 +196,7 @@ function loadOrders(){
           <small>${new Date(o.timestamp).toLocaleString()}</small>
           <hr>
           <p>${o.message}</p>
-          <button class="delete" onclick="deleteOrder('${id}')">Delete</button>
+          <button class="delete" onclick="archiveOrder('${id}')">Archive</button>
         `;
       }
 
@@ -205,7 +206,7 @@ function loadOrders(){
           <small>${new Date(o.timestamp).toLocaleString()}</small>
           <hr>
           <p>${o.question}</p>
-          <button class="delete" onclick="deleteOrder('${id}')">Delete</button>
+          <button class="delete" onclick="archiveOrder('${id}')">Archive</button>
         `;
       }
 
@@ -232,7 +233,7 @@ function loadOrders(){
           ${o.promoCode ? `<strong>Promo:</strong> ${o.promoCode}<br>` : ""}
           ${o.notes ? `<p>${o.notes}</p>` : ""}
 
-          <button class="delete" onclick="deleteOrder('${id}')">Delete Order</button>
+          <button class="delete" onclick="archiveOrder('${id}')">Archive Order</button>
         `;
       }
 
@@ -243,11 +244,23 @@ function loadOrders(){
 
 /* ---------- DELETE ---------- */
 
-function deleteOrder(id){
-  if(confirm("Delete this order permanently?")){
-    db.ref("orders/"+id).remove();
+function archiveOrder(id){
+  if(!confirm("Archive this order?")){
+    return;
   }
+
+  const orderRef = db.ref("orders/" + id);
+  const archiveRef = db.ref("archivedOrders/" + id);
+
+  orderRef.once("value").then(snapshot => {
+    if(snapshot.exists()){
+      return archiveRef.set(snapshot.val());
+    }
+  }).then(() => {
+    return orderRef.remove();
+  });
 }
+
 </script>
 
 </body>
