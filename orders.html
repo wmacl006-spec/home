@@ -176,6 +176,20 @@ function loadOrders(){
         .forEach(([key, o])=>{
           const div = document.createElement('div');
           div.className = 'order';
+
+if(o.type === "contact"){
+  div.innerHTML = `
+    <strong>Contact Message</strong><br>
+    <strong>${o.name}</strong> — ${o.email}<br>
+    <small>${new Date(o.timestamp).toLocaleString()}</small>
+    <hr>
+    <p>${o.message}</p>
+    <button class="delete" onclick="deleteOrder('${key}')">Delete</button>
+  `;
+  ordersDiv.appendChild(div);
+  return;
+}
+          
           div.innerHTML = `
             <strong>${o.name}</strong> — ${o.email}<br>
             <small>${new Date(o.timestamp).toLocaleString()}</small>
