@@ -200,12 +200,16 @@ if(o.type === "contact"){
   return;
 }
           
-          div.innerHTML = `
+         div.innerHTML = `
   <strong>${o.name}</strong> — ${o.email}<br>
   <small>${new Date(o.timestamp).toLocaleString()}</small><br>
-  <strong>Payment Plan:</strong> 
-  <span style="color:#9cffc9">${o.paymentPlan || 'Not specified'}</span>
+  <strong>Payment Plan:</strong>
+  <span style="color:#9cffc9">
+    ${o.billing?.paymentPlan || 'Not specified'}
+  </span>
   <hr>
+`;
+
 
   <strong>Services:</strong>
   <ul>${o.services.map(s=>`<li>${s}</li>`).join('')}</ul>
