@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Order Inbox</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family: Inter, sans-serif;
+  background:#0f0f0f;
+  color:#fff;
+  margin:0;
+  padding:2rem;
+}
+h1{margin-bottom:1rem}
+input,button{
+  padding:.7rem;
+  border-radius:8px;
+  border:1px solid #2a2a2a;
+  background:#1a1a1a;
+  color:#fff;
+}
+button{
+  cursor:pointer;
+  font-weight:600;
+}
+.login{
+  max-width:360px;
+  margin:6rem auto;
+  background:#161616;
+  padding:2rem;
+  border-radius:14px;
+  border:1px solid #242424;
+}
+.orders{
+  max-width:900px;
+  margin:0 auto;
+}
+.order{
+  background:#161616;
+  border:1px solid #242424;
+  border-radius:12px;
+  padding:1rem;
+  margin-bottom:1rem;
+}
+.order small{color:#aaa}
+.hidden{display:none}
+.logout{
+  float:right;
+  font-size:.85rem;
+}
+</style>
+</head>
+
+<body>
+
+<div id="loginBox" class="login">
+  <h1>Admin Login</h1>
+  <input id="email" placeholder="Email" type="email"><br><br>
+  <input id="password" placeholder="Password" type="password"><br><br>
+  <button onclick="login()">Login</button>
+  <p id="loginError" style="color:#ff6f6f"></p>
+</div>
+
+<div id="ordersBox" class="orders hidden">
+  <button class="logout" onclick="logout()">Logout</button>
+  <h1>Orders</h1>
+  <div id="orders"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+const loginBox = document.getElementById('loginBox');
+const ordersBox = document.getElementById('ordersBox');
+const ordersDiv = document.getElementById('orders');
+
+function login(){
+  auth.signInWithEmailAndPassword(
+    email.value,
+    password.value
+  ).catch(err=>{
+    loginError.textContent = err.message;
+  });
+}
+
+function logout(){
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(user=>{
+  if(user){
+    loginBox.classList.add('hidden');
+    ordersBox.classList.remove('hidden');
+    loadOrders();
+  }else{
+    loginBox.classList.remove('hidden');
+    ordersBox.classList.add('hidden');
+  }
+});
+
+function loadOrders(){
+  db.ref('orders')
+    .orderByChild('timestamp')
+    .on('value', snap=>{
+      ordersDiv.innerHTML = '';
+      const data = snap.val();
+      if(!data){
+        ordersDiv.innerHTML = '<p>No orders yet.</p>';
+        return;
+      }
+
+      Object.values(data)
+        .reverse()
+        .forEach(o=>{
+          const div = document.createElement('div');
+          div.className = 'order';
+          div.innerHTML = `
+            <strong>${o.name}</strong> — ${o.email}<br>
+            <small>${new Date(o.timestamp).toLocaleString()}</small>
+            <hr>
+            <strong>Services:</strong>
+            <ul>${o.services.map(s=>`<li>${s}</li>`).join('')}</ul>
+            <strong>One-Time:</strong> $${o.oneTimeTotal}<br>
+            <strong>Monthly:</strong> $${o.discountedTotal}<br>
+            ${o.promoCode ? `<strong>Promo:</strong> ${o.promoCode}<br>` : ''}
+            <p>${o.notes || ''}</p>
+          `;
+          ordersDiv.appendChild(div);
+        });
+    });
+}
+</script>
+
+</body>
+</html>
