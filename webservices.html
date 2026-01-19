@@ -499,12 +499,6 @@ button{
   const db = firebase.database();
 </script>
 
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-</script>
-
-
 <script>
 const cards=document.querySelectorAll('.offer-card');
 const billingCards=document.querySelectorAll('.billing-card');
@@ -666,37 +660,6 @@ document.getElementById('promoInput').addEventListener('keydown', e => {
 
   
 form.addEventListener('submit', async (e) => {
-  e.preventDefault(); // stop redirect
-
-  const services = [...cards]
-    .filter(c => c.classList.contains('selected'))
-    .map(c => {
-      const qty = c.querySelector('input')?.value || 1;
-      const type = c.dataset.onetime === "true" ? "one-time" : "monthly";
-      return `${c.dataset.name} (${type}) x${qty}`;
-    })
-    .join('\n');
-
-  const billingCard = document.querySelector('.billing-card.selected');
-  const paragraphs = billingCard.querySelectorAll('p');
-const lastParagraph = paragraphs[paragraphs.length - 1].textContent;
-
-const billingText = billingCard.querySelector('h3').textContent +
-  ` (${lastParagraph})`;
-
-
-  document.getElementById('servicesField').value = services;
-  document.getElementById('oneTimeField').value =
-    document.getElementById('oneTimeTotal').textContent;
-  document.getElementById('monthlyField').value =
-    document.getElementById('monthlyTotal').textContent;
-  document.getElementById('discountedField').value =
-    document.getElementById('discountedTotal').textContent;
-  document.getElementById('billingField').value = billingText;
-
-  document.getElementById('promoField').value = appliedPromo;
-
-  form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const services = [...cards]
@@ -737,15 +700,6 @@ const billingText = billingCard.querySelector('h3').textContent +
     alert("Submission failed. Please try again.");
     console.error(err);
   }
-});
-
-
-  sentMessage.style.display = 'block';
-  form.reset();
-
-  setTimeout(() => {
-    sentMessage.style.display = 'none';
-  }, 4000);
 });
 
 
