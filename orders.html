@@ -217,31 +217,29 @@ function loadOrders(){
 
           /* ---- SERVICE ORDER ---- */
           div.innerHTML = `
-            <strong>${o.name}</strong> — ${o.email}<br>
-            <small>${new Date(o.timestamp).toLocaleString()}</small><br>
+  <strong>${o.name}</strong> — ${o.email}<br>
+  <small>${new Date(o.timestamp).toLocaleString()}</small><br>
 
-            <strong>Payment Plan:</strong>
-            <span style="color:#9cffc9">
-              ${o.billing?.paymentPlan || "Not specified"}
-            </span>
+  <strong>Payment Plan:</strong>
+  <span style="color:#9cffc9">
+    ${o.billing?.paymentPlan || 'Not specified'}
+  </span>
+  <hr>
 
-            <hr>
+  <strong>Services:</strong>
+  <ul>
+    ${(o.services || []).map(s => `<li>${s}</li>`).join('')}
+  </ul>
 
-            <strong>Services:</strong>
-            <ul>
-              ${o.services?.map(s => `<li>${s}</li>`).join("") || "<li>None</li>"}
-            </ul>
+  <strong>One-Time:</strong> $${o.oneTimeTotal || 0}<br>
+  <strong>Monthly:</strong> $${o.discountedTotal || 0}<br>
 
-            <strong>One-Time:</strong> $${o.oneTimeTotal || 0}<br>
-            <strong>Monthly:</strong> $${o.discountedTotal || 0}<br>
+  ${o.promoCode ? `<strong>Promo:</strong> ${o.promoCode}<br>` : ''}
+  ${o.notes ? `<p>${o.notes}</p>` : ''}
 
-            ${o.promoCode ? `<strong>Promo:</strong> ${o.promoCode}<br>` : ""}
-            ${o.notes ? `<p>${o.notes}</p>` : ""}
+  <button class="delete" onclick="deleteOrder('${key}')">Delete Order</button>
+`;
 
-            <button class="delete" onclick="deleteOrder('${key}')">
-              Delete Order
-            </button>
-          `;
 
           ordersDiv.appendChild(div);
         });
