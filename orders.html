@@ -25,6 +25,22 @@ button{
   cursor:pointer;
   font-weight:600;
 }
+
+.home-btn{
+  width:100%;
+  margin-top:.5rem;
+  background:#0f0f0f;
+  border:1px solid #333;
+}
+
+.delete{
+  margin-top:.75rem;
+  background:#3a0f0f;
+  border:1px solid #5a1a1a;
+  color:#ffb3b3;
+  font-size:.8rem;
+}
+  
 .login{
   max-width:360px;
   margin:6rem auto;
@@ -60,6 +76,7 @@ button{
   <input id="email" placeholder="Email" type="email"><br><br>
   <input id="password" placeholder="Password" type="password"><br><br>
   <button onclick="login()">Login</button>
+  <button class="home-btn" onclick="location.href='index.html'">Home</button>
   <p id="loginError" style="color:#ff6f6f"></p>
 </div>
 
@@ -117,20 +134,22 @@ auth.onAuthStateChanged(user=>{
   }
 });
 
+<script>
 function loadOrders(){
   db.ref('orders')
     .orderByChild('timestamp')
     .on('value', snap=>{
       ordersDiv.innerHTML = '';
       const data = snap.val();
+
       if(!data){
         ordersDiv.innerHTML = '<p>No orders yet.</p>';
         return;
       }
 
-      Object.values(data)
+      Object.entries(data)
         .reverse()
-        .forEach(o=>{
+        .forEach(([key, o])=>{
           const div = document.createElement('div');
           div.className = 'order';
           div.innerHTML = `
@@ -143,11 +162,20 @@ function loadOrders(){
             <strong>Monthly:</strong> $${o.discountedTotal}<br>
             ${o.promoCode ? `<strong>Promo:</strong> ${o.promoCode}<br>` : ''}
             <p>${o.notes || ''}</p>
+            <button class="delete" onclick="deleteOrder('${key}')">Delete Order</button>
           `;
           ordersDiv.appendChild(div);
         });
     });
 }
+
+function deleteOrder(id){
+  if(confirm('Delete this order permanently?')){
+    db.ref('orders/' + id).remove();
+  }
+}
+</script>
+
 </script>
 
 </body>
