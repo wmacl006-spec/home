@@ -705,22 +705,29 @@ const sentMessage = document.getElementById('sentMessage');
 
   if (!code) return;
 
+  msg.textContent = "Checking code...";
+  msg.style.color = "#b5b5b5";
+
   try {
     const res = await fetch(
       'https://omor-6878f-default-rtdb.firebaseio.com/promoCodes/' + code + '.json'
     );
+
+    if (!res.ok) throw new Error("Network error");
+
     const data = await res.json();
 
-    if (!data) {
-      msg.textContent = "Invalid promo code";
-      msg.style.color = "#ff6f6f";
+    if (!data || !data.type || typeof data.value !== "number") {
       promoDiscount = 0;
       promoType = null;
       appliedPromo = "";
+      msg.textContent = "Invalid promo code";
+      msg.style.color = "#ff6f6f";
       calculate();
       return;
     }
 
+    // APPLY PROMO
     promoDiscount = data.value;
     promoType = data.type;
     appliedPromo = code;
@@ -728,20 +735,28 @@ const sentMessage = document.getElementById('sentMessage');
     document.getElementById('promoField').value = code;
 
     msg.textContent =
-      data.type === "percent"
-        ? `✓ ${data.value}% discount applied`
-        : `✓ $${data.value} discount applied`;
+      promoType === "percent"
+        ? `✓ ${promoDiscount}% discount applied`
+        : `✓ $${promoDiscount.toFixed(2)} discount applied`;
 
     msg.style.color = "#6fff9f";
 
     document.getElementById('applyPromo').disabled = true;
+    document.getElementById('promoInput').disabled = true;
 
     calculate();
-  } catch {
-    msg.textContent = "Promo error. Try again.";
-    msg.style.color = "#ff6f6f";
+
+  } catch (err) {
+    console.error(err);
+
+    // only show error if no promo was applied
+    if (!appliedPromo) {
+      msg.textContent = "Promo error. Please try again.";
+      msg.style.color = "#ff6f6f";
+    }
   }
 });
+
   
 document.getElementById('promoInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') {
