@@ -287,23 +287,6 @@
 
   </main>
 
-   <script>
-    const form = document.getElementById("contactForm");
-    const status = document.getElementById("formStatus");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      if (response.ok) {
-        form.reset();
-        status.style.display = "block";
-
-        setTimeout(() => {
-          status.style.display = "none";
-        }, 5000);
-      }
-    });
-
      <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
