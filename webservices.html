@@ -446,21 +446,21 @@ button{
 </div>
 
 <div class="billing-cards">
-  <div class="billing-card selected" data-discount="0">
+  <div class="billing-card selected" data-discount="0" data-months="3">
     <h3>Quarterly</h3>
     <p>Billed Quarterly</p><br>
     <p>Applies to non-domain monthly items</p><br>
     <p>No discount</p><br>
     <div class="selected-label">Selected</div>
   </div>
-  <div class="billing-card" data-discount="8">
+  <div class="billing-card" data-discount="8" data-months="6">
     <h3>Semi-Annually</h3>
     <p>Billed Semi-Annually</p><br>
     <p>Applies to non-domain monthly items</p><br>
     <p>Save 8%</p><br>
     <div class="selected-label">Selected</div>
   </div>
-  <div class="billing-card" data-discount="20">
+  <div class="billing-card" data-discount="20" data-months="12">
     <h3>Annually</h3>
     <p>Billed Annually</p><br>
     <p>Applies to non-domain monthly items</p><br>
@@ -652,18 +652,16 @@ if (promoType === "flat") {
 
 
 function calculateAmountDue() {
-  const billing = document.querySelector('.billing-card.selected h3').textContent;
-
-  let nonDomainMultiplier = 3; // Quarterly
-  if (billing.includes("Semi")) nonDomainMultiplier = 6;
-  if (billing.includes("Annually")) nonDomainMultiplier = 12;
+  const billingCard = document.querySelector('.billing-card.selected');
+  const nonDomainMonths = parseInt(billingCard.dataset.months, 10);
 
   return (
-    (discountedNonDomain * nonDomainMultiplier) +
+    (discountedNonDomain * nonDomainMonths) +
     (monthlyDomain * 12) + // domain ALWAYS annual
     oneTimeTotal
   );
 }
+
 
 
   
