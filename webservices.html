@@ -563,6 +563,13 @@ button{
 </script>
 
 <script>
+
+  let monthlyNonDomain = 0;
+let monthlyDomain = 0;
+let oneTimeTotal = 0;
+let discountedNonDomain = 0;
+
+  
 const cards=document.querySelectorAll('.offer-card');
 const billingCards=document.querySelectorAll('.billing-card');
 const website=document.getElementById('website-card');
@@ -578,92 +585,65 @@ let promoDiscount = 0;
 let promoType = null;
 let appliedPromo = "";
   
-function calculate(){
-  let monthlyDiscountable = 0;   // billing discount eligible
-  let monthlyPromoEligible = 0; // promo eligible (NO domain)
-  let monthlyDomain = 0;        // domain only
-  let oneTime = 0;
-  let monthlyNonDomain = 0;
-let monthlyDomain = 0;
-let oneTimeTotal = 0;
-
-
+function calculate() {
   monthlyNonDomain = 0;
-monthlyDomain = 0;
-oneTimeTotal = 0;
+  monthlyDomain = 0;
+  oneTimeTotal = 0;
 
-cards.forEach(card => {
-  if (!card.classList.contains('selected')) return;
+  cards.forEach(card => {
+    if (!card.classList.contains('selected')) return;
 
-  const price = parseFloat(card.dataset.price);
-  const qty = card.querySelector('input')?.value || 1;
-  const total = price * qty;
+    const price = parseFloat(card.dataset.price);
+    const qty = card.querySelector('input')?.value || 1;
+    const total = price * qty;
 
-  if (card.dataset.onetime === "true") {
-    oneTimeTotal += total;
-  }
-  else if (card.id === "domain-card") {
-    monthlyDomain += total;
-  }
-  else {
-    monthlyNonDomain += total;
-  }
-});
+    if (card.dataset.onetime === "true") {
+      oneTimeTotal += total;
+    } 
+    else if (card.id === "domain-card") {
+      monthlyDomain += total; // always annual
+    } 
+    else {
+      monthlyNonDomain += total;
+    }
+  });
 
+  // billing discount ONLY applies to non-domain
+  discountedNonDomain = monthlyNonDomain * (1 - discount / 100);
 
-  // APPLY BILLING DISCOUNT FIRST
-  const billingAdjusted =
-    (monthlyDiscountable * (1 - discount / 100));
-
-  // APPLY PROMO ONLY TO ELIGIBLE ITEMS
-  let promoAdjusted = monthlyPromoEligible;
-
-  if (promoType === "percent") {
-    promoAdjusted *= (1 - promoDiscount / 100);
-  }
-
-  if (promoType === "flat") {
-    promoAdjusted = Math.max(0, promoAdjusted - promoDiscount);
-  }
-
-  // FINAL MONTHLY TOTAL
-  const discountedMonthly =
-    promoAdjusted +
-    (billingAdjusted - monthlyPromoEligible) +
-    monthlyDomain;
-
+  // UI
   document.getElementById('oneTimeTotal').textContent =
-  oneTime.toFixed(2);
+    oneTimeTotal.toFixed(2);
 
-document.getElementById('oneTimeTotalDisplay').textContent =
-  oneTime.toFixed(2);
-  
+  document.getElementById('oneTimeTotalDisplay').textContent =
+    oneTimeTotal.toFixed(2);
+
   document.getElementById('monthlyTotal').textContent =
-    (monthlyDiscountable + monthlyDomain).toFixed(2);
+    (monthlyNonDomain + monthlyDomain).toFixed(2);
 
   document.getElementById('discountedTotal').textContent =
-    discountedMonthly.toFixed(2);
+    (discountedNonDomain + monthlyDomain).toFixed(2);
 
   document.getElementById('dueNow').textContent =
-  calculateAmountDue().toFixed(2);
-
+    calculateAmountDue().toFixed(2);
 }
+
+
 
 function calculateAmountDue() {
   const billing = document.querySelector('.billing-card.selected h3').textContent;
 
-  let multiplier = 3; // default quarterly
+  let nonDomainMultiplier = 3; // Quarterly
+  if (billing.includes("Semi")) nonDomainMultiplier = 6;
+  if (billing.includes("Annually")) nonDomainMultiplier = 12;
 
-  if (billing.includes("Semi")) multiplier = 6;
-  if (billing.includes("Annually")) multiplier = 12;
-
-  const due =
-    (discountedNonDomain * multiplier) +
-    (monthlyDomain * 12) +
-    oneTimeTotal;
-
-  return due;
+  return (
+    (discountedNonDomain * nonDomainMultiplier) +
+    (monthlyDomain * 12) + // domain ALWAYS annual
+    oneTimeTotal
+  );
 }
+
 
   
 cards.forEach(card=>{
