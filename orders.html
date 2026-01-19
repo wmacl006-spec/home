@@ -226,6 +226,9 @@ function loadOrders(){
           <strong>One-Time:</strong> $${o.oneTimeTotal || 0}<br>
           <strong>Monthly:</strong> $${o.discountedTotal || 0}<br>
 
+          <strong>Amount Due:</strong>
+<span style="color:#9cffc9">$${o.amountDue}</span><br>
+
           ${o.promoCode ? `<strong>Promo:</strong> ${o.promoCode}<br>` : ""}
           ${o.notes ? `<p>${o.notes}</p>` : ""}
 
