@@ -204,7 +204,9 @@ function loadOrders(){
           <hr>
 
           <strong>Payment Plan:</strong>
-          <span style="color:#9cffc9">${o.billing?.paymentPlan || "N/A"}</span>
+<span style="color:#9cffc9">
+  ${o.billing || "N/A"}
+</span>
 
           <h4>Services</h4>
           <ul>${(o.services||[]).map(s=>`<li>${s}</li>`).join("")}</ul>
