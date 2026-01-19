@@ -196,11 +196,21 @@ h1{
   font-size:1.1rem;
 }
 
-  .client-stat:hover{
-  border-color:var(--pink);
-  box-shadow:0 8px 20px rgba(176,11,85,.18);
+  .status-dot{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--pink);
+  margin-right:6px;
+  animation:pulse 1.6s ease-in-out infinite;
 }
 
+@keyframes pulse{
+  0%   { opacity: .25; }
+  50%  { opacity: 1; }
+  100% { opacity: .25; }
+}
 
 
 /* TOTAL */
@@ -448,7 +458,10 @@ button{
 
   <div class="client-stat">
   <span class="label">Active Clients</span>
-  <span class="value">● 2</span>
+  <span class="value">
+  <span class="status-dot"></span> 2
+</span>
+
 
 </div>
 
