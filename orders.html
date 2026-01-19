@@ -189,8 +189,10 @@ if(o.type === "contact"){
   div.innerHTML = `
     <strong>Contact Message</strong><br>
     <strong>${o.name}</strong> — ${o.email}<br>
-    <small>${new Date(o.timestamp).toLocaleString()}</small>
-    <hr>
+<small>${new Date(o.timestamp).toLocaleString()}</small><br>
+<strong>Payment Plan:</strong> ${o.paymentPlan || 'Not specified'}
+<hr>
+
     <p>${o.message}</p>
     <button class="delete" onclick="deleteOrder('${key}')">Delete</button>
   `;
@@ -199,17 +201,21 @@ if(o.type === "contact"){
 }
           
           div.innerHTML = `
-            <strong>${o.name}</strong> — ${o.email}<br>
-            <small>${new Date(o.timestamp).toLocaleString()}</small>
-            <hr>
-            <strong>Services:</strong>
-            <ul>${o.services.map(s=>`<li>${s}</li>`).join('')}</ul>
-            <strong>One-Time:</strong> $${o.oneTimeTotal}<br>
-            <strong>Monthly:</strong> $${o.discountedTotal}<br>
-            ${o.promoCode ? `<strong>Promo:</strong> ${o.promoCode}<br>` : ''}
-            <p>${o.notes || ''}</p>
-            <button class="delete" onclick="deleteOrder('${key}')">Delete Order</button>
-          `;
+  <strong>${o.name}</strong> — ${o.email}<br>
+  <small>${new Date(o.timestamp).toLocaleString()}</small><br><strong>Payment Plan:</strong> 
+<span style="color:#9cffc9">${o.paymentPlan}</span>
+
+  <hr>
+  <strong>Services:</strong>
+  <ul>${o.services.map(s=>`<li>${s}</li>`).join('')}</ul>
+  <strong>One-Time:</strong> $${o.oneTimeTotal}<br>
+  <strong>Monthly:</strong> $${o.discountedTotal}<br>
+  ${o.promoCode ? `<strong>Promo:</strong> ${o.promoCode}<br>` : ''}
+  ${o.notes ? `<p>${o.notes}</p>` : ''}
+  <button class="delete" onclick="deleteOrder('${key}')">Delete Order</button>
+`;
+
+
           ordersDiv.appendChild(div);
         });
     });
