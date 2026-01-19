@@ -496,6 +496,12 @@ button{
     <strong>$<span id="discountedTotal">0.00</span></strong>
   </div>
 
+  <div class="total-row highlight">
+  <span>Due Now</span>
+  <strong>$<span id="dueNow">0.00</span></strong>
+</div>
+
+
   <div class="promo">
   <label style="font-size:.9rem;color:var(--gray);">Promo Code</label>
   <div style="display:flex;gap:.6rem;margin-top:.4rem;">
@@ -577,25 +583,33 @@ function calculate(){
   let monthlyPromoEligible = 0; // promo eligible (NO domain)
   let monthlyDomain = 0;        // domain only
   let oneTime = 0;
+  let monthlyNonDomain = 0;
+let monthlyDomain = 0;
+let oneTimeTotal = 0;
 
-  cards.forEach(card => {
-    if (!card.classList.contains('selected')) return;
 
-    const price = parseFloat(card.dataset.price);
-    const qty = card.querySelector('input')?.value || 1;
-    const total = price * qty;
+  monthlyNonDomain = 0;
+monthlyDomain = 0;
+oneTimeTotal = 0;
 
-    if (card.dataset.onetime === "true") {
-      oneTime += total;
-    }
-    else if (card.id === "domain-card") {
-      monthlyDomain += total; // NO billing discount, NO promo
-    }
-    else {
-      monthlyDiscountable += total;   // billing discount applies
-      monthlyPromoEligible += total;  // promo applies
-    }
-  });
+cards.forEach(card => {
+  if (!card.classList.contains('selected')) return;
+
+  const price = parseFloat(card.dataset.price);
+  const qty = card.querySelector('input')?.value || 1;
+  const total = price * qty;
+
+  if (card.dataset.onetime === "true") {
+    oneTimeTotal += total;
+  }
+  else if (card.id === "domain-card") {
+    monthlyDomain += total;
+  }
+  else {
+    monthlyNonDomain += total;
+  }
+});
+
 
   // APPLY BILLING DISCOUNT FIRST
   const billingAdjusted =
@@ -623,16 +637,35 @@ function calculate(){
 
 document.getElementById('oneTimeTotalDisplay').textContent =
   oneTime.toFixed(2);
-
-
+  
   document.getElementById('monthlyTotal').textContent =
     (monthlyDiscountable + monthlyDomain).toFixed(2);
 
   document.getElementById('discountedTotal').textContent =
     discountedMonthly.toFixed(2);
+
+  document.getElementById('dueNow').textContent =
+  calculateAmountDue().toFixed(2);
+
 }
 
+function calculateAmountDue() {
+  const billing = document.querySelector('.billing-card.selected h3').textContent;
 
+  let multiplier = 3; // default quarterly
+
+  if (billing.includes("Semi")) multiplier = 6;
+  if (billing.includes("Annually")) multiplier = 12;
+
+  const due =
+    (discountedNonDomain * multiplier) +
+    (monthlyDomain * 12) +
+    oneTimeTotal;
+
+  return due;
+}
+
+  
 cards.forEach(card=>{
   card.addEventListener('click',e=>{
     if(e.target.tagName==='INPUT')return;
@@ -739,6 +772,7 @@ form.addEventListener('submit', async (e) => {
     oneTimeTotal: document.getElementById('oneTimeTotal').textContent,
     monthlyTotal: document.getElementById('monthlyTotal').textContent,
     discountedTotal: document.getElementById('discountedTotal').textContent,
+    amountDue: calculateAmountDue().toFixed(2),
     billing: billingCard.querySelector('h3').textContent + ` (${lastParagraph})`,
     promoCode: appliedPromo || "",
     timestamp: Date.now()
