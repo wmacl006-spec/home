@@ -610,7 +610,19 @@ function calculate() {
   });
 
   // billing discount ONLY applies to non-domain
-  discountedNonDomain = monthlyNonDomain * (1 - discount / 100);
+ // billing discount
+discountedNonDomain = monthlyNonDomain * (1 - discount / 100);
+
+// promo discount (applies AFTER billing discount)
+if (promoType === "percent") {
+  discountedNonDomain *= (1 - promoDiscount / 100);
+}
+
+if (promoType === "flat") {
+  discountedNonDomain -= promoDiscount;
+  if (discountedNonDomain < 0) discountedNonDomain = 0;
+}
+
 
   // UI
   document.getElementById('oneTimeTotal').textContent =
@@ -714,6 +726,8 @@ const sentMessage = document.getElementById('sentMessage');
         : `✓ $${data.value} discount applied`;
 
     msg.style.color = "#6fff9f";
+
+    document.getElementById('applyPromo').disabled = true;
 
     calculate();
   } catch {
