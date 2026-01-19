@@ -248,48 +248,59 @@
 </main>
 
 <script>
-  /* Accordion */
-  document.querySelectorAll('.faq-question').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = btn.parentElement;
-      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      item.classList.toggle('open');
+firebase.initializeApp({
+  apiKey: "AIzaSyCA51Bs-kNXbNuwbnzJqVuYW9aUQMSAjhE",
+  authDomain: "form-8752f.firebaseapp.com",
+  databaseURL: "https://form-8752f-default-rtdb.firebaseio.com",
+  projectId: "form-8752f",
+  storageBucket: "form-8752f.appspot.com",
+  messagingSenderId: "615040867765",
+  appId: "1:615040867765:web:b9f2ec8bb46de6d035cdfc"
+});
+
+const db = firebase.database();
+
+/* Accordion */
+document.querySelectorAll('.faq-question').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item = btn.parentElement;
+    document.querySelectorAll('.faq-item').forEach(i=>i!==item && i.classList.remove('open'));
+    item.classList.toggle('open');
+  });
+});
+
+/* Search */
+document.getElementById('search').addEventListener('input',e=>{
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    item.style.display =
+      item.querySelector('.faq-question').innerText.toLowerCase().includes(q)
+      ? '' : 'none';
+  });
+});
+
+/* Submit FAQ to inbox */
+document.getElementById('submitQuestion').addEventListener('click',async()=>{
+  const input = document.getElementById('ask');
+  const status = document.getElementById('status');
+  const question = input.value.trim();
+  if(!question) return;
+
+  status.textContent = "Submitting…";
+
+  try{
+    await db.ref("orders").push({
+      type: "faq",
+      question,
+      timestamp: Date.now()
     });
-  });
 
-  /* Search */
-  document.getElementById('search').addEventListener('input', e => {
-    const q = e.target.value.toLowerCase();
-    document.querySelectorAll('.faq-item').forEach(item => {
-      const text = item.querySelector('.faq-question').innerText.toLowerCase();
-      item.style.display = text.includes(q) ? '' : 'none';
-    });
-  });
-
-  /* Firebase submit — question only */
-  document.getElementById('submitQuestion').addEventListener('click', async () => {
-    const input = document.getElementById('ask');
-    const status = document.getElementById('status');
-    const question = input.value.trim();
-    if (!question) return;
-
-    status.textContent = 'Submitting…';
-
-    try {
-      await fetch(
-        'https://lilguys-ae7fe-default-rtdb.firebaseio.com/faqQuestions.json',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question })
-        }
-      );
-      input.value = '';
-      status.textContent = 'Question submitted.';
-    } catch {
-      status.textContent = 'Submission failed.';
-    }
-  });
+    input.value = "";
+    status.textContent = "Question submitted.";
+  }catch{
+    status.textContent = "Submission failed.";
+  }
+});
 </script>
 
 </body>
