@@ -449,7 +449,7 @@ button{
 </div>
 
 
-  <form id="orderForm" action="https://formspree.io/f/mlgggaqd" method="POST">
+  <form id="orderForm">
 
   <h2>Send Request</h2>
   <input name="name" placeholder="Your Name" required>
@@ -478,7 +478,27 @@ button{
 </div>
 
 <footer>© 2026 William MacLean</footer>
+  
 </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
 
 <script>
 const cards=document.querySelectorAll('.offer-card');
@@ -671,11 +691,49 @@ const billingText = billingCard.querySelector('h3').textContent +
 
   document.getElementById('promoField').value = appliedPromo;
 
-  await fetch(form.action, {
-    method: 'POST',
-    body: new FormData(form),
-    headers: { 'Accept': 'application/json' }
-  });
+  form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const services = [...cards]
+    .filter(c => c.classList.contains('selected'))
+    .map(c => {
+      const qty = c.querySelector('input')?.value || 1;
+      const type = c.dataset.onetime === "true" ? "one-time" : "monthly";
+      return `${c.dataset.name} (${type}) x${qty}`;
+    });
+
+  const billingCard = document.querySelector('.billing-card.selected');
+  const paragraphs = billingCard.querySelectorAll('p');
+  const lastParagraph = paragraphs[paragraphs.length - 1].textContent;
+
+  const orderData = {
+    name: form.name.value,
+    email: form.email.value,
+    notes: form.notes.value || "",
+    services,
+    oneTimeTotal: document.getElementById('oneTimeTotal').textContent,
+    monthlyTotal: document.getElementById('monthlyTotal').textContent,
+    discountedTotal: document.getElementById('discountedTotal').textContent,
+    billing: billingCard.querySelector('h3').textContent + ` (${lastParagraph})`,
+    promoCode: appliedPromo || "",
+    timestamp: Date.now()
+  };
+
+  try {
+    await db.ref('orders').push(orderData);
+
+    sentMessage.style.display = 'block';
+    form.reset();
+
+    setTimeout(() => {
+      sentMessage.style.display = 'none';
+    }, 4000);
+  } catch (err) {
+    alert("Submission failed. Please try again.");
+    console.error(err);
+  }
+});
+
 
   sentMessage.style.display = 'block';
   form.reset();
