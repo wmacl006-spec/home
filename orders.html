@@ -245,21 +245,27 @@ function loadOrders(){
 /* ---------- DELETE ---------- */
 
 function archiveOrder(id){
-  if(!confirm("Archive this order?")){
-    return;
-  }
+  if(!confirm("Archive this order?")) return;
 
-  const orderRef = db.ref("orders/" + id);
+  const orderRef   = db.ref("orders/" + id);
   const archiveRef = db.ref("archivedOrders/" + id);
 
-  orderRef.once("value").then(snapshot => {
-    if(snapshot.exists()){
+  orderRef.once("value")
+    .then(snapshot => {
+      if(!snapshot.exists()){
+        throw new Error("Order not found");
+      }
       return archiveRef.set(snapshot.val());
-    }
-  }).then(() => {
-    return orderRef.remove();
-  });
+    })
+    .then(() => {
+      return orderRef.remove();
+    })
+    .catch(err => {
+      console.error("Archive failed:", err);
+      alert("Archive failed. Check Firebase rules.");
+    });
 }
+
 
 </script>
 
