@@ -175,6 +175,34 @@ h1{
   gap:2rem;
 }
 
+  .client-stat{
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:14px;
+  padding:1rem 1.2rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:.9rem;
+}
+
+.client-stat .label{
+  color:var(--gray);
+}
+
+.client-stat .value{
+  font-weight:700;
+  color:var(--pink);
+  font-size:1.1rem;
+}
+
+  .client-stat:hover{
+  border-color:var(--pink);
+  box-shadow:0 8px 20px rgba(176,11,85,.18);
+}
+
+
+
 /* TOTAL */
 .total{
   background:var(--panel);
@@ -417,6 +445,13 @@ button{
 
 <!-- RIGHT SIDE -->
 <div class="side">
+
+  <div class="client-stat">
+  <span class="label">Active Clients</span>
+  <span class="value">● 2</span>
+
+</div>
+
 
 <div class="total">
   <div class="total-row">
