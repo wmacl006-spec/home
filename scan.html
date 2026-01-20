@@ -180,8 +180,11 @@ onAuthStateChanged(auth, user => {
   startScanner();
 });
 
+let scanner;
+
 function startScanner() {
-  const scanner = new Html5Qrcode("reader");
+  scanner = new Html5Qrcode("reader");
+
 
   scanner.start(
     { facingMode: "environment" },
@@ -228,6 +231,8 @@ pendingProfile = profileSnap.data();
 previewName.textContent = `Add ${pendingProfile.name || "this user"}?`;
 status.textContent = "Confirm connection";
 confirmBox.style.display = "block";
+  return;
+
 
 
   setTimeout(() => {
@@ -235,10 +240,16 @@ confirmBox.style.display = "block";
   }, 1200);
 }
 
-  confirmAdd.onclick = async () => {
+ confirmAdd.onclick = async () => {
   if (!pendingUid || !pendingProfile) return;
 
-  const connectionRef = doc(db, "connections", currentUser.uid, "users", pendingUid);
+  const connectionRef = doc(
+    db,
+    "connections",
+    currentUser.uid,
+    "users",
+    pendingUid
+  );
 
   await setDoc(connectionRef, {
     name: pendingProfile.name,
@@ -251,16 +262,20 @@ confirmBox.style.display = "block";
 
   setTimeout(() => {
     location.href = "dashboard.html";
-  }, 1200);
+  }, 1000);
 };
 
+
 rejectAdd.onclick = () => {
-  status.textContent = "Scan cancelled";
   confirmBox.style.display = "none";
+  status.textContent = "Scan cancelled";
+
   pendingUid = null;
   pendingProfile = null;
+
   startScanner();
 };
+
 
   
 </script>
