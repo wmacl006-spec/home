@@ -1,182 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Liszt</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<title>Firebase Auth + Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
-  margin: 0;
-  font-family: Inter, system-ui, sans-serif;
-  background: #0f0f0f;
-  color: white;
-}
-.hidden { display: none; }
-.center {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    font-family: system-ui, sans-serif;
+    background: #0f0f0f;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 .card {
-  background: #161616;
-  padding: 24px;
-  border-radius: 14px;
-  width: 320px;
-  box-shadow: 0 20px 40px rgba(0,0,0,.4);
+    background: #161616;
+    padding: 24px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 420px;
 }
-input, button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
-  font-size: 14px;
+h2 { margin-bottom: 12px; }
+input, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: none;
 }
-input { background: #0f0f0f; color: white; }
+input, textarea {
+    background: #222;
+    color: #fff;
+}
 button {
-  background: #B00B55;
-  color: white;
-  cursor: pointer;
+    background: #b00b55;
+    color: #fff;
+    cursor: pointer;
 }
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
-  gap: 16px;
-  padding: 20px;
+button.secondary {
+    background: #333;
 }
-.user-card {
-  background: #161616;
-  border-radius: 14px;
-  padding: 16px;
-  text-align: center;
-}
-.user-card .field {
-  font-size: 12px;
-  opacity: .7;
-}
+.hidden { display: none; }
 </style>
 </head>
 
 <body>
 
-<!-- AUTH -->
-<div id="auth" class="center">
-  <div class="card">
-    <h2>Liszt</h2>
-    <input id="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password (6+ chars)" />
-    <button id="signup">Sign Up</button>
-    <button id="login">Log In</button>
-  </div>
+<div class="card" id="authCard">
+    <h2>Sign In / Sign Up</h2>
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="signUp()">Sign Up</button>
+    <button class="secondary" onclick="signIn()">Sign In</button>
 </div>
 
-<!-- ONBOARD -->
-<div id="onboard" class="center hidden">
-  <div class="card">
-    <h3 id="stepTitle"></h3>
-    <input id="stepInput" />
-    <button id="nextStep">Next</button>
-  </div>
+<div class="card hidden" id="profileCard">
+    <h2>Your Profile</h2>
+    <input id="name" placeholder="Name">
+    <input id="field" placeholder="Field of Study">
+    <textarea id="about" rows="4" placeholder="About Me"></textarea>
+    <button onclick="saveProfile()">Save Profile</button>
+    <button class="secondary" onclick="logout()">Log Out</button>
 </div>
 
-<!-- APP -->
-<div id="app" class="hidden">
-  <div class="gallery" id="gallery"></div>
-</div>
-
-<!-- FIREBASE -->
+<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
   authDomain: "liszt-df660.firebaseapp.com",
-  projectId: "liszt-df660"
+  projectId: "liszt-df660",
+  storageBucket: "liszt-df660.firebasestorage.app",
+  messagingSenderId: "920604591347",
+  appId: "1:920604591347:web:29cd6c51f2837e1b4e2386"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const authDiv = document.getElementById("auth");
-const onboardDiv = document.getElementById("onboard");
-const appDiv = document.getElementById("app");
+// UI refs
+const authCard = document.getElementById("authCard");
+const profileCard = document.getElementById("profileCard");
 
-const steps = ["Name", "Username", "Field", "About"];
-let step = 0;
-let data = {};
-let userRef;
-
-document.getElementById("signup").onclick = async () => {
-  await createUserWithEmailAndPassword(
-    auth,
-    email.value,
-    password.value
-  );
+window.signUp = async () => {
+    const email = email.value;
+    const password = password.value;
+    await createUserWithEmailAndPassword(auth, email, password);
 };
 
-document.getElementById("login").onclick = async () => {
-  await signInWithEmailAndPassword(
-    auth,
-    email.value,
-    password.value
-  );
+window.signIn = async () => {
+    const email = email.value;
+    const password = password.value;
+    await signInWithEmailAndPassword(auth, email, password);
 };
 
-onAuthStateChanged(auth, async user => {
-  if (!user) return;
+window.logout = async () => {
+    await signOut(auth);
+};
 
-  authDiv.classList.add("hidden");
-  userRef = doc(db, "users", user.uid);
-  const snap = await getDoc(userRef);
+window.saveProfile = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
 
-  if (!snap.exists()) {
-    onboardDiv.classList.remove("hidden");
-    loadStep();
-  } else {
-    startApp();
-  }
+    await setDoc(doc(db, "profiles", user.uid), {
+        name: name.value,
+        fieldOfStudy: field.value,
+        aboutMe: about.value,
+        updatedAt: new Date()
+    });
+    alert("Profile saved");
+};
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        authCard.classList.add("hidden");
+        profileCard.classList.remove("hidden");
+
+        const snap = await getDoc(doc(db, "profiles", user.uid));
+        if (snap.exists()) {
+            const data = snap.data();
+            name.value = data.name || "";
+            field.value = data.fieldOfStudy || "";
+            about.value = data.aboutMe || "";
+        }
+    } else {
+        authCard.classList.remove("hidden");
+        profileCard.classList.add("hidden");
+    }
 });
-
-function loadStep() {
-  stepTitle.innerText = steps[step];
-  stepInput.value = "";
-}
-
-nextStep.onclick = async () => {
-  data[steps[step].toLowerCase()] = stepInput.value;
-  step++;
-
-  if (step < steps.length) {
-    loadStep();
-  } else {
-    await setDoc(userRef, data);
-    onboardDiv.classList.add("hidden");
-    startApp();
-  }
-};
-
-async function startApp() {
-  appDiv.classList.remove("hidden");
-  const gallery = document.getElementById("gallery");
-  gallery.innerHTML = "";
-
-  const snap = await getDocs(collection(db, "users"));
-  snap.forEach(doc => {
-    const u = doc.data();
-    const card = document.createElement("div");
-    card.className = "user-card";
-    card.innerHTML = `
-      <div class="field">${u.field || ""}</div>
-      <strong>${u.name || ""}</strong>
-    `;
-    gallery.appendChild(card);
-  });
-}
 </script>
 
 </body>
