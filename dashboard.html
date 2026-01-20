@@ -177,6 +177,7 @@ body {
   <main class="connections">
     <h2>Your Connections</h2>
     <div class="grid" id="cards"></div>
+    <div id="connectionsContainer"></div>
   </main>
 
 </div>
@@ -209,6 +210,70 @@ import {
   collection,
   getDocs
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
+  authDomain: "liszt-df660.firebaseapp.com",
+  projectId: "liszt-df660",
+  storageBucket: "liszt-df660.firebasestorage.app",
+  messagingSenderId: "920604591347",
+  appId: "1:920604591347:web:29cd6c51f2837e1b4e2386"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const container = document.getElementById("connectionsContainer");
+
+let currentUser;
+
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    location.href = "Liszt.html";
+    return;
+  }
+  currentUser = user;
+  await loadConnections();
+});
+
+async function loadConnections() {
+  container.innerHTML = "Loading connections…";
+
+  // Get all users you’ve added
+  const usersCol = collection(db, "connections", currentUser.uid, "users");
+  const usersSnap = await getDocs(usersCol);
+
+  if (usersSnap.empty) {
+    container.innerHTML = "<p>No connections yet</p>";
+    return;
+  }
+
+  container.innerHTML = ""; // clear loading text
+
+  for (const docSnap of usersSnap.docs) {
+    const connection = docSnap.data();
+
+    // Optional: fetch profile details if stored separately
+    const profileSnap = await getDoc(doc(db, "profiles", connection.uid));
+    const profile = profileSnap.exists() ? profileSnap.data() : {};
+
+    const card = document.createElement("div");
+    card.className = "panel";
+    card.innerHTML = `
+      <h2>${profile.name || "Unknown"}</h2>
+      <p>${profile.fieldOfStudy || ""}</p>
+      <p>${profile.aboutMe || ""}</p>
+      <a href="profile.html?uid=${connection.uid}" class="action">View Profile</a>
+    `;
+    container.appendChild(card);
+  }
+}
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
