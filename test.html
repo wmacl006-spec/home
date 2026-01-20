@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Name – Student</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0f0f0f;
+  --panel:#171717;
+  --text:#ffffff;
+  --muted:#9a9a9a;
+  --accent:#4f8cff;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.container{
+  max-width:420px;
+  margin:0 auto;
+  padding:2rem 1.25rem 3rem;
+}
+
+.card{
+  background:var(--panel);
+  border-radius:14px;
+  padding:1.5rem;
+  margin-bottom:1.25rem;
+}
+
+h1{
+  font-size:1.4rem;
+  margin:.25rem 0;
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:.95rem;
+}
+
+img{
+  width:100%;
+  border-radius:12px;
+  margin:1rem 0;
+}
+
+p{
+  line-height:1.55;
+  font-size:.95rem;
+}
+
+a{
+  color:var(--accent);
+  text-decoration:none;
+}
+
+.links a{
+  display:block;
+  margin:.35rem 0;
+}
+
+button{
+  width:100%;
+  padding:.7rem;
+  border:none;
+  border-radius:10px;
+  background:var(--accent);
+  color:#fff;
+  font-weight:500;
+  font-size:.95rem;
+  cursor:pointer;
+}
+
+form input, form textarea{
+  width:100%;
+  margin:.4rem 0;
+  padding:.65rem;
+  border-radius:8px;
+  border:1px solid #2a2a2a;
+  background:#111;
+  color:#fff;
+  font-size:.9rem;
+}
+
+form textarea{
+  resize:vertical;
+  min-height:90px;
+}
+
+footer{
+  text-align:center;
+  color:#777;
+  font-size:.8rem;
+  margin-top:1.5rem;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="card">
+    <h1>Your Name</h1>
+    <div class="subtitle">Student at Unit / Building Name</div>
+
+    <img src="me.jpg" alt="Photo of me">
+
+    <p>
+      Computer Science student, 2nd year. Interested in technology, design,
+      and staying organized. Easy to reach and respectful of shared spaces.
+    </p>
+
+    <button onclick="location.href='about.html'">About Me</button>
+  </div>
+
+  <div class="card">
+    <h1>Contact Me</h1>
+
+    <form id="contactForm">
+      <input type="text" id="name" placeholder="Your name" required>
+      <input type="text" id="contact" placeholder="Email or phone" required>
+      <textarea id="message" placeholder="Message" required></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+  </div>
+
+  <div class="card links">
+    <h1>Links</h1>
+    <a href="https://instagram.com/yourname" target="_blank">Instagram</a>
+    <a href="https://linkedin.com/in/yourname" target="_blank">LinkedIn</a>
+  </div>
+
+  <footer>
+    © 2026 Your Name
+  </footer>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  databaseURL: "https://test-c8289-default-rtdb.firebaseio.com/"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+document.getElementById("contactForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const data = {
+    name: name.value,
+    contact: contact.value,
+    message: message.value,
+    timestamp: Date.now()
+  };
+
+  database.ref("contacts").push(data).then(() => {
+    alert("Message sent");
+    this.reset();
+  });
+});
+</script>
+</body>
+</html>
