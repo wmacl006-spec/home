@@ -2,85 +2,199 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Firebase Auth + Profile</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liszt – Account</title>
+
+<link rel="icon" type="image/png" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style>
+:root {
+  --pink: #B00B55;
+  --black: #0f0f0f;
+  --white: #ffffff;
+  --gray: #b5b5b5;
+  --panel: #161616;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-    font-family: system-ui, sans-serif;
-    background: #0f0f0f;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #1b1b1b, var(--black));
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.card {
-    background: #161616;
-    padding: 24px;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 420px;
+
+.page {
+  width: 100%;
+  max-width: 480px;
+  padding: 3.5rem 3rem;
 }
-h2 { margin-bottom: 12px; }
-input, textarea, button {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 6px;
-    border: none;
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
 }
+
+h1 {
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: #eaeaea;
+}
+
+/* HOME BUTTON (MATCHES CONTACTS PAGE) */
+.home-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.1rem;
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--white);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: transform 0.2s ease,
+              box-shadow 0.2s ease,
+              border-color 0.2s ease;
+}
+
+.home-button:hover {
+  transform: translateY(-2px);
+  border-color: var(--pink);
+  box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
+}
+
+/* PANEL */
+.panel {
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 14px;
+  padding: 2rem;
+}
+
+.panel h2 {
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--pink);
+  margin-bottom: 1.5rem;
+}
+
 input, textarea {
-    background: #222;
-    color: #fff;
+  width: 100%;
+  background: #101010;
+  border: 1px solid #242424;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
+input::placeholder,
+textarea::placeholder {
+  color: #7d7d7d;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--pink);
+  box-shadow: 0 0 0 2px rgba(176, 11, 85, 0.25);
+}
+
 button {
-    background: #b00b55;
-    color: #fff;
-    cursor: pointer;
+  padding: 0.65rem 1.4rem;
+  background: var(--panel);
+  border: 1px solid #242424;
+  border-radius: 10px;
+  color: var(--white);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: transform 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
 }
-button.secondary {
-    background: #333;
+
+button:hover {
+  transform: translateY(-2px);
+  border-color: var(--pink);
+  box-shadow: 0 10px 24px rgba(176, 11, 85, 0.25);
 }
+
+.actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
 .hidden { display: none; }
 </style>
 </head>
 
 <body>
 
-<div class="card" id="authCard">
-    <h2>Sign In / Sign Up</h2>
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="signUp()">Sign Up</button>
-    <button class="secondary" onclick="signIn()">Sign In</button>
-</div>
+<main class="page">
 
-<div class="card hidden" id="profileCard">
-    <h2>Your Profile</h2>
-    <input id="name" placeholder="Name">
-    <input id="field" placeholder="Field of Study">
-    <textarea id="about" rows="4" placeholder="About Me"></textarea>
-    <button onclick="saveProfile()">Save Profile</button>
-    <button class="secondary" onclick="logout()">Log Out</button>
-</div>
+  <!-- SIGN IN / UP -->
+  <div id="authCard">
+    <div class="header">
+      <h1>Liszt</h1>
+      <a href="index.html" class="home-button">Home</a>
+    </div>
+
+    <div class="panel">
+      <h2>Account Access</h2>
+      <input id="email" type="email" placeholder="Email">
+      <input id="password" type="password" placeholder="Password">
+
+      <div class="actions">
+        <button onclick="signUp()">Sign Up</button>
+        <button onclick="signIn()">Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="profileCard" class="hidden">
+    <div class="header">
+      <h1>Your Profile</h1>
+    </div>
+
+    <div class="panel">
+      <h2>Profile Info</h2>
+      <input id="name" placeholder="Name">
+      <input id="field" placeholder="Field of Study">
+      <textarea id="about" rows="4" placeholder="About Me"></textarea>
+
+      <div class="actions">
+        <button onclick="saveProfile()">Save</button>
+        <button onclick="logout()">Log Out</button>
+      </div>
+    </div>
+  </div>
+
+</main>
 
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { 
-  getAuth, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  onAuthStateChanged, 
-  signOut 
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { 
-  getFirestore, 
-  doc, 
-  setDoc, 
-  getDoc 
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
@@ -95,70 +209,57 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// DOM references (THIS IS CRITICAL)
+const authCard = document.getElementById("authCard");
+const profileCard = document.getElementById("profileCard");
+
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const nameInput = document.getElementById("name");
 const fieldInput = document.getElementById("field");
 const aboutInput = document.getElementById("about");
 
-const authCard = document.getElementById("authCard");
-const profileCard = document.getElementById("profileCard");
-
-// Auth actions
 window.signUp = async () => {
-    await createUserWithEmailAndPassword(
-        auth,
-        emailInput.value,
-        passwordInput.value
-    );
+  await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
 };
 
 window.signIn = async () => {
-    await signInWithEmailAndPassword(
-        auth,
-        emailInput.value,
-        passwordInput.value
-    );
+  await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
 };
 
 window.logout = async () => {
-    await signOut(auth);
+  await signOut(auth);
 };
 
 window.saveProfile = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
+  const user = auth.currentUser;
+  if (!user) return;
 
-    await setDoc(doc(db, "profiles", user.uid), {
-        name: nameInput.value,
-        fieldOfStudy: fieldInput.value,
-        aboutMe: aboutInput.value,
-        updatedAt: new Date()
-    });
-    alert("Profile saved");
+  await setDoc(doc(db, "profiles", user.uid), {
+    name: nameInput.value,
+    fieldOfStudy: fieldInput.value,
+    aboutMe: aboutInput.value,
+    updatedAt: new Date()
+  });
 };
 
-// Auth state listener
 onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        authCard.classList.add("hidden");
-        profileCard.classList.remove("hidden");
+  if (user) {
+    authCard.classList.add("hidden");
+    profileCard.classList.remove("hidden");
 
-        const snap = await getDoc(doc(db, "profiles", user.uid));
-        if (snap.exists()) {
-            const data = snap.data();
-            nameInput.value = data.name || "";
-            fieldInput.value = data.fieldOfStudy || "";
-            aboutInput.value = data.aboutMe || "";
-        }
-    } else {
-        authCard.classList.remove("hidden");
-        profileCard.classList.add("hidden");
+    const snap = await getDoc(doc(db, "profiles", user.uid));
+    if (snap.exists()) {
+      const d = snap.data();
+      nameInput.value = d.name || "";
+      fieldInput.value = d.fieldOfStudy || "";
+      aboutInput.value = d.aboutMe || "";
     }
+  } else {
+    authCard.classList.remove("hidden");
+    profileCard.classList.add("hidden");
+  }
 });
 </script>
-
 
 </body>
 </html>
