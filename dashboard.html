@@ -196,7 +196,7 @@ import {
   getFirestore,
   doc,
   getDoc,
-  updateDoc,
+  setDoc,
   collection,
   getDocs
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -214,60 +214,95 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let profileRef;
+const editName = document.getElementById("editName");
+const editField = document.getElementById("editField");
+const editBio = document.getElementById("editBio");
+const cards = document.getElementById("cards");
+const qr = document.getElementById("qr");
+const qrModal = document.getElementById("qrModal");
 
+let profileRef;
+let currentUser;
+
+/* =========================
+   AUTH GUARD
+   ========================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "Liszt.html";
     return;
   }
 
+  currentUser = user;
   profileRef = doc(db, "profiles", user.uid);
+
+  await loadOrCreateProfile(user);
+  await loadConnections(user.uid);
+});
+
+/* =========================
+   PROFILE
+   ========================= */
+async function loadOrCreateProfile(user) {
   const snap = await getDoc(profileRef);
 
   if (!snap.exists()) {
-    window.location.href = "Liszt.html";
+    await setDoc(profileRef, {
+      name: "",
+      fieldOfStudy: "",
+      aboutMe: "",
+      createdAt: new Date()
+    });
     return;
   }
 
   const p = snap.data();
-  editName.value = p.name;
-  editField.value = p.fieldOfStudy;
-  editBio.value = p.aboutMe;
-
-  loadConnections(user.uid);
-});
-
-async function loadConnections(uid) {
-  cards.innerHTML = "";
-  const qs = await getDocs(collection(db, "connections", uid, "users"));
-  qs.forEach(d => {
-    const c = d.data();
-    cards.innerHTML += `
-      <div class="card">
-        <h3>${c.name}</h3>
-        <span>${c.fieldOfStudy}</span>
-        <p>${c.aboutMe}</p>
-      </div>
-    `;
-  });
+  editName.value = p.name || "";
+  editField.value = p.fieldOfStudy || "";
+  editBio.value = p.aboutMe || "";
 }
 
 window.saveProfile = async () => {
   if (!profileRef) return;
 
-  await updateDoc(profileRef, {
-    name: editName.value,
-    fieldOfStudy: editField.value,
-    aboutMe: editBio.value,
-    updatedAt: new Date()
-  });
+  await setDoc(
+    profileRef,
+    {
+      name: editName.value,
+      fieldOfStudy: editField.value,
+      aboutMe: editBio.value,
+      updatedAt: new Date()
+    },
+    { merge: true }
+  );
 };
 
+/* =========================
+   CONNECTIONS
+   ========================= */
+async function loadConnections(uid) {
+  cards.innerHTML = "";
+  const qs = await getDocs(collection(db, "connections", uid, "users"));
+
+  qs.forEach(d => {
+    const c = d.data();
+    cards.innerHTML += `
+      <div class="card">
+        <h3>${c.name || ""}</h3>
+        <span>${c.fieldOfStudy || ""}</span>
+        <p>${c.aboutMe || ""}</p>
+      </div>
+    `;
+  });
+}
+
+/* =========================
+   QR SHARE
+   ========================= */
 window.showQR = () => {
   qr.innerHTML = "";
   new QRCode(qr, {
-    text: `liszt:add:${auth.currentUser.uid}`,
+    text: `liszt:add:${currentUser.uid}`,
     width: 200,
     height: 200,
     colorDark: "#ffffff",
@@ -276,6 +311,7 @@ window.showQR = () => {
   qrModal.style.display = "flex";
 };
 </script>
+
 
 </body>
 </html>
