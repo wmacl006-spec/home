@@ -136,6 +136,8 @@ h1 {
 <!-- Firebase -->
 <script type="module">
 
+  let hasScanned = false;
+
   const confirmBox = document.getElementById("confirmBox");
 const previewName = document.getElementById("previewName");
 const confirmAdd = document.getElementById("confirmAdd");
@@ -185,16 +187,19 @@ let scanner;
 function startScanner() {
   scanner = new Html5Qrcode("reader");
 
-
   scanner.start(
     { facingMode: "environment" },
     { fps: 10, qrbox: 220 },
     async (text) => {
-      scanner.stop();
+      if (hasScanned) return;
+      hasScanned = true;
+
+      await scanner.stop();
       await handleScan(text);
     }
   );
 }
+
 
 async function handleScan(text) {
   status.textContent = "Processing…";
@@ -240,8 +245,11 @@ confirmBox.style.display = "block";
   }, 1200);
 }
 
- confirmAdd.onclick = async () => {
-  if (!pendingUid || !pendingProfile) return;
+await setDoc(connectionRef, {
+  uid: pendingUid,          //  REQUIRED
+  addedAt: new Date()
+});
+
 
   const connectionRef = doc(
     db,
@@ -272,11 +280,10 @@ rejectAdd.onclick = () => {
 
   pendingUid = null;
   pendingProfile = null;
+  hasScanned = false;
 
   startScanner();
 };
-
-
   
 </script>
 
