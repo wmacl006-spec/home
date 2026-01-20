@@ -301,21 +301,36 @@ window.saveProfile = async () => {
 /* =========================
    CONNECTIONS
    ========================= */
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
 async function loadConnections(uid) {
   cards.innerHTML = "";
+
   const qs = await getDocs(collection(db, "connections", uid, "users"));
 
-  qs.forEach(d => {
-    const c = d.data();
-    cards.innerHTML += `
-      <div class="card">
-        <h3>${c.name || ""}</h3>
-        <span>${c.fieldOfStudy || ""}</span>
-        <p>${c.aboutMe || ""}</p>
-      </div>
-    `;
+  qs.forEach(conn => {
+    const { uid: theirUid } = conn.data();
+
+    const card = document.createElement("div");
+    card.className = "card";
+    cards.appendChild(card);
+
+    const profileRef = doc(db, "profiles", theirUid);
+
+    // 🔥 LIVE LISTEN — auto updates everywhere
+    onSnapshot(profileRef, snap => {
+      if (!snap.exists()) return;
+      const p = snap.data();
+
+      card.innerHTML = `
+        <h3>${p.name || ""}</h3>
+        <span>${p.fieldOfStudy || ""}</span>
+        <p>${p.aboutMe || ""}</p>
+      `;
+    });
   });
 }
+
 
 /* =========================
    QR SHARE
