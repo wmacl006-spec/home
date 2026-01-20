@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liszt – Scan</title>
+
+<link rel="icon" type="image/png" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --pink:#B00B55;
+  --black:#0f0f0f;
+  --white:#ffffff;
+  --gray:#b5b5b5;
+  --panel:#161616;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  min-height:100vh;
+  font-family:'Inter',sans-serif;
+  background:radial-gradient(circle at top,#1b1b1b,var(--black));
+  color:var(--white);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.page {
+  width:100%;
+  max-width:420px;
+  padding:3rem;
+}
+
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:2rem;
+}
+
+h1 {
+  font-family:'Comfortaa',sans-serif;
+  font-size:2rem;
+  font-weight:600;
+}
+
+.home-button {
+  padding:0.6rem 1.1rem;
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:10px;
+  text-decoration:none;
+  color:var(--white);
+  font-size:0.85rem;
+  font-weight:600;
+}
+
+.panel {
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:14px;
+  padding:1.8rem;
+  text-align:center;
+}
+
+#reader {
+  width:100%;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.status {
+  margin-top:1rem;
+  font-size:0.85rem;
+  color:var(--gray);
+}
+</style>
+</head>
+
+<body>
+
+<main class="page">
+
+  <div class="header">
+    <h1>Scan</h1>
+    <a href="dashboard.html" class="home-button">Back</a>
+  </div>
+
+  <div class="panel">
+    <div id="reader"></div>
+    <div class="status" id="status">Scan a Liszt QR code</div>
+  </div>
+
+</main>
+
+<!-- QR SCANNER -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
+  authDomain: "liszt-df660.firebaseapp.com",
+  projectId: "liszt-df660",
+  storageBucket: "liszt-df660.firebasestorage.app",
+  messagingSenderId: "920604591347",
+  appId: "1:920604591347:web:29cd6c51f2837e1b4e2386"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser;
+
+onAuthStateChanged(auth, user => {
+  if (!user) {
+    location.href = "Liszt.html";
+    return;
+  }
+  currentUser = user;
+  startScanner();
+});
+
+function startScanner() {
+  const scanner = new Html5Qrcode("reader");
+
+  scanner.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 220 },
+    async (text) => {
+      scanner.stop();
+      await handleScan(text);
+    }
+  );
+}
+
+async function handleScan(text) {
+  status.textContent = "Processing…";
+
+  if (!text.startsWith("liszt:add:")) {
+    status.textContent = "Invalid QR code";
+    return;
+  }
+
+  const otherUid = text.replace("liszt:add:", "").trim();
+
+  if (otherUid === currentUser.uid) {
+    status.textContent = "You cannot add yourself";
+    return;
+  }
+
+  const profileSnap = await getDoc(doc(db, "profiles", otherUid));
+  if (!profileSnap.exists()) {
+    status.textContent = "User not found";
+    return;
+  }
+
+  const connectionRef = doc(db, "connections", currentUser.uid, "users", otherUid);
+  const existing = await getDoc(connectionRef);
+
+  if (existing.exists()) {
+    status.textContent = "User already added";
+    return;
+  }
+
+  const p = profileSnap.data();
+
+  await setDoc(connectionRef, {
+    name: p.name,
+    fieldOfStudy: p.fieldOfStudy,
+    aboutMe: p.aboutMe,
+    addedAt: new Date()
+  });
+
+  status.textContent = "Added ✓ Redirecting…";
+
+  setTimeout(() => {
+    location.href = "dashboard.html";
+  }, 1200);
+}
+</script>
+
+</body>
+</html>
