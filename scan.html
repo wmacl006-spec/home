@@ -135,164 +135,168 @@ h1 {
 
 <!-- Firebase -->
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc
+  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+  /* -------------------- STATE -------------------- */
   let hasScanned = false;
+  let scanner;
+  let currentUser;
+  let pendingUid = null;
+  let pendingProfile = null;
 
-  const confirmBox = document.getElementById("confirmBox");
-const previewName = document.getElementById("previewName");
-const confirmAdd = document.getElementById("confirmAdd");
-const rejectAdd = document.getElementById("rejectAdd");
-
-let pendingProfile = null;
-let pendingUid = null;
-
-  
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
-  authDomain: "liszt-df660.firebaseapp.com",
-  projectId: "liszt-df660",
-  storageBucket: "liszt-df660.firebasestorage.app",
-  messagingSenderId: "920604591347",
-  appId: "1:920604591347:web:29cd6c51f2837e1b4e2386"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
+  /* -------------------- DOM -------------------- */
   const status = document.getElementById("status");
+  const confirmBox = document.getElementById("confirmBox");
+  const previewName = document.getElementById("previewName");
+  const confirmAdd = document.getElementById("confirmAdd");
+  const rejectAdd = document.getElementById("rejectAdd");
 
-let currentUser;
+  /* -------------------- FIREBASE -------------------- */
+  const firebaseConfig = {
+    apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
+    authDomain: "liszt-df660.firebaseapp.com",
+    projectId: "liszt-df660",
+    storageBucket: "liszt-df660.firebasestorage.app",
+    messagingSenderId: "920604591347",
+    appId: "1:920604591347:web:29cd6c51f2837e1b4e2386"
+  };
 
-onAuthStateChanged(auth, user => {
-  if (!user) {
-    location.href = "Liszt.html";
-    return;
-  }
-  currentUser = user;
-  startScanner();
-});
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-let scanner;
-
-async function startScanner() {
-  if (scanner) {
-    await scanner.clear();
-    scanner = null;
-  }
-
-  scanner = new Html5Qrcode("reader");
-
-  scanner.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 220 },
-    async (text) => {
-      if (hasScanned) return;
-      hasScanned = true;
-
-      await scanner.stop();
-      await scanner.clear();   // 🔥 REQUIRED
-      await handleScan(text);
+  /* -------------------- AUTH -------------------- */
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      location.href = "Liszt.html";
+      return;
     }
-  );
-}
-
-
-
-async function handleScan(text) {
-  status.textContent = "Processing…";
-
-  if (!text.startsWith("liszt:add:")) {
-    status.textContent = "Invalid QR code";
-    return;
-  }
-
-  const otherUid = text.replace("liszt:add:", "").trim();
-
-  if (otherUid === currentUser.uid) {
-    status.textContent = "You cannot add yourself";
-    return;
-  }
-
-  const profileSnap = await getDoc(doc(db, "profiles", otherUid));
-  if (!profileSnap.exists()) {
-    status.textContent = "User not found";
-    return;
-  }
-
-  const connectionRef = doc(db, "connections", currentUser.uid, "users", otherUid);
-  const existing = await getDoc(connectionRef);
-
-  if (existing.exists()) {
-    status.textContent = "User already added";
-    return;
-  }
-
-pendingUid = otherUid;
-pendingProfile = profileSnap.data();
-
-previewName.textContent = `Add ${pendingProfile.name || "this user"}?`;
-status.textContent = "Confirm connection";
-confirmBox.style.display = "block";
-  return;
-
-
-
-  setTimeout(() => {
-    location.href = "dashboard.html";
-  }, 1200);
-}
-
-await setDoc(connectionRef, {
-  uid: pendingUid,          //  REQUIRED
-  addedAt: new Date()
-});
-
-
-  const connectionRef = doc(
-    db,
-    "connections",
-    currentUser.uid,
-    "users",
-    pendingUid
-  );
-
-  await setDoc(connectionRef, {
-    name: pendingProfile.name,
-    fieldOfStudy: pendingProfile.fieldOfStudy,
-    aboutMe: pendingProfile.aboutMe,
-    addedAt: new Date()
+    currentUser = user;
+    startScanner();
   });
 
-  status.textContent = "Added ✓ Redirecting…";
+  /* -------------------- SCANNER -------------------- */
+  async function startScanner() {
+    hasScanned = false;
 
-  setTimeout(() => {
-    location.href = "dashboard.html";
-  }, 1000);
-};
+    if (scanner) {
+      await scanner.clear();
+      scanner = null;
+    }
 
+    scanner = new Html5Qrcode("reader");
 
-rejectAdd.onclick = async () => {
-  confirmBox.style.display = "none";
-  status.textContent = "Scan cancelled";
+    scanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 220 },
+      async (text) => {
+        if (hasScanned) return;
+        hasScanned = true;
 
-  pendingUid = null;
-  pendingProfile = null;
-  hasScanned = false;
+        await scanner.stop();
+        await scanner.clear();
 
-  await startScanner();
-};
+        handleScan(text);
+      }
+    );
+  }
 
-  
+  /* -------------------- HANDLE SCAN -------------------- */
+  async function handleScan(text) {
+    status.textContent = "Processing…";
+
+    if (!text.startsWith("liszt:add:")) {
+      status.textContent = "Invalid QR code";
+      await restartScan();
+      return;
+    }
+
+    const otherUid = text.replace("liszt:add:", "").trim();
+
+    if (otherUid === currentUser.uid) {
+      status.textContent = "You cannot add yourself";
+      await restartScan();
+      return;
+    }
+
+    const profileSnap = await getDoc(doc(db, "profiles", otherUid));
+    if (!profileSnap.exists()) {
+      status.textContent = "User not found";
+      await restartScan();
+      return;
+    }
+
+    const connectionRef = doc(
+      db,
+      "connections",
+      currentUser.uid,
+      "users",
+      otherUid
+    );
+
+    const existing = await getDoc(connectionRef);
+    if (existing.exists()) {
+      status.textContent = "User already added";
+      await restartScan();
+      return;
+    }
+
+    pendingUid = otherUid;
+    pendingProfile = profileSnap.data();
+
+    previewName.textContent = `Add ${pendingProfile.name || "this user"}?`;
+    status.textContent = "Confirm connection";
+    confirmBox.style.display = "block";
+  }
+
+  /* -------------------- CONFIRM ADD -------------------- */
+  confirmAdd.onclick = async () => {
+    const connectionRef = doc(
+      db,
+      "connections",
+      currentUser.uid,
+      "users",
+      pendingUid
+    );
+
+    await setDoc(connectionRef, {
+      uid: pendingUid,
+      name: pendingProfile.name,
+      fieldOfStudy: pendingProfile.fieldOfStudy,
+      aboutMe: pendingProfile.aboutMe,
+      addedAt: new Date()
+    });
+
+    status.textContent = "Added ✓ Redirecting…";
+
+    setTimeout(() => {
+      location.href = "dashboard.html";
+    }, 1000);
+  };
+
+  /* -------------------- CANCEL -------------------- */
+  rejectAdd.onclick = async () => {
+    confirmBox.style.display = "none";
+    status.textContent = "Scan cancelled";
+
+    pendingUid = null;
+    pendingProfile = null;
+
+    await restartScan();
+  };
+
+  async function restartScan() {
+    hasScanned = false;
+    confirmBox.style.display = "none";
+    await startScanner();
+  }
 </script>
 
 </body>
