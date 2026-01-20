@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liszt – Profile</title>
+
+<link rel="icon" type="image/png" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --pink:#B00B55;
+  --black:#0f0f0f;
+  --white:#ffffff;
+  --gray:#b5b5b5;
+  --panel:#161616;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  min-height:100vh;
+  font-family:'Inter',sans-serif;
+  background:radial-gradient(circle at top,#1b1b1b,var(--black));
+  color:var(--white);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.page {
+  width:100%;
+  max-width:420px;
+  padding:3rem;
+}
+
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:2rem;
+}
+
+h1 {
+  font-family:'Comfortaa',sans-serif;
+  font-size:2rem;
+  font-weight:600;
+}
+
+.home-button {
+  padding:0.6rem 1.1rem;
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:10px;
+  text-decoration:none;
+  color:var(--white);
+  font-size:0.85rem;
+  font-weight:600;
+}
+
+.panel {
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:14px;
+  padding:1.8rem;
+  text-align:center;
+}
+
+.status {
+  margin-top:1rem;
+  font-size:0.85rem;
+  color:var(--gray);
+}
+
+.action {
+  width:100%;
+  padding:.7rem;
+  border-radius:10px;
+  border:1px solid #242424;
+  background:var(--panel);
+  color:var(--white);
+  font-weight:600;
+  cursor:pointer;
+  margin-top:.6rem;
+  transition:.2s;
+}
+
+.action:hover {
+  border-color:var(--pink);
+  box-shadow:0 8px 20px rgba(176,11,85,.25);
+}
+
+.action.secondary {
+  background:transparent;
+  color:var(--gray);
+}
+</style>
+</head>
+
+<body>
+<main class="page">
+
+  <div class="header">
+    <h1>Profile</h1>
+    <a href="dashboard.html" class="home-button">Back</a>
+  </div>
+
+  <div class="panel">
+    <h2 id="name">Loading…</h2>
+    <p id="field"></p>
+    <p id="about"></p>
+
+    <button id="removeConnection" class="action secondary">Remove Card</button>
+    <div class="status" id="status"></div>
+  </div>
+
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+/* -------------------- FIREBASE -------------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
+  authDomain: "liszt-df660.firebaseapp.com",
+  projectId: "liszt-df660",
+  storageBucket: "liszt-df660.firebasestorage.app",
+  messagingSenderId: "920604591347",
+  appId: "1:920604591347:web:29cd6c51f2837e1b4e2386"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* -------------------- DOM -------------------- */
+const nameEl = document.getElementById("name");
+const fieldEl = document.getElementById("field");
+const aboutEl = document.getElementById("about");
+const statusEl = document.getElementById("status");
+const removeBtn = document.getElementById("removeConnection");
+
+/* -------------------- GET UID FROM URL -------------------- */
+const params = new URLSearchParams(window.location.search);
+const otherUid = params.get("uid");
+
+if (!otherUid) {
+  alert("No UID provided");
+  location.href = "dashboard.html";
+}
+
+/* -------------------- AUTH -------------------- */
+let currentUser;
+
+onAuthStateChanged(auth, user => {
+  if (!user) {
+    location.href = "Liszt.html";
+    return;
+  }
+  currentUser = user;
+  loadProfile();
+});
+
+/* -------------------- LOAD PROFILE -------------------- */
+async function loadProfile() {
+  statusEl.textContent = "Loading profile…";
+
+  const profileSnap = await getDoc(doc(db, "profiles", otherUid));
+
+  if (!profileSnap.exists()) {
+    statusEl.textContent = "Profile not found";
+    nameEl.textContent = "Unknown";
+    return;
+  }
+
+  const data = profileSnap.data();
+  nameEl.textContent = data.name || "No name";
+  fieldEl.textContent = data.fieldOfStudy ? `Field: ${data.fieldOfStudy}` : "";
+  aboutEl.textContent = data.aboutMe || "";
+  statusEl.textContent = "";
+}
+
+/* -------------------- REMOVE CARD -------------------- */
+removeBtn.onclick = async () => {
+  const confirmed = confirm("Are you sure you want to remove this card?");
+  if (!confirmed) return;
+
+  const connectionRef = doc(
+    db,
+    "connections",
+    currentUser.uid,
+    "users",
+    otherUid
+  );
+
+  await deleteDoc(connectionRef);
+
+  alert("Card removed");
+  location.href = "dashboard.html";
+};
+</script>
+</body>
+</html>
