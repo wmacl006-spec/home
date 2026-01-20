@@ -78,6 +78,31 @@ h1 {
   font-size:0.85rem;
   color:var(--gray);
 }
+
+.action {
+  width:100%;
+  padding:.7rem;
+  border-radius:10px;
+  border:1px solid #242424;
+  background:var(--panel);
+  color:var(--white);
+  font-weight:600;
+  cursor:pointer;
+  margin-bottom:.6rem;
+  transition:.2s;
+}
+
+.action:hover {
+  border-color:var(--pink);
+  box-shadow:0 8px 20px rgba(176,11,85,.25);
+}
+
+.action.secondary {
+  background:transparent;
+  color:var(--gray);
+}
+
+  
 </style>
 </head>
 
@@ -93,6 +118,14 @@ h1 {
   <div class="panel">
     <div id="reader"></div>
     <div class="status" id="status">Scan a Liszt QR code</div>
+
+    <div id="confirmBox" style="display:none; margin-top:1.2rem;">
+  <p id="previewName" style="font-weight:600; margin-bottom:.8rem;"></p>
+
+  <button id="confirmAdd" class="action">Add Card</button>
+  <button id="rejectAdd" class="action secondary">Cancel</button>
+</div>
+
   </div>
 
 </main>
@@ -102,6 +135,16 @@ h1 {
 
 <!-- Firebase -->
 <script type="module">
+
+  const confirmBox = document.getElementById("confirmBox");
+const previewName = document.getElementById("previewName");
+const confirmAdd = document.getElementById("confirmAdd");
+const rejectAdd = document.getElementById("rejectAdd");
+
+let pendingProfile = null;
+let pendingUid = null;
+
+  
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
@@ -179,12 +222,28 @@ async function handleScan(text) {
     return;
   }
 
-  const p = profileSnap.data();
+pendingUid = otherUid;
+pendingProfile = profileSnap.data();
+
+previewName.textContent = `Add ${pendingProfile.name || "this user"}?`;
+status.textContent = "Confirm connection";
+confirmBox.style.display = "block";
+
+
+  setTimeout(() => {
+    location.href = "dashboard.html";
+  }, 1200);
+}
+
+  confirmAdd.onclick = async () => {
+  if (!pendingUid || !pendingProfile) return;
+
+  const connectionRef = doc(db, "connections", currentUser.uid, "users", pendingUid);
 
   await setDoc(connectionRef, {
-    name: p.name,
-    fieldOfStudy: p.fieldOfStudy,
-    aboutMe: p.aboutMe,
+    name: pendingProfile.name,
+    fieldOfStudy: pendingProfile.fieldOfStudy,
+    aboutMe: pendingProfile.aboutMe,
     addedAt: new Date()
   });
 
@@ -193,7 +252,17 @@ async function handleScan(text) {
   setTimeout(() => {
     location.href = "dashboard.html";
   }, 1200);
-}
+};
+
+rejectAdd.onclick = () => {
+  status.textContent = "Scan cancelled";
+  confirmBox.style.display = "none";
+  pendingUid = null;
+  pendingProfile = null;
+  startScanner();
+};
+
+  
 </script>
 
 </body>
