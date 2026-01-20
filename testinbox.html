@@ -36,13 +36,13 @@ body{
   background:var(--panel);
   border-radius:14px;
   padding:1rem;
-  margin-bottom:.8rem;
+  margin-bottom:1rem;
 }
 
 input{
   width:100%;
-  margin:.4rem 0;
   padding:.6rem;
+  margin:.4rem 0;
   border-radius:8px;
   border:1px solid #2a2a2a;
   background:#111;
@@ -58,13 +58,8 @@ button{
   cursor:pointer;
 }
 
-.primary{
-  background:var(--accent);
-}
-
-.danger{
-  background:var(--danger);
-}
+.primary{ background:var(--accent); }
+.danger{ background:var(--danger); }
 
 .topbar{
   display:flex;
@@ -87,15 +82,15 @@ button{
 <body>
 <div class="container">
 
-<!-- LOGIN -->
-<div id="loginCard" class="card" style="display:none">
+<!-- LOGIN VIEW -->
+<div id="loginView" class="card" style="display:none">
   <h2>Inbox Login</h2>
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
-  <button class="primary" onclick="login()">Login</button>
+  <button class="primary" onclick="login()">Sign In</button>
 </div>
 
-<!-- INBOX -->
+<!-- INBOX VIEW -->
 <div id="inboxView" style="display:none">
 
   <div class="topbar">
@@ -116,7 +111,8 @@ button{
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-const firebaseConfig = {
+/* ---------- FIREBASE CONFIG ---------- */
+firebase.initializeApp({
   apiKey: "AIzaSyCF5v32i84og9RDyE2HbHW26viV_I2fIDE",
   authDomain: "test-c8289.firebaseapp.com",
   databaseURL: "https://test-c8289-default-rtdb.firebaseio.com",
@@ -124,29 +120,27 @@ const firebaseConfig = {
   storageBucket: "test-c8289.firebasestorage.app",
   messagingSenderId: "96205633785",
   appId: "1:96205633785:web:7647d9c4539d8c36358a28"
-};
-
-firebase.initializeApp(firebaseConfig);
+});
 
 const auth = firebase.auth();
 const db = firebase.database();
 
-const loginCard = document.getElementById("loginCard");
+const loginView = document.getElementById("loginView");
 const inboxView = document.getElementById("inboxView");
 
-/* AUTH STATE */
+/* ---------- AUTH STATE (NO REDIRECTS) ---------- */
 auth.onAuthStateChanged(user => {
   if (user) {
-    loginCard.style.display = "none";
+    loginView.style.display = "none";
     inboxView.style.display = "block";
     loadInbox();
   } else {
-    loginCard.style.display = "block";
     inboxView.style.display = "none";
+    loginView.style.display = "block";
   }
 });
 
-/* LOGIN */
+/* ---------- LOGIN ---------- */
 function login(){
   auth.signInWithEmailAndPassword(
     email.value,
@@ -154,7 +148,7 @@ function login(){
   ).catch(err => alert(err.message));
 }
 
-/* LOAD INBOX */
+/* ---------- LOAD INBOX ---------- */
 function loadInbox(){
   const inbox = document.getElementById("inbox");
   inbox.innerHTML = "";
@@ -168,7 +162,7 @@ function loadInbox(){
     }
 
     snap.forEach(child => {
-      const data = child.val();
+      const d = child.val();
       const id = child.key;
 
       const card = document.createElement("div");
@@ -176,10 +170,10 @@ function loadInbox(){
 
       card.innerHTML = `
         <div class="meta">
-          <strong>${data.name}</strong> • ${data.contact}<br>
-          ${new Date(data.timestamp).toLocaleString()}
+          <strong>${d.name}</strong> • ${d.contact}<br>
+          ${new Date(d.timestamp).toLocaleString()}
         </div>
-        <div class="message">${data.message}</div>
+        <div class="message">${d.message}</div>
         <button onclick="archive('${id}')">Archive</button>
       `;
 
@@ -188,7 +182,7 @@ function loadInbox(){
   });
 }
 
-/* ARCHIVE */
+/* ---------- ARCHIVE ---------- */
 function archive(id){
   const ref = db.ref("contacts/" + id);
   ref.once("value").then(snap => {
@@ -197,12 +191,12 @@ function archive(id){
   });
 }
 
-/* LOGOUT */
+/* ---------- LOGOUT ---------- */
 function logout(){
   auth.signOut();
 }
 
-/* HOME */
+/* ---------- HOME ---------- */
 function goHome(){
   window.location.href = "test.html";
 }
