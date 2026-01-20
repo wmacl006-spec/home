@@ -31,6 +31,12 @@ body{
   padding:2rem 1.25rem 3rem;
 }
 
+  .inbox-btn{
+  background:#2a2a2a;
+  margin-top:.6rem;
+}
+
+
   .sent-text{
   margin-top:.5rem;
   font-size:.85rem;
@@ -129,7 +135,10 @@ footer{
     </p>
 
     <button onclick="location.href='testaboutme.html'">About Me</button>
+<button class="inbox-btn" onclick="goInbox()">Inbox</button>
+
   </div>
+  
 
   <div class="card">
     <h1>Contact Me</h1>
@@ -205,6 +214,11 @@ this.reset();
     alert("Error sending message");
   });
 });
+
+  function goInbox(){
+  window.location.href = "testinbox.html";
+}
+
 </script>
 </body>
 </html>
