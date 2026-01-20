@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Liszt – Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liszt – Dashboard</title>
 
+<link rel="icon" type="image/png" href="logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -25,6 +26,7 @@ body {
   color:var(--white);
 }
 
+/* LAYOUT */
 .dashboard {
   display:grid;
   grid-template-columns:320px 1fr;
@@ -41,18 +43,26 @@ body {
 .profile h1 {
   font-family:'Comfortaa',sans-serif;
   font-size:1.8rem;
-  margin-bottom:0.5rem;
+  margin-bottom:1.2rem;
 }
 
-.profile .field {
-  color:var(--gray);
-  margin-bottom:1.5rem;
-}
-
-.profile p {
+.profile input,
+.profile textarea {
+  width:100%;
+  background:#101010;
+  border:1px solid #242424;
+  border-radius:10px;
+  padding:0.75rem 0.9rem;
+  color:var(--white);
   font-size:0.9rem;
-  line-height:1.5;
-  margin-bottom:2rem;
+  margin-bottom:1rem;
+}
+
+.profile input:focus,
+.profile textarea:focus {
+  outline:none;
+  border-color:var(--pink);
+  box-shadow:0 0 0 2px rgba(176,11,85,.25);
 }
 
 .profile button {
@@ -64,11 +74,16 @@ body {
   color:var(--white);
   font-weight:600;
   cursor:pointer;
+  transition:.2s;
 }
 
 .profile button:hover {
   border-color:var(--pink);
   box-shadow:0 10px 24px rgba(176,11,85,.25);
+}
+
+.profile .secondary {
+  margin-top:.8rem;
 }
 
 /* RIGHT COLUMN */
@@ -142,16 +157,19 @@ body {
 
 <div class="dashboard">
 
-  <!-- LEFT -->
+  <!-- LEFT: PROFILE -->
   <aside class="profile">
-    <h1 id="myName"></h1>
-    <div class="field" id="myField"></div>
-    <p id="myBio"></p>
+    <h1>Your Profile</h1>
 
-    <button onclick="showQR()">Share Profile</button>
+    <input id="editName" placeholder="Name">
+    <input id="editField" placeholder="Field of Study">
+    <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
+
+    <button onclick="saveProfile()">Save Profile</button>
+    <button class="secondary" onclick="showQR()">Share Profile</button>
   </aside>
 
-  <!-- RIGHT -->
+  <!-- RIGHT: CONNECTIONS -->
   <main class="connections">
     <h2>Your Connections</h2>
     <div class="grid" id="cards"></div>
@@ -174,50 +192,88 @@ body {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-const app = initializeApp({
+const firebaseConfig = {
   apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
   authDomain: "liszt-df660.firebaseapp.com",
-  projectId: "liszt-df660"
-});
+  projectId: "liszt-df660",
+  storageBucket: "liszt-df660.firebasestorage.app",
+  messagingSenderId: "920604591347",
+  appId: "1:920604591347:web:29cd6c51f2837e1b4e2386"
+};
 
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-onAuthStateChanged(auth, async user => {
-  if (!user) location.href = "Liszt.html";
+let profileRef;
 
-  const profileSnap = await getDoc(doc(db,"profiles",user.uid));
-  const p = profileSnap.data();
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "Liszt.html";
+    return;
+  }
 
-  myName.textContent = p.name;
-  myField.textContent = p.fieldOfStudy;
-  myBio.textContent = p.aboutMe;
+  profileRef = doc(db, "profiles", user.uid);
+  const snap = await getDoc(profileRef);
 
-  const qs = await getDocs(collection(db,"connections",user.uid,"users"));
-  qs.forEach(d => addCard(d.data()));
+  if (!snap.exists()) {
+    window.location.href = "Liszt.html";
+    return;
+  }
+
+  const p = snap.data();
+  editName.value = p.name;
+  editField.value = p.fieldOfStudy;
+  editBio.value = p.aboutMe;
+
+  loadConnections(user.uid);
 });
 
-function addCard(data){
-  cards.innerHTML += `
-    <div class="card">
-      <h3>${data.name}</h3>
-      <span>${data.fieldOfStudy}</span>
-      <p>${data.aboutMe}</p>
-    </div>`;
+async function loadConnections(uid) {
+  cards.innerHTML = "";
+  const qs = await getDocs(collection(db, "connections", uid, "users"));
+  qs.forEach(d => {
+    const c = d.data();
+    cards.innerHTML += `
+      <div class="card">
+        <h3>${c.name}</h3>
+        <span>${c.fieldOfStudy}</span>
+        <p>${c.aboutMe}</p>
+      </div>
+    `;
+  });
 }
+
+window.saveProfile = async () => {
+  if (!profileRef) return;
+
+  await updateDoc(profileRef, {
+    name: editName.value,
+    fieldOfStudy: editField.value,
+    aboutMe: editBio.value,
+    updatedAt: new Date()
+  });
+};
 
 window.showQR = () => {
   qr.innerHTML = "";
-  new QRCode(qr,{
-    text:`liszt:add:${auth.currentUser.uid}`,
-    width:200,
-    height:200,
-    colorDark:"#ffffff",
-    colorLight:"#161616"
+  new QRCode(qr, {
+    text: `liszt:add:${auth.currentUser.uid}`,
+    width: 200,
+    height: 200,
+    colorDark: "#ffffff",
+    colorLight: "#161616"
   });
-  qrModal.style.display="flex";
+  qrModal.style.display = "flex";
 };
 </script>
 
