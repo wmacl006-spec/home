@@ -166,8 +166,10 @@ body {
     <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
 
     <button onclick="saveProfile()">Save Profile</button>
-    <button class="secondary" onclick="showQR()">Share Profile</button>
-    <button class="secondary" onclick="logout()">Log Out</button>
+<button class="secondary" onclick="showQR()">Share Profile</button>
+<button class="secondary" onclick="goToScan()">Scan QR</button>
+<button class="secondary" onclick="logout()">Log Out</button>
+
 
   </aside>
 
@@ -236,6 +238,11 @@ let currentUser;
   await signOut(auth);
   window.location.href = "Liszt.html";
 };
+
+  window.goToScan = () => {
+  window.location.href = "scan.html";
+};
+
 
 
 /* =========================
