@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>William MacLean – QR Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink: #B00B55;
+      --black: #0f0f0f;
+      --white: #ffffff;
+      --gray: #b5b5b5;
+      --panel: #161616;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #1b1b1b, var(--black));
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid #242424;
+      border-radius: 16px;
+      padding: 2rem;
+      width: 340px;
+      text-align: center;
+    }
+
+    h2 {
+      font-family: 'Comfortaa', sans-serif;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.7rem 0.8rem;
+      border-radius: 10px;
+      border: 1px solid #2a2a2a;
+      background: #101010;
+      color: var(--white);
+      outline: none;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    input::placeholder {
+      color: #7d7d7d;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 10px;
+      border: none;
+      background: var(--pink);
+      color: var(--white);
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(176, 11, 85, 0.35);
+    }
+
+    .home {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .home:hover {
+      color: var(--pink);
+    }
+
+    #qr {
+      margin-top: 1.4rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2>QR Generator</h2>
+
+    <input
+      id="urlInput"
+      type="text"
+      placeholder="https://example.com"
+    />
+
+    <button onclick="generateQR()">Generate QR</button>
+
+    <div id="qr"></div>
+
+    <a href="index.html" class="home">← Home</a>
+  </div>
+
+  <!-- QR code library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+  <script>
+    function generateQR() {
+      const url = document.getElementById("urlInput").value.trim();
+      const qrContainer = document.getElementById("qr");
+
+      if (!url) {
+        alert("Please enter a URL");
+        return;
+      }
+
+      qrContainer.innerHTML = "";
+
+      const qr = new QRious({
+        element: document.createElement("canvas"),
+        value: url,
+        size: 220
+      });
+
+      qrContainer.appendChild(qr.element);
+    }
+  </script>
+
+</body>
+</html>
