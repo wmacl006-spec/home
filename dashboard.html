@@ -167,6 +167,8 @@ body {
 
     <button onclick="saveProfile()">Save Profile</button>
     <button class="secondary" onclick="showQR()">Share Profile</button>
+    <button class="secondary" onclick="logout()">Log Out</button>
+
   </aside>
 
   <!-- RIGHT: CONNECTIONS -->
@@ -191,7 +193,12 @@ body {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
 import {
   getFirestore,
   doc,
@@ -223,6 +230,13 @@ const qrModal = document.getElementById("qrModal");
 
 let profileRef;
 let currentUser;
+
+
+  window.logout = async () => {
+  await signOut(auth);
+  window.location.href = "Liszt.html";
+};
+
 
 /* =========================
    AUTH GUARD
