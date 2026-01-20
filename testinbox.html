@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inbox</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0f0f0f;
+  --panel:#171717;
+  --text:#fff;
+  --muted:#9a9a9a;
+  --accent:#4f8cff;
+  --danger:#ff5c5c;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.container{
+  max-width:700px;
+  margin:0 auto;
+  padding:2rem 1.25rem 3rem;
+}
+
+h1{
+  font-size:1.4rem;
+  margin-bottom:1rem;
+}
+
+  .topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:1rem;
+}
+
+.topbar .left,
+.topbar .right{
+  display:flex;
+  gap:.5rem;
+}
+
+.topbtn{
+  background:#2a2a2a;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:.45rem .75rem;
+  font-size:.8rem;
+  cursor:pointer;
+}
+
+.logout{
+  background:#ff5c5c;
+}
+
+
+.card{
+  background:var(--panel);
+  border-radius:14px;
+  padding:1rem;
+  margin-bottom:.8rem;
+}
+
+.meta{
+  font-size:.8rem;
+  color:var(--muted);
+  margin-bottom:.4rem;
+}
+
+.message{
+  font-size:.95rem;
+  line-height:1.5;
+}
+
+.actions{
+  margin-top:.6rem;
+  display:flex;
+  gap:.5rem;
+}
+
+button{
+  border:none;
+  border-radius:8px;
+  padding:.4rem .7rem;
+  font-size:.8rem;
+  cursor:pointer;
+}
+
+.archive{
+  background:#2a2a2a;
+  color:#fff;
+}
+
+.logout{
+  background:var(--danger);
+  color:#fff;
+  float:right;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="topbar">
+  <div class="left">
+    <button class="topbtn" onclick="goHome()">Home</button>
+  </div>
+
+  <div class="right">
+    <button class="topbtn logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<h1>Inbox</h1>
+
+
+  <div id="inbox"></div>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  databaseURL: "https://test-c8289-default-rtdb.firebaseio.com/"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+/* ---------- AUTH ---------- */
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+  } else {
+    loadInbox();
+  }
+});
+
+/* ---------- LOAD MESSAGES ---------- */
+function loadInbox(){
+  const inbox = document.getElementById("inbox");
+  inbox.innerHTML = "";
+
+  db.ref("contacts").on("value", snap => {
+    inbox.innerHTML = "";
+
+    snap.forEach(child => {
+      const data = child.val();
+      const id = child.key;
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <div class="meta">
+          <strong>${data.name}</strong> • ${data.contact}<br>
+          ${new Date(data.timestamp).toLocaleString()}
+        </div>
+        <div class="message">${data.message}</div>
+        <div class="actions">
+          <button class="archive" onclick="archive('${id}')">Archive</button>
+        </div>
+      `;
+
+      inbox.appendChild(card);
+    });
+  });
+}
+
+/* ---------- ARCHIVE ---------- */
+function archive(id){
+  const ref = db.ref("contacts/" + id);
+
+  ref.once("value").then(snap => {
+    db.ref("archived/" + id).set(snap.val());
+    ref.remove();
+  });
+}
+
+/* ---------- LOGOUT ---------- */
+function logout(){
+  auth.signOut();
+}
+
+  function goHome(){
+  window.location.href = "test.html";
+}
+
+</script>
+</body>
+</html>
