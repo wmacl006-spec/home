@@ -1,251 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Card Network</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Comfortaa:wght@600&display=swap" rel="stylesheet">
-
-<!-- QR -->
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-
-<style>
-:root {
-  --pink: #B00B55;
-  --bg: #0f0f0f;
-  --panel: #161616;
-  --text: #ffffff;
-  --muted: #9a9a9a;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
-
-.hidden { display: none; }
-
-.center {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.card {
-  background: var(--panel);
-  border-radius: 18px;
-  padding: 30px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.6);
-}
-
-.card h2 {
-  font-family: 'Comfortaa', sans-serif;
-  margin-bottom: 20px;
-}
-
-input, textarea {
-  width: 100%;
-  background: #0c0c0c;
-  border: 1px solid #2a2a2a;
-  color: white;
-  padding: 14px;
-  border-radius: 12px;
-  margin-bottom: 14px;
-}
-
-button {
-  width: 100%;
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  background: var(--pink);
-  color: white;
-}
-
-.link {
-  text-align: center;
-  margin-top: 12px;
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.gallery {
-  padding: 30px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
-  gap: 20px;
-}
-
-.user-card {
-  background: var(--panel);
-  border-radius: 18px;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.user-card .field {
-  color: var(--pink);
-  font-size: 13px;
-}
-
-.user-card .image {
-  background: #222;
-  border-radius: 12px;
-  margin: 12px 0;
-  height: 140px;
-}
-
-.user-card .name {
-  text-align: center;
-  font-weight: 600;
-}
-
-.topbar {
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-}
-
-#qrBox {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Firestore Test</title>
 </head>
-
 <body>
 
-<!-- AUTH -->
-<div id="auth" class="center">
-  <div class="card">
-    <h2>Welcome</h2>
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <div class="link" onclick="signup()">Sign up</div>
-  </div>
-</div>
+<button id="test">Test Firestore</button>
 
-<!-- ONBOARD -->
-<div id="onboard" class="center hidden">
-  <div class="card">
-    <h2 id="stepTitle"></h2>
-    <input id="stepInput">
-    <button onclick="nextStep()">Next</button>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="app" class="hidden">
-  <div class="topbar">
-    <button style="width:auto" onclick="share()">Share Card</button>
-    <button style="width:auto" onclick="logout()">Logout</button>
-  </div>
-  <div class="gallery" id="gallery"></div>
-  <div id="qrBox"></div>
-</div>
-
-<!-- FIREBASE -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_PROJECT",
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
+    authDomain: "liszt-df660.firebaseapp.com",
+    projectId: "liszt-df660",
+    storageBucket: "liszt-df660.firebasestorage.app",
+    messagingSenderId: "920604591347",
+    appId: "1:920604591347:web:29cd6c51f2837e1b4e2386"
+  };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore();
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-let user;
-let step = 0;
-let data = {};
-const steps = ["Name", "Username", "Field", "About"];
-
-onAuthStateChanged(auth, async u => {
-  if (!u) return;
-  user = u;
-  document.getElementById("auth").classList.add("hidden");
-
-  const snap = await getDoc(doc(db,"users",u.uid));
-  if (!snap.exists()) {
-    document.getElementById("onboard").classList.remove("hidden");
-    loadStep();
-  } else {
-    startApp();
-  }
-});
-
-window.signup = () =>
-  createUserWithEmailAndPassword(auth, email.value, password.value);
-
-window.login = () =>
-  signInWithEmailAndPassword(auth, email.value, password.value);
-
-window.logout = () => signOut(auth);
-
-function loadStep() {
-  stepTitle.textContent = steps[step];
-  stepInput.value = "";
-}
-
-window.nextStep = async () => {
-  data[steps[step].toLowerCase()] = stepInput.value;
-  step++;
-  if (step < steps.length) loadStep();
-  else {
-    await setDoc(doc(db,"users",user.uid), {
-      ...data,
-      created: serverTimestamp()
+  document.getElementById("test").onclick = async () => {
+    await addDoc(collection(db, "test"), {
+      message: "Firestore is connected",
+      time: Date.now()
     });
-    startApp();
-  }
-};
-
-async function startApp() {
-  onboard.classList.add("hidden");
-  app.classList.remove("hidden");
-
-  const snap = await getDocs(collection(db,"users"));
-  gallery.innerHTML = "";
-  snap.forEach(d => {
-    if (d.id === user.uid) return;
-    const u = d.data();
-    gallery.innerHTML += `
-      <div class="user-card">
-        <div class="field">${u.field}</div>
-        <div class="image"></div>
-        <div class="name">${u.name}</div>
-      </div>`;
-  });
-}
-
-window.share = async () => {
-  qrBox.innerHTML = "";
-  const ref = await addDoc(collection(db,"shares"), {
-    uid: user.uid,
-    expires: Date.now() + 60000
-  });
-  new QRCode(qrBox, location.href + "?share=" + ref.id);
-};
+    alert("Success! Check Firestore → Data");
+  };
 </script>
 
 </body>
