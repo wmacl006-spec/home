@@ -31,6 +31,14 @@ body{
   padding:2rem 1.25rem 3rem;
 }
 
+  .sent-text{
+  margin-top:.5rem;
+  font-size:.85rem;
+  color:#7dd97d;
+  display:none;
+}
+
+
 .card{
   background:var(--panel);
   border-radius:14px;
@@ -131,7 +139,10 @@ footer{
       <input type="text" id="contact" placeholder="Email or phone" required>
       <textarea id="message" placeholder="Message" required></textarea>
       <button type="submit">Send Message</button>
+<div class="sent-text" id="sentText">Sent ✓</div>
+
     </form>
+    
   </div>
 
   <div class="card links">
@@ -179,8 +190,15 @@ form.addEventListener("submit", function(e){
     timestamp: Date.now()
   })
   .then(() => {
-    alert("Message sent");
-    form.reset();
+    const sentText = document.getElementById("sentText");
+sentText.style.display = "block";
+
+setTimeout(() => {
+  sentText.style.display = "none";
+}, 4000);
+
+this.reset();
+
   })
   .catch(err => {
     console.error(err);
