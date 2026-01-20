@@ -32,31 +32,6 @@ body{
   padding:2rem 1.25rem 3rem;
 }
 
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:1rem;
-}
-
-.topbtn{
-  background:#2a2a2a;
-  color:#fff;
-  border:none;
-  border-radius:8px;
-  padding:.45rem .75rem;
-  font-size:.8rem;
-  cursor:pointer;
-}
-
-.logout{
-  background:var(--danger);
-}
-
-h1{
-  font-size:1.4rem;
-  margin-bottom:1rem;
-}
-
 .card{
   background:var(--panel);
   border-radius:14px;
@@ -64,29 +39,47 @@ h1{
   margin-bottom:.8rem;
 }
 
+input{
+  width:100%;
+  margin:.4rem 0;
+  padding:.6rem;
+  border-radius:8px;
+  border:1px solid #2a2a2a;
+  background:#111;
+  color:#fff;
+}
+
+button{
+  border:none;
+  border-radius:8px;
+  padding:.5rem .9rem;
+  background:#2a2a2a;
+  color:#fff;
+  cursor:pointer;
+}
+
+.primary{
+  background:var(--accent);
+}
+
+.danger{
+  background:var(--danger);
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:1rem;
+}
+
 .meta{
   font-size:.8rem;
   color:var(--muted);
-  margin-bottom:.4rem;
 }
 
 .message{
+  margin-top:.4rem;
   font-size:.95rem;
-  line-height:1.5;
-}
-
-.actions{
-  margin-top:.6rem;
-}
-
-.archive{
-  background:#2a2a2a;
-  color:#fff;
-  border:none;
-  border-radius:8px;
-  padding:.4rem .7rem;
-  font-size:.8rem;
-  cursor:pointer;
 }
 </style>
 </head>
@@ -94,13 +87,26 @@ h1{
 <body>
 <div class="container">
 
+<!-- LOGIN -->
+<div id="loginCard" class="card" style="display:none">
+  <h2>Inbox Login</h2>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button class="primary" onclick="login()">Login</button>
+</div>
+
+<!-- INBOX -->
+<div id="inboxView" style="display:none">
+
   <div class="topbar">
-    <button class="topbtn" onclick="goHome()">Home</button>
-    <button class="topbtn logout" onclick="logout()">Logout</button>
+    <button onclick="goHome()">Home</button>
+    <button class="danger" onclick="logout()">Logout</button>
   </div>
 
   <h1>Inbox</h1>
   <div id="inbox"></div>
+
+</div>
 
 </div>
 
@@ -125,16 +131,30 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-/* AUTH GUARD */
+const loginCard = document.getElementById("loginCard");
+const inboxView = document.getElementById("inboxView");
+
+/* AUTH STATE */
 auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "login.html";
-  } else {
+  if (user) {
+    loginCard.style.display = "none";
+    inboxView.style.display = "block";
     loadInbox();
+  } else {
+    loginCard.style.display = "block";
+    inboxView.style.display = "none";
   }
 });
 
-/* LOAD MESSAGES */
+/* LOGIN */
+function login(){
+  auth.signInWithEmailAndPassword(
+    email.value,
+    password.value
+  ).catch(err => alert(err.message));
+}
+
+/* LOAD INBOX */
 function loadInbox(){
   const inbox = document.getElementById("inbox");
   inbox.innerHTML = "";
@@ -160,9 +180,7 @@ function loadInbox(){
           ${new Date(data.timestamp).toLocaleString()}
         </div>
         <div class="message">${data.message}</div>
-        <div class="actions">
-          <button class="archive" onclick="archive('${id}')">Archive</button>
-        </div>
+        <button onclick="archive('${id}')">Archive</button>
       `;
 
       inbox.appendChild(card);
@@ -181,11 +199,10 @@ function archive(id){
 
 /* LOGOUT */
 function logout(){
-  auth.signOut().then(() => {
-    window.location.href = "login.html";
-  });
+  auth.signOut();
 }
 
+/* HOME */
 function goHome(){
   window.location.href = "test.html";
 }
