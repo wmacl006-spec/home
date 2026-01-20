@@ -184,7 +184,12 @@ onAuthStateChanged(auth, user => {
 
 let scanner;
 
-function startScanner() {
+async function startScanner() {
+  if (scanner) {
+    await scanner.clear();
+    scanner = null;
+  }
+
   scanner = new Html5Qrcode("reader");
 
   scanner.start(
@@ -195,10 +200,12 @@ function startScanner() {
       hasScanned = true;
 
       await scanner.stop();
+      await scanner.clear();   // 🔥 REQUIRED
       await handleScan(text);
     }
   );
 }
+
 
 
 async function handleScan(text) {
@@ -274,7 +281,7 @@ await setDoc(connectionRef, {
 };
 
 
-rejectAdd.onclick = () => {
+rejectAdd.onclick = async () => {
   confirmBox.style.display = "none";
   status.textContent = "Scan cancelled";
 
@@ -282,8 +289,9 @@ rejectAdd.onclick = () => {
   pendingProfile = null;
   hasScanned = false;
 
-  startScanner();
+  await startScanner();
 };
+
   
 </script>
 
