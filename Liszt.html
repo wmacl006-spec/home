@@ -68,8 +68,19 @@ button.secondary {
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged, 
+  signOut 
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc 
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
@@ -84,20 +95,31 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// UI refs
+// DOM references (THIS IS CRITICAL)
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const nameInput = document.getElementById("name");
+const fieldInput = document.getElementById("field");
+const aboutInput = document.getElementById("about");
+
 const authCard = document.getElementById("authCard");
 const profileCard = document.getElementById("profileCard");
 
+// Auth actions
 window.signUp = async () => {
-    const email = email.value;
-    const password = password.value;
-    await createUserWithEmailAndPassword(auth, email, password);
+    await createUserWithEmailAndPassword(
+        auth,
+        emailInput.value,
+        passwordInput.value
+    );
 };
 
 window.signIn = async () => {
-    const email = email.value;
-    const password = password.value;
-    await signInWithEmailAndPassword(auth, email, password);
+    await signInWithEmailAndPassword(
+        auth,
+        emailInput.value,
+        passwordInput.value
+    );
 };
 
 window.logout = async () => {
@@ -109,14 +131,15 @@ window.saveProfile = async () => {
     if (!user) return;
 
     await setDoc(doc(db, "profiles", user.uid), {
-        name: name.value,
-        fieldOfStudy: field.value,
-        aboutMe: about.value,
+        name: nameInput.value,
+        fieldOfStudy: fieldInput.value,
+        aboutMe: aboutInput.value,
         updatedAt: new Date()
     });
     alert("Profile saved");
 };
 
+// Auth state listener
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         authCard.classList.add("hidden");
@@ -125,9 +148,9 @@ onAuthStateChanged(auth, async (user) => {
         const snap = await getDoc(doc(db, "profiles", user.uid));
         if (snap.exists()) {
             const data = snap.data();
-            name.value = data.name || "";
-            field.value = data.fieldOfStudy || "";
-            about.value = data.aboutMe || "";
+            nameInput.value = data.name || "";
+            fieldInput.value = data.fieldOfStudy || "";
+            aboutInput.value = data.aboutMe || "";
         }
     } else {
         authCard.classList.remove("hidden");
@@ -135,6 +158,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 </script>
+
 
 </body>
 </html>
