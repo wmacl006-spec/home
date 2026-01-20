@@ -202,17 +202,22 @@ logoutBtn.onclick = () => signOut(auth);
 /* AUTH STATE */
 onAuthStateChanged(auth, async user => {
   if (!user) return;
+
   currentUser = user;
-  authDiv(false);
+
+  // hide auth screen
+  document.getElementById("auth").classList.add("hidden");
 
   const snap = await getDoc(doc(db, "users", user.uid));
+
   if (!snap.exists()) {
-    onboard.classList.remove("hidden");
+    document.getElementById("onboard").classList.remove("hidden");
     loadStep();
   } else {
     startApp();
   }
 });
+
 
 /* ONBOARDING */
 function loadStep() {
@@ -235,7 +240,8 @@ nextStepBtn.onclick = async () => {
 /* APP */
 async function startApp() {
   onboard.classList.add("hidden");
-  appDiv(true);
+  document.getElementById("app").classList.remove("hidden");
+
 
   gallery.innerHTML = "";
   const snap = await getDocs(collection(db, "users"));
@@ -267,13 +273,6 @@ shareBtn.onclick = async () => {
   });
 };
 
-/* HELPERS */
-function authDiv(show) {
-  document.getElementById("auth").classList.toggle("hidden", !show);
-}
-function appDiv(show) {
-  document.getElementById("app").classList.toggle("hidden", !show);
-}
 </script>
 
 </body>
