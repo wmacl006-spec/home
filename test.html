@@ -120,7 +120,7 @@ footer{
       and staying organized. Easy to reach and respectful of shared spaces.
     </p>
 
-    <button onclick="location.href='testaboutme.html'">About Me</button>
+    <button onclick="location.href='about.html'">About Me</button>
   </div>
 
   <div class="card">
@@ -146,31 +146,45 @@ footer{
 
 </div>
 
-<!-- Firebase -->
+<!-- Firebase (COMPAT – REQUIRED FOR PLAIN HTML) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
 const firebaseConfig = {
-  databaseURL: "https://test-c8289-default-rtdb.firebaseio.com/"
+  apiKey: "AIzaSyCF5v32i84og9RDyE2HbHW26viV_I2fIDE",
+  authDomain: "test-c8289.firebaseapp.com",
+  databaseURL: "https://test-c8289-default-rtdb.firebaseio.com",
+  projectId: "test-c8289",
+  storageBucket: "test-c8289.firebasestorage.app",
+  messagingSenderId: "96205633785",
+  appId: "1:96205633785:web:7647d9c4539d8c36358a28"
 };
 
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-document.getElementById("contactForm").addEventListener("submit", function(e){
+const form = document.getElementById("contactForm");
+const nameInput = document.getElementById("name");
+const contactInput = document.getElementById("contact");
+const messageInput = document.getElementById("message");
+
+form.addEventListener("submit", function(e){
   e.preventDefault();
 
-  const data = {
-    name: name.value,
-    contact: contact.value,
-    message: message.value,
+  database.ref("contacts").push({
+    name: nameInput.value.trim(),
+    contact: contactInput.value.trim(),
+    message: messageInput.value.trim(),
     timestamp: Date.now()
-  };
-
-  database.ref("contacts").push(data).then(() => {
+  })
+  .then(() => {
     alert("Message sent");
-    this.reset();
+    form.reset();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error sending message");
   });
 });
 </script>
