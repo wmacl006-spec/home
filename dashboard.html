@@ -215,8 +215,8 @@ body {
   <aside class="profile">
   <h1>Your Profile</h1>
   <input id="editName" placeholder="Name">
-  <input id="editField" placeholder="Field of Study">
-  <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
+  <input id="editField" placeholder="Set">
+  <textarea id="editBio" rows="4" placeholder="About You"></textarea>
   <div style="margin-bottom:1rem;">
     <span>Your Aura: </span>
     <span id="profileRating" class="avg-badge" style="background:#242424;">0</span>
@@ -410,7 +410,7 @@ card.innerHTML = `
 
       // Update "Your Rating" badge
       const yourBadge = card.querySelector(`.your-rating[data-uid="${uid}"]`);
-if (yourBadge) yourBadge.textContent = `Your rating: ${value}`;
+if (yourBadge) yourBadge.textContent = `Given Aura: ${value}`;
 
 
       // Recompute average
