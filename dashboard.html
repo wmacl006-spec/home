@@ -92,6 +92,17 @@ body {
     inset 0 0 0 2px #000;
 }
 
+  .card {
+  position: relative;
+}
+
+.card .action {
+  position: relative;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+
 
 /* Name bar (top like Pokémon name) */
 .card h3 {
@@ -163,6 +174,34 @@ body {
   box-shadow:0 0 0 2px rgba(176,11,85,.35);
 }
 
+  .rating-input {
+  width:100%;
+  margin:.5rem 0;
+  padding:.45rem;
+  border-radius:8px;
+  border:1px solid #2b2b2b;
+  background:#0f0f0f;
+  color:white;
+  font-size:.75rem;
+}
+
+.rate-btn {
+  width:100%;
+  padding:.45rem;
+  border-radius:8px;
+  border:1px solid #2b2b2b;
+  background:#161616;
+  color:white;
+  font-size:.7rem;
+  cursor:pointer;
+  margin-bottom:.6rem;
+}
+
+.rate-btn:hover {
+  border-color:var(--pink);
+}
+
+
 
 #qrModal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; }
 #qrModal .panel { background:var(--panel); padding:2rem; border-radius:14px; text-align:center; }
@@ -200,6 +239,62 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 <script type="module">
+
+import {
+  addDoc,
+  query,
+  where,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  // ---- Rating elements ----
+const ratingInput = card.querySelector(".rating-input");
+const rateBtn = card.querySelector(".rate-btn");
+const ratingDisplay = card.querySelector(".rating-display");
+
+const ratingsRef = collection(db, "profiles", connection.uid, "ratings");
+
+// ---- Load average rating ----
+async function loadAverageRating() {
+  const snap = await getDocs(ratingsRef);
+  if (snap.empty) {
+    ratingDisplay.textContent = "0%";
+    return;
+  }
+
+  let total = 0;
+  snap.forEach(d => total += d.data().value);
+
+  const avg = Math.round(total / snap.size);
+  ratingDisplay.textContent = `${avg}%`;
+}
+
+await loadAverageRating();
+
+// ---- Submit rating ----
+rateBtn.onclick = async () => {
+  const value = Number(ratingInput.value);
+
+  if (isNaN(value) || value < -100 || value > 100) {
+    alert("Rating must be between -100 and 100");
+    return;
+  }
+
+  const userRatingRef = doc(
+    db,
+    "profiles",
+    connection.uid,
+    "ratings",
+    currentUser.uid
+  );
+
+  await setDoc(userRatingRef, { value });
+
+  ratingInput.value = "";
+  await loadAverageRating();
+};
+
+  
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -284,10 +379,10 @@ async function loadConnections() {
 
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `
+   card.innerHTML = `
   <h3>
     ${profile.name || "Unknown"}
-    <span>${profile.fieldOfStudy || "Trainer"}</span>
+    <span class="rating-display">Loading…</span>
   </h3>
 
   <div class="avatar">🧑‍🎓</div>
@@ -296,6 +391,17 @@ async function loadConnections() {
     <strong>Ability:</strong><br>
     ${profile.aboutMe || "No description yet."}
   </p>
+
+  <input
+    type="number"
+    min="-100"
+    max="100"
+    step="1"
+    class="rating-input"
+    placeholder="Rate (-100 to 100)"
+  />
+
+  <button class="rate-btn">Submit Rating</button>
 
   <a href="profile.html?uid=${connection.uid}" class="action">
     View Profile
