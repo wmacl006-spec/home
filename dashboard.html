@@ -427,16 +427,9 @@ if (ratingBadge) {
   ratingBadge.style.backgroundColor = getRatingColor(newAvg);
 }
 
-
       // Update profile document
       await updateDoc(profileRef, { ratingAvg: newAvg, ratingCount: newCount });
 
-      // Update avg badge color
-      const ratingBadge = card.querySelector(".avg-rating");
-      if (ratingBadge) {
-        ratingBadge.textContent = newAvg.toFixed(1);
-        ratingBadge.style.backgroundColor = getRatingColor(newAvg);
-      }
 
       // Update own profile rating
       await updateProfileRating();
