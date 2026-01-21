@@ -364,7 +364,7 @@ const truncatedBio = bioText.length > 200 ? bioText.slice(0, 200) + "…" : bioT
 
 card.innerHTML = `
 <span class="field">
-  ${truncate(profile.fieldOfStudy || "Trainer", 18)}
+  ${truncate(profile.fieldOfStudy || "Trainer", 15)}
 </span>
   <span class="avg-rating" data-uid="${uid}" style="background:${getRatingColor(avg)}">
     ${avg.toFixed(1)}
