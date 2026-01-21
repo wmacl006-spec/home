@@ -319,21 +319,25 @@ async function loadConnections() {
     // Create card
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-        <span class="field" style="background:${getRatingColor(avg)}; padding:0.25rem 0.5rem; border-radius:6px;">${profile.fieldOfStudy || "Trainer"}</span>
-        <span class="avg-rating" data-uid="${uid}" style="background:${getRatingColor(avg)}; padding:0.25rem 0.5rem; border-radius:6px;">${avg.toFixed(1)}</span>
-      </div>
-      <div class="avatar">🧑‍🎓</div>
-      <h3>${profile.name || "Unknown"}</h3>
-      <p>${profile.aboutMe || "No description yet."}</p>
-      <p>Your Rating: <span class="your-rating" data-uid="${uid}">${userRating}</span></p>
-      <div class="rating">
-        <input type="number" min="-1000" max="1000" placeholder="Rate">
-        <button>Rate</button>
-      </div>
-      <a href="profile.html?uid=${uid}" class="action">View Profile</a>
-    `;
+    // Truncate bio to 200 characters
+const bioText = (profile.aboutMe || "No description yet.");
+const truncatedBio = bioText.length > 200 ? bioText.slice(0, 200) + "…" : bioText;
+
+card.innerHTML = `
+  <h3>
+    <span class="name">${profile.name || "Unknown"}</span>
+    <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
+    <span class="avg-rating" data-uid="${uid}" style="background:${getRatingColor(avg)}">${avg.toFixed(1)}</span>
+  </h3>
+  <div class="avatar">🧑‍🎓</div>
+  <p>${truncatedBio}</p>
+  <div class="rating">
+    <input type="number" min="-1000" max="1000">
+    <button>Rate</button>
+  </div>
+  <a href="profile.html?uid=${uid}" class="action">View Profile</a>
+`;
+
 
     const rateBtn = card.querySelector("button");
     const rateInput = card.querySelector("input");
