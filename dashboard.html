@@ -38,15 +38,10 @@ body {
   padding:2.5rem;
 }
 
-.profile h1 {
-  font-family:'Comfortaa';
-  font-size:1.8rem;
-  margin-bottom:1.2rem;
-}
+.profile h1 { font-family:'Comfortaa'; font-size:1.8rem; margin-bottom:1.2rem; }
 
 .profile input,
-.profile textarea,
-.profile button {
+.profile textarea {
   width:100%;
   background:#101010;
   border:1px solid #242424;
@@ -58,13 +53,20 @@ body {
 }
 
 .profile button {
-  cursor:pointer;
+  width:100%;
+  padding:.7rem;
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:10px;
+  color:var(--white);
   font-weight:600;
+  cursor:pointer;
+  transition:.2s;
 }
 
-.connections {
-  padding:3rem;
-}
+.profile button.secondary { margin-top:.8rem; }
+
+.connections { padding:3rem; }
 
 .connections h2 {
   font-size:.85rem;
@@ -80,6 +82,7 @@ body {
   gap:1.5rem;
 }
 
+/* ==== CARD ==== */
 .card {
   background:linear-gradient(145deg,#1e1e1e,#121212);
   border-radius:18px;
@@ -112,6 +115,7 @@ body {
 
 .card .avatar {
   height:120px;
+  background:radial-gradient(circle at top,#2a2a2a,#0f0f0f);
   border-radius:12px;
   border:2px solid #000;
   display:flex;
@@ -119,7 +123,6 @@ body {
   justify-content:center;
   font-size:3rem;
   margin-bottom:.7rem;
-  background:radial-gradient(circle at top,#2a2a2a,#0f0f0f);
 }
 
 .card p {
@@ -139,10 +142,13 @@ body {
 
   <aside class="profile">
     <h1>Your Profile</h1>
-    <input placeholder="Name">
-    <input placeholder="Field of Study">
-    <textarea rows="4" placeholder="About Me"></textarea>
-    <button>Save Profile</button>
+    <input id="editName" placeholder="Name">
+    <input id="editField" placeholder="Field of Study">
+    <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
+    <button id="saveBtn">Save Profile</button>
+    <button class="secondary" id="shareBtn">Share Profile</button>
+    <button class="secondary" id="scanBtn">Scan QR</button>
+    <button class="secondary" id="logoutBtn">Log Out</button>
   </aside>
 
   <main class="connections">
@@ -154,8 +160,17 @@ body {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+/* ---------- FIREBASE ---------- */
 
 const firebaseConfig = {
   apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
@@ -167,63 +182,106 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const container = document.getElementById("connectionsContainer");
+/* ---------- DOM ---------- */
 
-/* ---------- DEMO CARDS (fallback) ---------- */
+const editName = document.getElementById("editName");
+const editField = document.getElementById("editField");
+const editBio = document.getElementById("editBio");
+const connectionsContainer = document.getElementById("connectionsContainer");
+const saveBtn = document.getElementById("saveBtn");
+const shareBtn = document.getElementById("shareBtn");
+const scanBtn = document.getElementById("scanBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-function renderDemoCards() {
-  container.innerHTML = `
-    <div class="card">
-      <h3>Demo User <span class="positive">120</span></h3>
-      <div class="avatar">🧑‍🎓</div>
-      <p>Demo connection card (Firestore empty)</p>
-    </div>
-
-    <div class="card">
-      <h3>Sample Profile <span class="negative">-30</span></h3>
-      <div class="avatar">🎓</div>
-      <p>This confirms your UI works.</p>
-    </div>
-  `;
-}
-
-/* ---------- LOAD CONNECTIONS ---------- */
-
-async function loadConnections(uid) {
-  container.innerHTML = "Loading connections…";
-
-  const snap = await getDocs(
-    collection(db, "connections", uid, "users")
-  );
-
-  if (snap.empty) {
-    renderDemoCards();
-    return;
-  }
-
-  container.innerHTML = "";
-
-  snap.forEach(doc => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <h3>Connection <span class="neutral">0</span></h3>
-      <div class="avatar">🧑‍🎓</div>
-      <p>Real Firestore connection</p>
-    `;
-    container.appendChild(card);
-  });
-}
+let currentUser;
+let profileRef;
 
 /* ---------- AUTH ---------- */
 
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async user => {
   if (!user) {
-    renderDemoCards();
+    location.href = "Liszt.html";
     return;
   }
-  loadConnections(user.uid);
+
+  currentUser = user;
+  profileRef = doc(db, "profiles", user.uid);
+
+  await loadOrCreateProfile();
+  await loadConnections();
 });
+
+/* ---------- PROFILE ---------- */
+
+async function loadOrCreateProfile() {
+  const snap = await getDoc(profileRef);
+
+  if (!snap.exists()) {
+    await setDoc(profileRef, {
+      name: "",
+      fieldOfStudy: "",
+      aboutMe: ""
+    });
+    return;
+  }
+
+  const d = snap.data();
+  editName.value = d.name || "";
+  editField.value = d.fieldOfStudy || "";
+  editBio.value = d.aboutMe || "";
+}
+
+saveBtn.onclick = async () => {
+  await setDoc(profileRef, {
+    name: editName.value,
+    fieldOfStudy: editField.value,
+    aboutMe: editBio.value
+  }, { merge:true });
+};
+
+logoutBtn.onclick = async () => {
+  await signOut(auth);
+  location.href = "Liszt.html";
+};
+
+scanBtn.onclick = () => location.href = "scan.html";
+
+/* ---------- CONNECTIONS ---------- */
+
+async function loadConnections() {
+  connectionsContainer.innerHTML = "Loading…";
+
+  const snap = await getDocs(
+    collection(db, "connections", currentUser.uid, "users")
+  );
+
+  connectionsContainer.innerHTML = "";
+
+  if (snap.empty) {
+    connectionsContainer.innerHTML = "<p>No connections yet</p>";
+    return;
+  }
+
+  for (const d of snap.docs) {
+    const { uid } = d.data();
+    if (!uid) continue;
+
+    const profileSnap = await getDoc(doc(db, "profiles", uid));
+    if (!profileSnap.exists()) continue;
+
+    const p = profileSnap.data();
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h3>${p.name || "Unknown"} <span class="neutral">0</span></h3>
+      <div class="avatar">🧑‍🎓</div>
+      <p>${p.aboutMe || "No description"}</p>
+    `;
+
+    connectionsContainer.appendChild(card);
+  }
+}
 </script>
 
 </body>
