@@ -92,6 +92,18 @@ body {
   border-bottom: 1px solid #2b2b2b;
 }
 
+  .rating-bubble {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  min-width: 2rem;
+  text-align: center;
+}
+
+
 .card .avatar {
   width: 100%;
   height: 120px;
@@ -292,6 +304,20 @@ shareBtn.onclick = () => {
   qrModal.style.display = "flex";
 };
 
+  function getRatingColor(rating) {
+  if (rating <= -800) return "#888888";      // grey
+  if (rating <= -600) return "#ff0000";      // red
+  if (rating <= -400) return "#ff8000";      // orange
+  if (rating <= -200) return "#ffff00";      // yellow
+  if (rating <= 0)    return "#00ff00";      // green
+  if (rating <= 200)  return "#00ffff";      // light blue
+  if (rating <= 400)  return "#0000ff";      // rich blue
+  if (rating <= 600)  return "#800080";      // purple
+  if (rating <= 800)  return "#ff69b4";      // pink
+  return "#b00b55";                           // hot pink / b00b55
+}
+
+
 async function loadConnections() {
   connectionsContainer.innerHTML = "";
   const usersCol = collection(db, "connections", currentUser.uid, "users");
@@ -318,27 +344,25 @@ async function loadConnections() {
   const userRating = userRatingSnap.exists() ? userRatingSnap.data().value : "--";
 
   // 3️⃣ Create card once
-  const card = document.createElement("div");
+  const bubbleColor = getRatingColor(avg);
+const card = document.createElement("div");
 card.className = "card";
 card.innerHTML = `
   <h3>
+    <span class="name">${profile.name || "Unknown"}</span>
     <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
-    <span class="avg-rating" data-uid="${uid}">${avg.toFixed(1)}</span>
+    <span class="rating-bubble" data-uid="${uid}" style="background:${bubbleColor}">${avg.toFixed(1)}</span>
+    <span class="your-rating" data-uid="${uid}">Your: ${userRating}</span>
   </h3>
-
   <div class="avatar">🧑‍🎓</div>
-
-  <div class="name">${profile.name || "Unknown"}</div>
-  <div class="bio">${profile.aboutMe || "No description yet."}</div>
-  <div class="your-rating" data-uid="${uid}">Your: ${userRating}</div>
-
+  <p>${profile.aboutMe || "No description yet."}</p>
   <div class="rating">
-    <input type="number" min="-1000" max="1000" placeholder="Rate...">
+    <input type="number" min="-1000" max="1000">
     <button>Rate</button>
   </div>
-
   <a href="profile.html?uid=${uid}" class="action">View Profile</a>
 `;
+
 
 
   // 4️⃣ Attach rate button logic
@@ -368,6 +392,12 @@ card.innerHTML = `
     allRatingsSnap.forEach(r => total += r.data().value);
     const newAvg = allRatingsSnap.empty ? 0 : total / allRatingsSnap.size;
     const newCount = allRatingsSnap.size;
+
+    const ratingBubble = card.querySelector(`.rating-bubble[data-uid="${uid}"]`);
+if (ratingBubble) {
+  ratingBubble.textContent = newAvg.toFixed(1);
+  ratingBubble.style.background = getRatingColor(newAvg);
+}
 
     // Update profile document
     await updateDoc(profileRef, { ratingAvg: newAvg, ratingCount: newCount });
