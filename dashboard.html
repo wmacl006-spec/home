@@ -284,10 +284,13 @@ async function loadConnections() {
     card.className = "card";
     card.innerHTML = `
       <h3>
-        ${profile.name || "Unknown"}
-        <span>${profile.fieldOfStudy || "Trainer"}</span>
-        <span class="avg-rating">${(profile.ratingAvg || 0).toFixed(1)}</span>
-      </h3>
+  <span class="name">${profile.name || "Unknown"}</span>
+  <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
+  <span class="avg-rating" data-uid="${uid}">
+    ${(profile.ratingAvg ?? 0).toFixed(1)}
+  </span>
+</h3>
+
 
       <div class="avatar">🧑‍🎓</div>
 
@@ -312,16 +315,16 @@ async function loadConnections() {
   const ratingRef = doc(db, "ratings", uid, "users", currentUser.uid);
   const profileRef = doc(db, "profiles", uid);
 
-  const ratingSnap = await getDoc(ratingRef);
-  const profileSnap = await getDoc(profileRef);
-  const profileData = profileSnap.data();
+  const [ratingSnap, profileSnap] = await Promise.all([
+    getDoc(ratingRef),
+    getDoc(profileRef)
+  ]);
 
+  const profileData = profileSnap.data() || {};
   let newAvg, newCount;
 
   if (ratingSnap.exists()) {
-    // Update existing rating
     const oldValue = ratingSnap.data().value;
-
     newCount = profileData.ratingCount;
     newAvg =
       ((profileData.ratingAvg * newCount) - oldValue + value) / newCount;
@@ -330,9 +333,7 @@ async function loadConnections() {
       value,
       updatedAt: serverTimestamp()
     });
-
   } else {
-    // New rating
     newCount = (profileData.ratingCount || 0) + 1;
     newAvg =
       ((profileData.ratingAvg || 0) * (newCount - 1) + value) / newCount;
@@ -348,10 +349,17 @@ async function loadConnections() {
     ratingCount: newCount
   });
 
-  // ✅ UPDATE UI IMMEDIATELY
-  card.querySelector(".avg-rating").textContent = newAvg.toFixed(1);
+  // ✅ GUARANTEED UI UPDATE
+  const ratingBadge = card.querySelector(
+    `.avg-rating[data-uid="${uid}"]`
+  );
+  if (ratingBadge) {
+    ratingBadge.textContent = newAvg.toFixed(1);
+  }
+
   rateInput.value = "";
 };
+
 
 
     connectionsContainer.appendChild(card);
