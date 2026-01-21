@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Liszt – Dashboard</title>
 
 <link rel="icon" type="image/png" href="lisztlogo.png">
@@ -12,9 +12,9 @@
 :root {
   --pink:#B00B55;
   --black:#0f0f0f;
+  --panel:#161616;
   --white:#ffffff;
   --gray:#b5b5b5;
-  --panel:#161616;
 }
 
 * { box-sizing:border-box; margin:0; padding:0; }
@@ -32,7 +32,7 @@ body {
   min-height:100vh;
 }
 
-/* LEFT COLUMN */
+/* LEFT */
 .profile {
   background:var(--panel);
   border-right:1px solid #242424;
@@ -52,8 +52,7 @@ body {
   border:1px solid #242424;
   border-radius:10px;
   padding:.75rem .9rem;
-  color:var(--white);
-  font-size:.9rem;
+  color:white;
   margin-bottom:1rem;
 }
 
@@ -63,15 +62,14 @@ body {
   background:var(--panel);
   border:1px solid #242424;
   border-radius:10px;
-  color:var(--white);
+  color:white;
   font-weight:600;
   cursor:pointer;
-  transition:.2s;
 }
 
 .profile button.secondary { margin-top:.8rem; }
 
-/* RIGHT COLUMN */
+/* RIGHT */
 .connections { padding:3rem; }
 
 .connections h2 {
@@ -94,7 +92,6 @@ body {
   border-radius:18px;
   padding:14px;
   border:3px solid #2b2b2b;
-  box-shadow:0 14px 30px rgba(0,0,0,.6);
 }
 
 .card h3 {
@@ -104,10 +101,9 @@ body {
   padding:.45rem .6rem;
   border-radius:10px;
   border:1px solid #2b2b2b;
-  margin-bottom:.6rem;
   display:flex;
   justify-content:space-between;
-  align-items:center;
+  margin-bottom:.6rem;
 }
 
 .card span {
@@ -120,7 +116,7 @@ body {
 .card span.positive { background:#2ecc71; }
 .card span.negative { background:#e74c3c; }
 
-.card .avatar {
+.avatar {
   height:120px;
   background:radial-gradient(circle at top,#2a2a2a,#0f0f0f);
   border-radius:12px;
@@ -142,30 +138,20 @@ body {
   margin-bottom:.6rem;
 }
 
-/* ACTIONS */
 .actions {
   display:flex;
   gap:.4rem;
 }
 
-.actions input {
-  flex:1;
-  background:#0f0f0f;
-  border:1px solid #2b2b2b;
-  color:white;
-  border-radius:8px;
-  padding:.4rem;
-  font-size:.7rem;
-}
-
+.actions input,
 .actions button {
   flex:1;
   background:#161616;
   border:1px solid #2b2b2b;
   color:white;
   border-radius:8px;
+  padding:.4rem;
   font-size:.7rem;
-  cursor:pointer;
 }
 
 .actions button.remove {
@@ -185,19 +171,16 @@ body {
     <input id="editField" placeholder="Field of Study">
     <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
     <button id="saveBtn">Save Profile</button>
-    <button class="secondary" id="shareBtn">Share Profile</button>
     <button class="secondary" id="scanBtn">Scan QR</button>
     <button class="secondary" id="logoutBtn">Log Out</button>
   </aside>
 
   <main class="connections">
     <h2>Your Connections</h2>
-    <div class="grid" id="connectionsContainer"></div>
+    <div class="grid" id="connections"></div>
   </main>
 
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -208,8 +191,8 @@ import {
   getDoc,
   setDoc,
   deleteDoc,
-  collection,
-  getDocs
+  getDocs,
+  collection
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 /* FIREBASE */
@@ -222,17 +205,10 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* DOM */
-const editName = document.getElementById("editName");
-const editField = document.getElementById("editField");
-const editBio = document.getElementById("editBio");
-const connectionsContainer = document.getElementById("connectionsContainer");
-const saveBtn = document.getElementById("saveBtn");
-const scanBtn = document.getElementById("scanBtn");
-const logoutBtn = document.getElementById("logoutBtn");
+const el = id => document.getElementById(id);
+const connectionsEl = el("connections");
 
 let currentUser;
-let profileRef;
 
 /* AUTH */
 onAuthStateChanged(auth, async user => {
@@ -240,86 +216,88 @@ onAuthStateChanged(auth, async user => {
     location.href = "Liszt.html";
     return;
   }
-
   currentUser = user;
-  profileRef = doc(db, "profiles", user.uid);
-
   await loadProfile();
   await loadConnections();
 });
 
 /* PROFILE */
 async function loadProfile() {
-  const snap = await getDoc(profileRef);
+  const ref = doc(db,"profiles",currentUser.uid);
+  const snap = await getDoc(ref);
   if (!snap.exists()) {
-    await setDoc(profileRef, { name:"", fieldOfStudy:"", aboutMe:"" });
+    await setDoc(ref,{ name:"", fieldOfStudy:"", aboutMe:"" });
     return;
   }
   const d = snap.data();
-  editName.value = d.name || "";
-  editField.value = d.fieldOfStudy || "";
-  editBio.value = d.aboutMe || "";
+  el("editName").value = d.name || "";
+  el("editField").value = d.fieldOfStudy || "";
+  el("editBio").value = d.aboutMe || "";
 }
 
-saveBtn.onclick = async () => {
-  await setDoc(profileRef, {
-    name: editName.value,
-    fieldOfStudy: editField.value,
-    aboutMe: editBio.value
-  }, { merge:true });
+el("saveBtn").onclick = async () => {
+  await setDoc(
+    doc(db,"profiles",currentUser.uid),
+    {
+      name:el("editName").value,
+      fieldOfStudy:el("editField").value,
+      aboutMe:el("editBio").value
+    },
+    { merge:true }
+  );
 };
 
-logoutBtn.onclick = async () => {
+el("logoutBtn").onclick = async () => {
   await signOut(auth);
   location.href = "Liszt.html";
 };
 
-scanBtn.onclick = () => location.href = "scan.html";
+el("scanBtn").onclick = () => location.href = "scan.html";
 
 /* RATINGS */
-async function getAverage(uid) {
-  const snap = await getDocs(collection(db, "ratings", uid, "users"));
+async function averageRating(uid) {
+  const snap = await getDocs(collection(db,"ratings",uid,"users"));
   if (snap.empty) return 0;
-  let total = 0, count = 0;
-  snap.forEach(d => { total += Number(d.data().value); count++; });
-  return Math.round(total / count);
+  let t=0,c=0;
+  snap.forEach(d=>{ t+=Number(d.data().value)||0; c++; });
+  return Math.round(t/c);
 }
 
 /* CONNECTIONS */
 async function loadConnections() {
-  connectionsContainer.innerHTML = "";
+  console.log("Loading connections for", currentUser.uid);
+  connectionsEl.innerHTML = "";
 
   const snap = await getDocs(
-    collection(db, "connections", currentUser.uid, "users")
+    collection(db,"connections",currentUser.uid,"users")
   );
 
+  console.log("Connection docs:", snap.size);
+
   if (snap.empty) {
-    connectionsContainer.innerHTML = "<p>No connections yet</p>";
+    connectionsEl.innerHTML = "<p>No connections yet</p>";
     return;
   }
 
   for (const d of snap.docs) {
-    const { uid } = d.data();
-    if (!uid) continue;
+    const uid = d.data().uid || d.id;   // ← schema-proof
+    console.log("Resolved UID:", uid);
 
-    const profileSnap = await getDoc(doc(db, "profiles", uid));
-    if (!profileSnap.exists()) continue;
+    let profile = {};
+    const pSnap = await getDoc(doc(db,"profiles",uid));
+    if (pSnap.exists()) profile = pSnap.data();
 
-    const p = profileSnap.data();
-    const avg = await getAverage(uid);
+    const avg = await averageRating(uid);
 
     const card = document.createElement("div");
     card.className = "card";
-
     card.innerHTML = `
       <h3>
-        ${p.name || "Unknown"}
+        ${profile.name || uid}
         <span class="${avg>0?"positive":avg<0?"negative":""}">${avg}</span>
       </h3>
-
       <div class="avatar">🧑‍🎓</div>
-      <p>${p.aboutMe || "No description"}</p>
-
+      <p>${profile.aboutMe || "No description"}</p>
       <div class="actions">
         <input type="number" min="-1000" max="1000" placeholder="Rate">
         <button>Rate</button>
@@ -328,26 +306,25 @@ async function loadConnections() {
     `;
 
     const rateInput = card.querySelector("input");
-    const rateBtn = card.querySelector("button");
-    const removeBtn = card.querySelector(".remove");
+    const [rateBtn, removeBtn] = card.querySelectorAll("button");
 
     rateBtn.onclick = async () => {
       if (rateInput.value === "") return;
       await setDoc(
-        doc(db, "ratings", uid, "users", currentUser.uid),
-        { value: Math.max(-1000, Math.min(1000, Number(rateInput.value))) }
+        doc(db,"ratings",uid,"users",currentUser.uid),
+        { value: Math.max(-1000,Math.min(1000,Number(rateInput.value))) }
       );
       loadConnections();
     };
 
     removeBtn.onclick = async () => {
       await deleteDoc(
-        doc(db, "connections", currentUser.uid, "users", d.id)
+        doc(db,"connections",currentUser.uid,"users",d.id)
       );
       loadConnections();
     };
 
-    connectionsContainer.appendChild(card);
+    connectionsEl.appendChild(card);
   }
 }
 </script>
