@@ -26,17 +26,9 @@ body {
   color:var(--white);
 }
 
-.dashboard {
-  display:grid;
-  grid-template-columns:320px 1fr;
-  min-height:100vh;
-}
+.dashboard { display:grid; grid-template-columns:320px 1fr; min-height:100vh; }
 
-.profile {
-  background:var(--panel);
-  border-right:1px solid #242424;
-  padding:2.5rem;
-}
+.profile { background:var(--panel); border-right:1px solid #242424; padding:2.5rem; }
 
 .profile h1 { font-family:'Comfortaa'; font-size:1.8rem; margin-bottom:1.2rem; }
 
@@ -180,23 +172,10 @@ body {
   text-decoration:none;
 }
 
-#qrModal {
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-#qrModal .panel {
-  background:var(--panel);
-  padding:2rem;
-  border-radius:14px;
-  text-align:center;
-}
+#qrModal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; }
+#qrModal .panel { background:var(--panel); padding:2rem; border-radius:14px; text-align:center; }
 </style>
 </head>
-
 <body>
 
 <div class="dashboard">
@@ -321,35 +300,30 @@ async function loadConnections() {
     const profileSnap = await getDoc(doc(db,"profiles",uid));
     const profile = profileSnap.data() || {};
 
-    // ✅ Compute average dynamically from all ratings
-const ratingsCol = collection(db, "ratings", uid, "users");
-const ratingsSnap = await getDocs(ratingsCol);
-let avg = 0;
-if (!ratingsSnap.empty) {
-  let total = 0;
-  ratingsSnap.forEach(r => total += r.data().value);
-  avg = total / ratingsSnap.size;
-}
+    // Compute average dynamically
+    const ratingsCol = collection(db, "ratings", uid, "users");
+    const ratingsSnap = await getDocs(ratingsCol);
+    let avg = 0;
+    if (!ratingsSnap.empty) {
+      let total = 0;
+      ratingsSnap.forEach(r => total += r.data().value);
+      avg = total / ratingsSnap.size;
+    }
 
-const card = document.createElement("div");
-card.className = "card";
-card.innerHTML = `
-  <h3>
-    <span class="name">${profile.name || "Unknown"}</span>
-    <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
-    <span class="avg-rating" data-uid="${uid}">${avg.toFixed(1)}</span>
-  </h3>
-;
-
-
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h3>
+        <span class="name">${profile.name || "Unknown"}</span>
+        <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
+        <span class="avg-rating" data-uid="${uid}">${avg.toFixed(1)}</span>
+      </h3>
       <div class="avatar">🧑‍🎓</div>
       <p>${profile.aboutMe || "No description yet."}</p>
-
       <div class="rating">
         <input type="number" min="-1000" max="1000">
         <button>Rate</button>
       </div>
-
       <a href="profile.html?uid=${uid}" class="action">View Profile</a>
     `;
 
@@ -366,31 +340,20 @@ card.innerHTML = `
       const ratingRef = doc(db, "ratings", uid, "users", currentUser.uid);
       const profileRef = doc(db, "profiles", uid);
 
-      const [ratingSnap, profileSnap] = await Promise.all([
-        getDoc(ratingRef),
-        getDoc(profileRef)
-      ]);
+      // Save/update user's rating
+      await setDoc(ratingRef, { value, updatedAt: serverTimestamp() });
 
-      const profileData = profileSnap.data() || {};
-      let newAvg, newCount;
+      // Recompute average from all ratings
+      const allRatingsSnap = await getDocs(collection(db, "ratings", uid, "users"));
+      let total = 0;
+      allRatingsSnap.forEach(r => total += r.data().value);
+      const newAvg = allRatingsSnap.empty ? 0 : total / allRatingsSnap.size;
+      const newCount = allRatingsSnap.size;
 
-      // After writing/updating the current user's rating
-const allRatingsSnap = await getDocs(collection(db, "ratings", uid, "users"));
-let total = 0;
-allRatingsSnap.forEach(r => total += r.data().value);
-newAvg = allRatingsSnap.empty ? 0 : total / allRatingsSnap.size;
-newCount = allRatingsSnap.size;
-
-// Update profile document
-await updateDoc(profileRef, {
-  ratingAvg: newAvg,
-  ratingCount: newCount
-});
-
-
+      // Update profile document
       await updateDoc(profileRef, { ratingAvg: newAvg, ratingCount: newCount });
 
-      // Update the badge immediately
+      // Update badge immediately
       const ratingBadge = card.querySelector(`.avg-rating[data-uid="${uid}"]`);
       if (ratingBadge) ratingBadge.textContent = newAvg.toFixed(1);
 
