@@ -39,61 +39,56 @@ body {
 }
 
 .profile h1 { font-family:'Comfortaa'; font-size:1.8rem; margin-bottom:1.2rem; }
+
 .profile input, .profile textarea {
-  width:100%; background:#101010; border:1px solid #242424; border-radius:10px;
-  padding:.75rem .9rem; color:var(--white); font-size:.9rem; margin-bottom:1rem;
+  width:100%;
+  background:#101010;
+  border:1px solid #242424;
+  border-radius:10px;
+  padding:.75rem .9rem;
+  color:var(--white);
+  font-size:.9rem;
+  margin-bottom:1rem;
 }
-.profile input:focus, .profile textarea:focus {
-  outline:none; border-color:var(--pink); box-shadow:0 0 0 2px rgba(176,11,85,.25);
-}
+
 .profile button {
-  width:100%; padding:.7rem; background:var(--panel); border:1px solid #242424;
-  border-radius:10px; color:var(--white); font-weight:600; cursor:pointer; transition:.2s;
+  width:100%;
+  padding:.7rem;
+  background:var(--panel);
+  border:1px solid #242424;
+  border-radius:10px;
+  color:var(--white);
+  font-weight:600;
+  cursor:pointer;
 }
-.profile button:hover { border-color:var(--pink); box-shadow:0 10px 24px rgba(176,11,85,.25); }
+
 .profile .secondary { margin-top:.8rem; }
 
 .connections { padding:3rem; }
-.connections h2 { font-size:.85rem; letter-spacing:1px; text-transform:uppercase; color:var(--pink); margin-bottom:2rem; }
-.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1.5rem; }
-/* === POKEMON-STYLE CARD === */
+
+.connections h2 {
+  font-size:.85rem;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--pink);
+  margin-bottom:2rem;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:1.5rem;
+}
+
+/* === CARD === */
 .card {
-  position: relative;
-  background: linear-gradient(145deg, #1e1e1e, #121212);
-  border-radius: 18px;
-  padding: 14px;
-  border: 3px solid #2b2b2b;
-  box-shadow:
-    inset 0 0 0 2px #000,
-    0 14px 30px rgba(0,0,0,.6);
-  transition: transform .25s ease, box-shadow .25s ease;
-  overflow: hidden;
+  background:linear-gradient(145deg,#1e1e1e,#121212);
+  border-radius:18px;
+  padding:14px;
+  border:3px solid #2b2b2b;
+  box-shadow:0 14px 30px rgba(0,0,0,.6);
 }
 
-.card::before {
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(
-      120deg,
-      transparent 30%,
-      rgba(176,11,85,.35),
-      transparent 70%
-    );
-  opacity:0;
-  transition:.3s;
-}
-
-.card:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow:
-    0 22px 40px rgba(176,11,85,.35),
-    inset 0 0 0 2px #000;
-}
-
-
-/* Name bar (top like Pokémon name) */
 .card h3 {
   font-family:'Comfortaa';
   font-size:.95rem;
@@ -105,24 +100,29 @@ body {
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:.4rem;
 }
 
-/* Type badge (field of study) */
-.card span {
+.card h3 span {
   font-size:.65rem;
   padding:.2rem .45rem;
   border-radius:999px;
   background:var(--pink);
   color:white;
   text-transform:uppercase;
-  letter-spacing:.5px;
 }
 
-/* Portrait area */
-.card .avatar {
+.avg-rating {
+  background:#101010;
+  border:1px solid #2b2b2b;
+  padding:.25rem .5rem;
+  border-radius:6px;
+  font-size:.7rem;
+}
+
+.avatar {
   height:120px;
-  background:
-    radial-gradient(circle at top, #2a2a2a, #0f0f0f);
+  background:radial-gradient(circle at top,#2a2a2a,#0f0f0f);
   border-radius:12px;
   border:2px solid #000;
   display:flex;
@@ -132,20 +132,43 @@ body {
   margin-bottom:.7rem;
 }
 
-/* Info box (like Pokémon moves) */
 .card p {
   background:#0f0f0f;
   border:1px solid #2b2b2b;
   border-radius:10px;
   padding:.6rem;
   font-size:.75rem;
-  line-height:1.35;
   margin-bottom:.7rem;
   color:var(--gray);
 }
 
-/* Action button */
-.card .action {
+.rating {
+  display:flex;
+  gap:.4rem;
+  margin-bottom:.6rem;
+}
+
+.rating input {
+  width:80px;
+  background:#101010;
+  border:1px solid #242424;
+  color:white;
+  border-radius:8px;
+  padding:.3rem;
+  font-size:.7rem;
+}
+
+.rating button {
+  flex:1;
+  font-size:.65rem;
+  border-radius:8px;
+  border:1px solid #242424;
+  background:#161616;
+  color:white;
+  cursor:pointer;
+}
+
+.action {
   display:block;
   text-align:center;
   padding:.45rem;
@@ -155,19 +178,10 @@ body {
   background:#161616;
   color:white;
   text-decoration:none;
-  transition:.2s;
 }
-
-.card .action:hover {
-  border-color:var(--pink);
-  box-shadow:0 0 0 2px rgba(176,11,85,.35);
-}
-
-
-#qrModal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; }
-#qrModal .panel { background:var(--panel); padding:2rem; border-radius:14px; text-align:center; }
 </style>
 </head>
+
 <body>
 
 <div class="dashboard">
@@ -178,8 +192,6 @@ body {
     <input id="editField" placeholder="Field of Study">
     <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
     <button id="saveBtn">Save Profile</button>
-    <button class="secondary" id="shareBtn">Share Profile</button>
-    <button class="secondary" id="scanBtn">Scan QR</button>
     <button class="secondary" id="logoutBtn">Log Out</button>
   </aside>
 
@@ -190,19 +202,20 @@ body {
 
 </div>
 
-<div id="qrModal" onclick="this.style.display='none'">
-  <div class="panel" onclick="event.stopPropagation()">
-    <div id="qr"></div>
-    <p style="margin-top:1rem;font-size:.85rem;color:var(--gray)">Scan to add me</p>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  getDocs,
+  collection,
+  updateDoc,
+  increment,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
@@ -217,94 +230,105 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const connectionsContainer = document.getElementById("connectionsContainer");
 const editName = document.getElementById("editName");
 const editField = document.getElementById("editField");
 const editBio = document.getElementById("editBio");
-const connectionsContainer = document.getElementById("connectionsContainer");
 const saveBtn = document.getElementById("saveBtn");
-const shareBtn = document.getElementById("shareBtn");
-const scanBtn = document.getElementById("scanBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-const qr = document.getElementById("qr");
-const qrModal = document.getElementById("qrModal");
 
 let currentUser;
 let profileRef;
 
 onAuthStateChanged(auth, async user => {
-  if (!user) { location.href = "Liszt.html"; return; }
+  if (!user) return;
   currentUser = user;
-  profileRef = doc(db, "profiles", user.uid);
-  await loadOrCreateProfile();
-  await loadConnections();
-});
+  profileRef = doc(db,"profiles",user.uid);
 
-async function loadOrCreateProfile() {
   const snap = await getDoc(profileRef);
   if (!snap.exists()) {
-    await setDoc(profileRef, { name:"", fieldOfStudy:"", aboutMe:"", createdAt:new Date() });
-    return;
+    await setDoc(profileRef,{name:"",fieldOfStudy:"",aboutMe:"",ratingAvg:0,ratingCount:0});
+  } else {
+    const d = snap.data();
+    editName.value = d.name || "";
+    editField.value = d.fieldOfStudy || "";
+    editBio.value = d.aboutMe || "";
   }
-  const data = snap.data();
-  editName.value = data.name || "";
-  editField.value = data.fieldOfStudy || "";
-  editBio.value = data.aboutMe || "";
-}
+
+  loadConnections();
+});
 
 saveBtn.onclick = async () => {
-  await setDoc(profileRef, { name: editName.value, fieldOfStudy: editField.value, aboutMe: editBio.value, updatedAt: new Date() }, { merge:true });
-  alert("Profile saved");
+  await setDoc(profileRef,{
+    name:editName.value,
+    fieldOfStudy:editField.value,
+    aboutMe:editBio.value
+  },{merge:true});
 };
 
 logoutBtn.onclick = async () => {
   await signOut(auth);
-  location.href = "Liszt.html";
-};
-
-scanBtn.onclick = () => { location.href = "scan.html"; };
-
-shareBtn.onclick = () => {
-  qr.innerHTML = "";
-  new QRCode(qr, { text:`liszt:add:${currentUser.uid}`, width:200, height:200, colorDark:"#ffffff", colorLight:"#161616" });
-  qrModal.style.display = "flex";
 };
 
 async function loadConnections() {
-  connectionsContainer.innerHTML = "Loading connections…";
-  const usersCol = collection(db, "connections", currentUser.uid, "users");
+  connectionsContainer.innerHTML = "";
+  const usersCol = collection(db,"connections",currentUser.uid,"users");
   const usersSnap = await getDocs(usersCol);
 
-  connectionsContainer.innerHTML = "";
-  if (usersSnap.empty) { connectionsContainer.innerHTML="<p>No connections yet</p>"; return; }
-
-  for (const docSnap of usersSnap.docs) {
-    const connection = docSnap.data();
-    const profileSnap = await getDoc(doc(db, "profiles", connection.uid));
-    const profile = profileSnap.exists() ? profileSnap.data() : {};
+  for (const u of usersSnap.docs) {
+    const uid = u.data().uid;
+    const profileSnap = await getDoc(doc(db,"profiles",uid));
+    const profile = profileSnap.data() || {};
 
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-  <h3>
-    ${profile.name || "Unknown"}
-    <span>${profile.fieldOfStudy || "Trainer"}</span>
-  </h3>
+      <h3>
+        ${profile.name || "Unknown"}
+        <span>${profile.fieldOfStudy || "Trainer"}</span>
+        <span class="avg-rating">${(profile.ratingAvg || 0).toFixed(1)}</span>
+      </h3>
 
-  <div class="avatar">🧑‍🎓</div>
+      <div class="avatar">🧑‍🎓</div>
 
-  <p>
-    <strong>Ability:</strong><br>
-    ${profile.aboutMe || "No description yet."}
-  </p>
+      <p>${profile.aboutMe || "No description yet."}</p>
 
-  <a href="profile.html?uid=${connection.uid}" class="action">
-    View Profile
-  </a>
-`;
+      <div class="rating">
+        <input type="number" min="-1000" max="1000">
+        <button>Rate</button>
+      </div>
+    `;
+
+    const rateBtn = card.querySelector("button");
+    const rateInput = card.querySelector("input");
+
+    rateBtn.onclick = async () => {
+      const value = parseInt(rateInput.value);
+      if (isNaN(value) || value < -1000 || value > 1000) return;
+
+      const ratingRef = doc(db,"ratings",uid,"users",currentUser.uid);
+      const profileRef = doc(db,"profiles",uid);
+      const existing = await getDoc(ratingRef);
+
+      if (existing.exists()) {
+        const old = existing.data().value;
+        const diff = value - old;
+        await updateDoc(profileRef,{ratingAvg:increment(diff/profile.ratingCount)});
+        await updateDoc(ratingRef,{value,updatedAt:serverTimestamp()});
+      } else {
+        const count = (profile.ratingCount || 0) + 1;
+        const avg = ((profile.ratingAvg || 0)*(count-1)+value)/count;
+        await updateDoc(profileRef,{ratingAvg:avg,ratingCount:count});
+        await setDoc(ratingRef,{value,updatedAt:serverTimestamp()});
+      }
+
+      location.reload();
+    };
 
     connectionsContainer.appendChild(card);
   }
 }
 </script>
+
 </body>
 </html>
