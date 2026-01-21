@@ -179,6 +179,21 @@ body {
   color:white;
   text-decoration:none;
 }
+
+#qrModal {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+#qrModal .panel {
+  background:var(--panel);
+  padding:2rem;
+  border-radius:14px;
+  text-align:center;
+}
 </style>
 </head>
 
@@ -192,6 +207,8 @@ body {
     <input id="editField" placeholder="Field of Study">
     <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
     <button id="saveBtn">Save Profile</button>
+    <button class="secondary" id="shareBtn">Share Profile</button>
+    <button class="secondary" id="scanBtn">Scan QR</button>
     <button class="secondary" id="logoutBtn">Log Out</button>
   </aside>
 
@@ -201,6 +218,15 @@ body {
   </main>
 
 </div>
+
+<div id="qrModal" onclick="this.style.display='none'">
+  <div class="panel" onclick="event.stopPropagation()">
+    <div id="qr"></div>
+    <p style="margin-top:1rem;font-size:.85rem;color:var(--gray)">Scan to add me</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -213,7 +239,6 @@ import {
   getDocs,
   collection,
   updateDoc,
-  increment,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
@@ -230,50 +255,66 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const connectionsContainer = document.getElementById("connectionsContainer");
 const editName = document.getElementById("editName");
 const editField = document.getElementById("editField");
 const editBio = document.getElementById("editBio");
+const connectionsContainer = document.getElementById("connectionsContainer");
 const saveBtn = document.getElementById("saveBtn");
+const shareBtn = document.getElementById("shareBtn");
+const scanBtn = document.getElementById("scanBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const qr = document.getElementById("qr");
+const qrModal = document.getElementById("qrModal");
 
 let currentUser;
 let profileRef;
 
 onAuthStateChanged(auth, async user => {
-  if (!user) return;
+  if (!user) { location.href = "Liszt.html"; return; }
   currentUser = user;
-  profileRef = doc(db,"profiles",user.uid);
+  profileRef = doc(db, "profiles", user.uid);
 
   const snap = await getDoc(profileRef);
   if (!snap.exists()) {
-    await setDoc(profileRef,{name:"",fieldOfStudy:"",aboutMe:"",ratingAvg:0,ratingCount:0});
+    await setDoc(profileRef, { name:"", fieldOfStudy:"", aboutMe:"", ratingAvg:0, ratingCount:0 });
   } else {
-    const d = snap.data();
-    editName.value = d.name || "";
-    editField.value = d.fieldOfStudy || "";
-    editBio.value = d.aboutMe || "";
+    const data = snap.data();
+    editName.value = data.name || "";
+    editField.value = data.fieldOfStudy || "";
+    editBio.value = data.aboutMe || "";
   }
 
-  loadConnections();
+  await loadConnections();
 });
 
 saveBtn.onclick = async () => {
-  await setDoc(profileRef,{
-    name:editName.value,
-    fieldOfStudy:editField.value,
-    aboutMe:editBio.value
-  },{merge:true});
+  await setDoc(profileRef, {
+    name: editName.value,
+    fieldOfStudy: editField.value,
+    aboutMe: editBio.value
+  }, { merge: true });
+  alert("Profile saved");
 };
 
 logoutBtn.onclick = async () => {
   await signOut(auth);
+  location.href = "Liszt.html";
+};
+
+scanBtn.onclick = () => { location.href = "scan.html"; };
+
+shareBtn.onclick = () => {
+  qr.innerHTML = "";
+  new QRCode(qr, { text:`liszt:add:${currentUser.uid}`, width:200, height:200, colorDark:"#ffffff", colorLight:"#161616" });
+  qrModal.style.display = "flex";
 };
 
 async function loadConnections() {
   connectionsContainer.innerHTML = "";
-  const usersCol = collection(db,"connections",currentUser.uid,"users");
+  const usersCol = collection(db, "connections", currentUser.uid, "users");
   const usersSnap = await getDocs(usersCol);
+
+  if (usersSnap.empty) { connectionsContainer.innerHTML = "<p>No connections yet</p>"; return; }
 
   for (const u of usersSnap.docs) {
     const uid = u.data().uid;
@@ -283,91 +324,67 @@ async function loadConnections() {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-  <h3>
-    <span class="name">${profile.name || "Unknown"}</span>
-    <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
+      <h3>
+        <span class="name">${profile.name || "Unknown"}</span>
+        <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
+        <span class="avg-rating" data-uid="${uid}">${(profile.ratingAvg ?? 0).toFixed(1)}</span>
+      </h3>
 
-    <!-- ⭐ AVERAGE RATING BADGE GOES HERE -->
-    <span class="avg-rating" data-uid="${uid}">
-      ${(profile.ratingAvg ?? 0).toFixed(1)}
-    </span>
-  </h3>
+      <div class="avatar">🧑‍🎓</div>
+      <p>${profile.aboutMe || "No description yet."}</p>
 
-  <div class="avatar">🧑‍🎓</div>
+      <div class="rating">
+        <input type="number" min="-1000" max="1000">
+        <button>Rate</button>
+      </div>
 
-  <p>${profile.aboutMe || "No description yet."}</p>
-
-  <div class="rating">
-    <input type="number" min="-1000" max="1000">
-    <button>Rate</button>
-  </div>
-`;
-
+      <a href="profile.html?uid=${uid}" class="action">View Profile</a>
+    `;
 
     const rateBtn = card.querySelector("button");
     const rateInput = card.querySelector("input");
 
     rateBtn.onclick = async () => {
-  const value = parseInt(rateInput.value);
-  if (isNaN(value) || value < -1000 || value > 1000) {
-    alert("Rating must be between -1000 and 1000");
-    return;
-  }
+      const value = parseInt(rateInput.value);
+      if (isNaN(value) || value < -1000 || value > 1000) {
+        alert("Rating must be between -1000 and 1000");
+        return;
+      }
 
-  const ratingRef = doc(db, "ratings", uid, "users", currentUser.uid);
-  const profileRef = doc(db, "profiles", uid);
+      const ratingRef = doc(db, "ratings", uid, "users", currentUser.uid);
+      const profileRef = doc(db, "profiles", uid);
 
-  const [ratingSnap, profileSnap] = await Promise.all([
-    getDoc(ratingRef),
-    getDoc(profileRef)
-  ]);
+      const [ratingSnap, profileSnap] = await Promise.all([
+        getDoc(ratingRef),
+        getDoc(profileRef)
+      ]);
 
-  const profileData = profileSnap.data() || {};
-  let newAvg, newCount;
+      const profileData = profileSnap.data() || {};
+      let newAvg, newCount;
 
-  if (ratingSnap.exists()) {
-    const oldValue = ratingSnap.data().value;
-    newCount = profileData.ratingCount;
-    newAvg =
-      ((profileData.ratingAvg * newCount) - oldValue + value) / newCount;
+      if (ratingSnap.exists()) {
+        const oldValue = ratingSnap.data().value;
+        newCount = profileData.ratingCount;
+        newAvg = ((profileData.ratingAvg * newCount) - oldValue + value) / newCount;
+        await updateDoc(ratingRef, { value, updatedAt: serverTimestamp() });
+      } else {
+        newCount = (profileData.ratingCount || 0) + 1;
+        newAvg = ((profileData.ratingAvg || 0) * (newCount - 1) + value) / newCount;
+        await setDoc(ratingRef, { value, updatedAt: serverTimestamp() });
+      }
 
-    await updateDoc(ratingRef, {
-      value,
-      updatedAt: serverTimestamp()
-    });
-  } else {
-    newCount = (profileData.ratingCount || 0) + 1;
-    newAvg =
-      ((profileData.ratingAvg || 0) * (newCount - 1) + value) / newCount;
+      await updateDoc(profileRef, { ratingAvg: newAvg, ratingCount: newCount });
 
-    await setDoc(ratingRef, {
-      value,
-      updatedAt: serverTimestamp()
-    });
-  }
+      // Update the badge immediately
+      const ratingBadge = card.querySelector(`.avg-rating[data-uid="${uid}"]`);
+      if (ratingBadge) ratingBadge.textContent = newAvg.toFixed(1);
 
-  await updateDoc(profileRef, {
-    ratingAvg: newAvg,
-    ratingCount: newCount
-  });
-
-  // ✅ GUARANTEED UI UPDATE
-  const ratingBadge = card.querySelector(
-    `.avg-rating[data-uid="${uid}"]`
-  );
-  if (ratingBadge) {
-    ratingBadge.textContent = newAvg.toFixed(1);
-  }
-
-  rateInput.value = "";
-};
-
-
+      rateInput.value = "";
+    };
 
     connectionsContainer.appendChild(card);
   }
 }
 </script>
-
 </body>
 </html>
