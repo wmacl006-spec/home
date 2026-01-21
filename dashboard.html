@@ -79,98 +79,107 @@ body {
   padding:14px;
   border:3px solid #2b2b2b;
   box-shadow:0 14px 30px rgba(0,0,0,.6);
+  display:flex;
+  flex-direction:column;
+  gap:0.5rem;
 }
 
-.card h3 {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: 'Comfortaa';
-  font-size: .9rem;
-  margin-bottom: .5rem;
-  padding: .3rem .5rem;
-  border-bottom: 1px solid #2b2b2b;
+.card-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:0.9rem;
 }
 
-  .rating-bubble {
-  display: inline-block;
-  padding: 0.3rem 0.6rem;
-  border-radius: 50%;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: white;
-  min-width: 2rem;
-  text-align: center;
+.field {
+  font-size:0.75rem;
+  padding:.2rem .5rem;
+  border-radius:8px;
+  background:#242424;
 }
 
-
-.card .avatar {
-  width: 100%;
-  height: 120px;
-  margin: .7rem 0;
-  border-radius: 12px;
-  background: radial-gradient(circle at top, #2a2a2a, #0f0f0f);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
+.avg-rating {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  font-size:.75rem;
+  font-weight:600;
+  color:white;
+  border:2px solid #2b2b2b;
 }
 
-.card .name {
-  font-family: 'Comfortaa';
-  font-size: .95rem;
-  margin-bottom: .25rem;
+.avatar {
+  height:120px;
+  background:radial-gradient(circle at top,#2a2a2a,#0f0f0f);
+  border-radius:12px;
+  border:2px solid #000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:3rem;
+  margin-bottom:.5rem;
 }
 
-.card .bio {
-  font-size: .75rem;
-  color: var(--gray);
-  margin-bottom: .5rem;
+.name {
+  font-family:'Comfortaa';
+  font-size:1rem;
 }
 
-.card .your-rating {
-  font-size: .75rem;
-  margin-bottom: .5rem;
+.bio {
+  background:#0f0f0f;
+  border:1px solid #2b2b2b;
+  border-radius:10px;
+  padding:.6rem;
+  font-size:.75rem;
+  color:var(--gray);
 }
 
-.card .rating {
-  display: flex;
-  gap: .4rem;
-  margin-bottom: .6rem;
+.your-rating {
+  font-size:.75rem;
+  font-weight:600;
+  margin-top:0.2rem;
 }
 
-.card .rating input {
-  flex: 1;
-  padding: .3rem;
-  font-size: .7rem;
-  border-radius: 8px;
-  border: 1px solid #242424;
-  background: #101010;
-  color: white;
+.rating {
+  display:flex;
+  gap:.4rem;
+  margin-top:.3rem;
 }
 
-.card .rating button {
-  font-size: .7rem;
-  border-radius: 8px;
-  border: 1px solid #242424;
-  background: #161616;
-  color: white;
-  cursor: pointer;
-  padding: .3rem .5rem;
+.rating input {
+  width:80px;
+  background:#101010;
+  border:1px solid #242424;
+  color:white;
+  border-radius:8px;
+  padding:.3rem;
+  font-size:.7rem;
 }
 
-.card .action {
-  display: block;
-  text-align: center;
-  padding: .45rem;
-  font-size: .7rem;
-  border-radius: 10px;
-  border: 1px solid #2b2b2b;
-  background: #161616;
-  color: white;
-  text-decoration: none;
+.rating button {
+  flex:1;
+  font-size:.65rem;
+  border-radius:8px;
+  border:1px solid #242424;
+  background:#161616;
+  color:white;
+  cursor:pointer;
 }
 
+.action {
+  display:block;
+  text-align:center;
+  padding:.45rem;
+  font-size:.7rem;
+  border-radius:10px;
+  border:1px solid #2b2b2b;
+  background:#161616;
+  color:white;
+  text-decoration:none;
+}
 
 #qrModal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; }
 #qrModal .panel { background:var(--panel); padding:2rem; border-radius:14px; text-align:center; }
@@ -181,19 +190,15 @@ body {
 <div class="dashboard">
 
   <aside class="profile">
-  <h1>Your Profile</h1>
-  <input id="editName" placeholder="Name">
-  <input id="editField" placeholder="Field of Study">
-  <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
-  <div style="margin-bottom:1rem;">
-    <strong>Your Rating:</strong> <span id="myAvgRating">--</span>
-  </div>
-  <button id="saveBtn">Save Profile</button>
-  <button class="secondary" id="shareBtn">Share Profile</button>
-  <button class="secondary" id="scanBtn">Scan QR</button>
-  <button class="secondary" id="logoutBtn">Log Out</button>
-</aside>
-
+    <h1>Your Profile</h1>
+    <input id="editName" placeholder="Name">
+    <input id="editField" placeholder="Field of Study">
+    <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
+    <button id="saveBtn">Save Profile</button>
+    <button class="secondary" id="shareBtn">Share Profile</button>
+    <button class="secondary" id="scanBtn">Scan QR</button>
+    <button class="secondary" id="logoutBtn">Log Out</button>
+  </aside>
 
   <main class="connections">
     <h2>Your Connections</h2>
@@ -215,14 +220,7 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  getDocs,
-  collection,
-  updateDoc,
-  serverTimestamp
+  getFirestore, doc, getDoc, setDoc, getDocs, collection, updateDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -252,6 +250,20 @@ const qrModal = document.getElementById("qrModal");
 let currentUser;
 let profileRef;
 
+// Determine bubble color based on rating
+function getRatingColor(rating) {
+  if (rating <= -800) return "#888888";      // grey
+  if (rating <= -600) return "#ff0000";      // red
+  if (rating <= -400) return "#ff8000";      // orange
+  if (rating <= -200) return "#ffff00";      // yellow
+  if (rating <= 0)    return "#00ff00";      // green
+  if (rating <= 200)  return "#00ffff";      // light blue
+  if (rating <= 400)  return "#0000ff";      // rich blue
+  if (rating <= 600)  return "#800080";      // purple
+  if (rating <= 800)  return "#ff69b4";      // pink
+  return "#b00b55";                           // hot pink / b00b55
+}
+
 onAuthStateChanged(auth, async user => {
   if (!user) { location.href = "Liszt.html"; return; }
   currentUser = user;
@@ -266,18 +278,6 @@ onAuthStateChanged(auth, async user => {
     editField.value = data.fieldOfStudy || "";
     editBio.value = data.aboutMe || "";
   }
-
-  // Compute your average rating
-const ratingsSnap = await getDocs(collection(db, "ratings", currentUser.uid, "users"));
-let myAvg = 0;
-if (!ratingsSnap.empty) {
-  let total = 0;
-  ratingsSnap.forEach(r => total += r.data().value);
-  myAvg = total / ratingsSnap.size;
-}
-
-document.getElementById("myAvgRating").textContent = myAvg.toFixed(1);
-
 
   await loadConnections();
 });
@@ -304,20 +304,6 @@ shareBtn.onclick = () => {
   qrModal.style.display = "flex";
 };
 
-  function getRatingColor(rating) {
-  if (rating <= -800) return "#888888";      // grey
-  if (rating <= -600) return "#ff0000";      // red
-  if (rating <= -400) return "#ff8000";      // orange
-  if (rating <= -200) return "#ffff00";      // yellow
-  if (rating <= 0)    return "#00ff00";      // green
-  if (rating <= 200)  return "#00ffff";      // light blue
-  if (rating <= 400)  return "#0000ff";      // rich blue
-  if (rating <= 600)  return "#800080";      // purple
-  if (rating <= 800)  return "#ff69b4";      // pink
-  return "#b00b55";                           // hot pink / b00b55
-}
-
-
 async function loadConnections() {
   connectionsContainer.innerHTML = "";
   const usersCol = collection(db, "connections", currentUser.uid, "users");
@@ -325,93 +311,88 @@ async function loadConnections() {
 
   if (usersSnap.empty) { connectionsContainer.innerHTML = "<p>No connections yet</p>"; return; }
 
- for (const u of usersSnap.docs) {
-  const uid = u.data().uid;
-  const profileSnap = await getDoc(doc(db,"profiles",uid));
-  const profile = profileSnap.data() || {};
+  for (const u of usersSnap.docs) {
+    const uid = u.data().uid;
+    const profileSnap = await getDoc(doc(db,"profiles",uid));
+    const profile = profileSnap.data() || {};
 
-  // 1️⃣ Get all ratings for average
-  const ratingsSnap = await getDocs(collection(db, "ratings", uid, "users"));
-  let avg = 0;
-  if (!ratingsSnap.empty) {
-    let total = 0;
-    ratingsSnap.forEach(r => total += r.data().value);
-    avg = total / ratingsSnap.size;
-  }
-
-  // 2️⃣ Get current user's rating for this connection
-  const userRatingSnap = await getDoc(doc(db, "ratings", uid, "users", currentUser.uid));
-  const userRating = userRatingSnap.exists() ? userRatingSnap.data().value : "--";
-
-  // 3️⃣ Create card once
-  const bubbleColor = getRatingColor(avg);
-const card = document.createElement("div");
-card.className = "card";
-card.innerHTML = `
-  <h3>
-    <span class="name">${profile.name || "Unknown"}</span>
-    <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
-    <span class="rating-bubble" data-uid="${uid}" style="background:${bubbleColor}">${avg.toFixed(1)}</span>
-    <span class="your-rating" data-uid="${uid}">Your: ${userRating}</span>
-  </h3>
-  <div class="avatar">🧑‍🎓</div>
-  <p>${profile.aboutMe || "No description yet."}</p>
-  <div class="rating">
-    <input type="number" min="-1000" max="1000">
-    <button>Rate</button>
-  </div>
-  <a href="profile.html?uid=${uid}" class="action">View Profile</a>
-`;
-
-
-
-  // 4️⃣ Attach rate button logic
-  const rateBtn = card.querySelector("button");
-  const rateInput = card.querySelector("input");
-
-  rateBtn.onclick = async () => {
-    const value = parseInt(rateInput.value);
-    if (isNaN(value) || value < -1000 || value > 1000) {
-      alert("Rating must be between -1000 and 1000");
-      return;
+    // Get all ratings to compute avg
+    const ratingsCol = collection(db, "ratings", uid, "users");
+    const ratingsSnap = await getDocs(ratingsCol);
+    let avg = 0;
+    if (!ratingsSnap.empty) {
+      let total = 0;
+      ratingsSnap.forEach(r => total += r.data().value);
+      avg = total / ratingsSnap.size;
     }
 
-    const ratingRef = doc(db, "ratings", uid, "users", currentUser.uid);
-    const profileRef = doc(db, "profiles", uid);
+    // Get current user's rating for this connection
+    const userRatingSnap = await getDoc(doc(db,"ratings",uid,"users",currentUser.uid));
+    const userRating = userRatingSnap.exists() ? userRatingSnap.data().value : "--";
 
-    // Update "Your Rating" badge
-    const yourBadge = card.querySelector(`.your-rating[data-uid="${uid}"]`);
-    if (yourBadge) yourBadge.textContent = `Your: ${value}`;
+    // Create card
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
+        <span class="avg-rating" data-uid="${uid}">${avg.toFixed(0)}</span>
+      </div>
+      <div class="avatar">🧑‍🎓</div>
+      <h3 class="name">${profile.name || "Unknown"}</h3>
+      <p class="bio">${profile.aboutMe || "No description yet."}</p>
+      <span class="your-rating">Your: ${userRating}</span>
+      <div class="rating">
+        <input type="number" min="-1000" max="1000">
+        <button>Rate</button>
+      </div>
+      <a href="profile.html?uid=${uid}" class="action">View Profile</a>
+    `;
 
-    // Save/update user's rating
-    await setDoc(ratingRef, { value, updatedAt: serverTimestamp() });
+    // Color bubble
+    const ratingBubble = card.querySelector('.avg-rating');
+    if (ratingBubble) ratingBubble.style.backgroundColor = getRatingColor(avg);
 
-    // Recompute average
-    const allRatingsSnap = await getDocs(collection(db, "ratings", uid, "users"));
-    let total = 0;
-    allRatingsSnap.forEach(r => total += r.data().value);
-    const newAvg = allRatingsSnap.empty ? 0 : total / allRatingsSnap.size;
-    const newCount = allRatingsSnap.size;
+    // Rate button
+    const rateBtn = card.querySelector("button");
+    const rateInput = card.querySelector("input");
 
-    const ratingBubble = card.querySelector(`.rating-bubble[data-uid="${uid}"]`);
-if (ratingBubble) {
-  ratingBubble.textContent = newAvg.toFixed(1);
-  ratingBubble.style.background = getRatingColor(newAvg);
-}
+    rateBtn.onclick = async () => {
+      const value = parseInt(rateInput.value);
+      if (isNaN(value) || value < -1000 || value > 1000) {
+        alert("Rating must be between -1000 and 1000");
+        return;
+      }
 
-    // Update profile document
-    await updateDoc(profileRef, { ratingAvg: newAvg, ratingCount: newCount });
+      const ratingRef = doc(db,"ratings",uid,"users",currentUser.uid);
+      const profileRef = doc(db,"profiles",uid);
 
-    // Update badge immediately
-    const ratingBadge = card.querySelector(`.avg-rating[data-uid="${uid}"]`);
-    if (ratingBadge) ratingBadge.textContent = newAvg.toFixed(1);
+      // Save/update user's rating
+      await setDoc(ratingRef,{value,updatedAt:serverTimestamp()});
 
-    rateInput.value = "";
-  };
+      // Update "Your Rating"
+      const yourBadge = card.querySelector('.your-rating');
+      if (yourBadge) yourBadge.textContent = `Your: ${value}`;
 
-  connectionsContainer.appendChild(card);
-}
+      // Recompute avg
+      const allRatingsSnap = await getDocs(collection(db,"ratings",uid,"users"));
+      let total = 0;
+      allRatingsSnap.forEach(r => total += r.data().value);
+      const newAvg = allRatingsSnap.empty ? 0 : total / allRatingsSnap.size;
 
+      await updateDoc(profileRef,{ratingAvg:newAvg,ratingCount:allRatingsSnap.size});
+
+      // Update bubble
+      if (ratingBubble) {
+        ratingBubble.textContent = newAvg.toFixed(0);
+        ratingBubble.style.backgroundColor = getRatingColor(newAvg);
+      }
+
+      rateInput.value = "";
+    };
+
+    connectionsContainer.appendChild(card);
+  }
 }
 </script>
 </body>
