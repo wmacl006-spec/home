@@ -364,7 +364,7 @@ const truncatedBio = bioText.length > 200 ? bioText.slice(0, 200) + "…" : bioT
 
 card.innerHTML = `
 <span class="field">
-  ${truncate(profile.fieldOfStudy || "Trainer", 15)}
+  ${truncate(profile.fieldOfStudy || "Set", 15)}
 </span>
   <span class="avg-rating" data-uid="${uid}" style="background:${getRatingColor(avg)}">
     ${avg.toFixed(1)}
@@ -379,7 +379,7 @@ card.innerHTML = `
   <div class="bio">${truncatedBio}</div>
 
   <div class="your-rating" data-uid="${uid}">
-    Your rating: ${userRating}
+    Assigned Aura: ${userRating}
   </div>
 
   <div class="rating">
@@ -410,7 +410,7 @@ card.innerHTML = `
 
       // Update "Your Rating" badge
       const yourBadge = card.querySelector(`.your-rating[data-uid="${uid}"]`);
-if (yourBadge) yourBadge.textContent = `Given Aura: ${value}`;
+if (yourBadge) yourBadge.textContent = `Your rating: ${value}`;
 
 
       // Recompute average
