@@ -118,6 +118,11 @@ body {
   letter-spacing:.5px;
 }
 
+  .card span.positive { background:#2ecc71; }
+.card span.negative { background:#e74c3c; }
+.card span.neutral  { background:#777; }
+
+
 /* Portrait area */
 .card .avatar {
   height:120px;
@@ -269,10 +274,39 @@ shareBtn.onclick = () => {
   qrModal.style.display = "flex";
 };
 
+  async function getAverageRating(cardUid) {
+  const ratingsCol = collection(db, "ratings", cardUid, "users");
+  const snap = await getDocs(ratingsCol);
+
+  if (snap.empty) return 0;
+
+  let total = 0;
+  let count = 0;
+
+  snap.forEach(d => {
+    const val = Number(d.data().value);
+    if (!isNaN(val)) {
+      total += Math.max(-1000, Math.min(1000, val));
+      count++;
+    }
+  });
+
+  return count === 0 ? 0 : Math.round(total / count);
+}
+
+
 async function loadConnections() {
   connectionsContainer.innerHTML = "Loading connections…";
   const usersCol = collection(db, "connections", currentUser.uid, "users");
   const usersSnap = await getDocs(usersCol);
+  const avgScore = await getAverageRating(connection.uid);
+
+  const scoreClass =
+  avgScore > 0 ? "positive" :
+  avgScore < 0 ? "negative" :
+  "neutral";
+
+
 
   connectionsContainer.innerHTML = "";
   if (usersSnap.empty) { connectionsContainer.innerHTML="<p>No connections yet</p>"; return; }
@@ -287,7 +321,8 @@ async function loadConnections() {
     card.innerHTML = `
   <h3>
     ${profile.name || "Unknown"}
-    <span>${profile.fieldOfStudy || "Trainer"}</span>
+    <span class="${scoreClass}">${avgScore}</span>
+
   </h3>
 
   <div class="avatar">🧑‍🎓</div>
@@ -301,6 +336,7 @@ async function loadConnections() {
     View Profile
   </a>
 `;
+
 
     connectionsContainer.appendChild(card);
   }
