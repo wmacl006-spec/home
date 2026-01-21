@@ -420,6 +420,14 @@ if (yourBadge) yourBadge.textContent = `Your rating: ${value}`;
       const newAvg = allRatingsSnap.empty ? 0 : total / allRatingsSnap.size;
       const newCount = allRatingsSnap.size;
 
+      // ✅ UPDATE UI IMMEDIATELY
+const ratingBadge = card.querySelector(".avg-rating");
+if (ratingBadge) {
+  ratingBadge.textContent = newAvg.toFixed(1);
+  ratingBadge.style.backgroundColor = getRatingColor(newAvg);
+}
+
+
       // Update profile document
       await updateDoc(profileRef, { ratingAvg: newAvg, ratingCount: newCount });
 
