@@ -180,15 +180,20 @@ body {
 <div class="dashboard">
 
   <aside class="profile">
-    <h1>Your Profile</h1>
-    <input id="editName" placeholder="Name">
-    <input id="editField" placeholder="Field of Study">
-    <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
-    <button id="saveBtn">Save Profile</button>
-    <button class="secondary" id="shareBtn">Share Profile</button>
-    <button class="secondary" id="scanBtn">Scan QR</button>
-    <button class="secondary" id="logoutBtn">Log Out</button>
-  </aside>
+  <h1>Your Profile</h1>
+  <input id="editName" placeholder="Name">
+  <input id="editField" placeholder="Field of Study">
+  <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
+  <div style="margin-bottom:1rem;">
+    <span>Your Aura: </span>
+    <span id="profileRating" class="avg-badge" style="background:#242424;">0</span>
+  </div>
+  <button id="saveBtn">Save Profile</button>
+  <button class="secondary" id="shareBtn">Share Profile</button>
+  <button class="secondary" id="scanBtn">Scan QR</button>
+  <button class="secondary" id="logoutBtn">Log Out</button>
+</aside>
+
 
   <main class="connections">
     <h2>Your Connections</h2>
@@ -210,9 +215,17 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, getDocs, collection, updateDoc, serverTimestamp
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  getDocs,
+  collection,
+  updateDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
   authDomain: "liszt-df660.firebaseapp.com",
@@ -226,6 +239,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// DOM elements
 const editName = document.getElementById("editName");
 const editField = document.getElementById("editField");
 const editBio = document.getElementById("editBio");
@@ -236,24 +250,139 @@ const scanBtn = document.getElementById("scanBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const qr = document.getElementById("qr");
 const qrModal = document.getElementById("qrModal");
+const profileRatingEl = document.getElementById("profileRating");
 
 let currentUser;
 let profileRef;
 
-// Badge color based on rating
-function getRatingColor(r) {
-  if (r <= -800) return "#888888";
-  if (r <= -600) return "#ff0000";
-  if (r <= -400) return "#ff8000";
-  if (r <= -200) return "#ffff00";
-  if (r <= 0)    return "#00ff00";
-  if (r <= 200)  return "#00ffff";
-  if (r <= 400)  return "#0000ff";
-  if (r <= 600)  return "#800080";
-  if (r <= 800)  return "#ff69b4";
-  return "#b00b55";
+// Rating color function
+function getRatingColor(rating) {
+  if (rating <= -800) return "#888888";      // grey
+  if (rating <= -600) return "#ff0000";      // red
+  if (rating <= -400) return "#ff8000";      // orange
+  if (rating <= -200) return "#ffff00";      // yellow
+  if (rating <= 0)    return "#00ff00";      // green
+  if (rating <= 200)  return "#00ffff";      // light blue
+  if (rating <= 400)  return "#0000ff";      // rich blue
+  if (rating <= 600)  return "#800080";      // purple
+  if (rating <= 800)  return "#ff69b4";      // pink
+  return "#b00b55";                           // hot pink / b00b55
 }
 
+// Update current user profile rating
+async function updateProfileRating() {
+  const ratingsCol = collection(db, "ratings", currentUser.uid, "users");
+  const ratingsSnap = await getDocs(ratingsCol);
+
+  let avg = 0;
+  if (!ratingsSnap.empty) {
+    let total = 0;
+    ratingsSnap.forEach(r => total += r.data().value);
+    avg = total / ratingsSnap.size;
+  }
+
+  if (profileRatingEl) {
+    profileRatingEl.textContent = avg.toFixed(0);
+    profileRatingEl.style.backgroundColor = getRatingColor(avg);
+  }
+}
+
+// Load connections and display cards
+async function loadConnections() {
+  connectionsContainer.innerHTML = "";
+  const usersCol = collection(db, "connections", currentUser.uid, "users");
+  const usersSnap = await getDocs(usersCol);
+
+  if (usersSnap.empty) {
+    connectionsContainer.innerHTML = "<p>No connections yet</p>";
+    return;
+  }
+
+  for (const u of usersSnap.docs) {
+    const uid = u.data().uid;
+    const profileSnap = await getDoc(doc(db,"profiles",uid));
+    const profile = profileSnap.data() || {};
+
+    // Compute average rating from all users
+    const ratingsSnap = await getDocs(collection(db, "ratings", uid, "users"));
+    let avg = 0;
+    if (!ratingsSnap.empty) {
+      let total = 0;
+      ratingsSnap.forEach(r => total += r.data().value);
+      avg = total / ratingsSnap.size;
+    }
+
+    // Current user's rating for this connection
+    const userRatingSnap = await getDoc(doc(db, "ratings", uid, "users", currentUser.uid));
+    const userRating = userRatingSnap.exists() ? userRatingSnap.data().value : "--";
+
+    // Create card
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+        <span class="field" style="background:${getRatingColor(avg)}; padding:0.25rem 0.5rem; border-radius:6px;">${profile.fieldOfStudy || "Trainer"}</span>
+        <span class="avg-rating" data-uid="${uid}" style="background:${getRatingColor(avg)}; padding:0.25rem 0.5rem; border-radius:6px;">${avg.toFixed(1)}</span>
+      </div>
+      <div class="avatar">🧑‍🎓</div>
+      <h3>${profile.name || "Unknown"}</h3>
+      <p>${profile.aboutMe || "No description yet."}</p>
+      <p>Your Rating: <span class="your-rating" data-uid="${uid}">${userRating}</span></p>
+      <div class="rating">
+        <input type="number" min="-1000" max="1000" placeholder="Rate">
+        <button>Rate</button>
+      </div>
+      <a href="profile.html?uid=${uid}" class="action">View Profile</a>
+    `;
+
+    const rateBtn = card.querySelector("button");
+    const rateInput = card.querySelector("input");
+
+    rateBtn.onclick = async () => {
+      const value = parseInt(rateInput.value);
+      if (isNaN(value) || value < -1000 || value > 1000) {
+        alert("Rating must be between -1000 and 1000");
+        return;
+      }
+
+      const ratingRef = doc(db, "ratings", uid, "users", currentUser.uid);
+      const profileRef = doc(db, "profiles", uid);
+
+      // Save/update user's rating
+      await setDoc(ratingRef, { value, updatedAt: serverTimestamp() });
+
+      // Update "Your Rating" badge
+      const yourBadge = card.querySelector(`.your-rating[data-uid="${uid}"]`);
+      if (yourBadge) yourBadge.textContent = value;
+
+      // Recompute average
+      const allRatingsSnap = await getDocs(collection(db, "ratings", uid, "users"));
+      let total = 0;
+      allRatingsSnap.forEach(r => total += r.data().value);
+      const newAvg = allRatingsSnap.empty ? 0 : total / allRatingsSnap.size;
+      const newCount = allRatingsSnap.size;
+
+      // Update profile document
+      await updateDoc(profileRef, { ratingAvg: newAvg, ratingCount: newCount });
+
+      // Update avg badge color
+      const ratingBadge = card.querySelector(`.avg-rating[data-uid="${uid}"]`);
+      if (ratingBadge) {
+        ratingBadge.textContent = newAvg.toFixed(1);
+        ratingBadge.style.backgroundColor = getRatingColor(newAvg);
+      }
+
+      // Update own profile rating
+      await updateProfileRating();
+
+      rateInput.value = "";
+    };
+
+    connectionsContainer.appendChild(card);
+  }
+}
+
+// Auth state
 onAuthStateChanged(auth, async user => {
   if (!user) { location.href = "Liszt.html"; return; }
   currentUser = user;
@@ -269,9 +398,14 @@ onAuthStateChanged(auth, async user => {
     editBio.value = data.aboutMe || "";
   }
 
+  // Show current user profile rating
+  await updateProfileRating();
+
+  // Load connections
   await loadConnections();
 });
 
+// Save profile
 saveBtn.onclick = async () => {
   await setDoc(profileRef, {
     name: editName.value,
@@ -281,97 +415,20 @@ saveBtn.onclick = async () => {
   alert("Profile saved");
 };
 
+// Logout
 logoutBtn.onclick = async () => {
   await signOut(auth);
   location.href = "Liszt.html";
 };
 
+// Scan / Share
 scanBtn.onclick = () => { location.href = "scan.html"; };
-
 shareBtn.onclick = () => {
   qr.innerHTML = "";
   new QRCode(qr, { text:`liszt:add:${currentUser.uid}`, width:200, height:200, colorDark:"#ffffff", colorLight:"#161616" });
   qrModal.style.display = "flex";
 };
 
-async function loadConnections() {
-  connectionsContainer.innerHTML = "";
-  const usersCol = collection(db, "connections", currentUser.uid, "users");
-  const usersSnap = await getDocs(usersCol);
-  if (usersSnap.empty) { connectionsContainer.innerHTML = "<p>No connections yet</p>"; return; }
-
-  for (const u of usersSnap.docs) {
-    const uid = u.data().uid;
-    const profileSnap = await getDoc(doc(db,"profiles",uid));
-    const profile = profileSnap.data() || {};
-
-    const ratingsCol = collection(db, "ratings", uid, "users");
-    const ratingsSnap = await getDocs(ratingsCol);
-    let avg = 0;
-    if (!ratingsSnap.empty) {
-      let total = 0;
-      ratingsSnap.forEach(r => total += r.data().value);
-      avg = total / ratingsSnap.size;
-    }
-
-    const userRatingSnap = await getDoc(doc(db,"ratings",uid,"users",currentUser.uid));
-    const userRating = userRatingSnap.exists() ? userRatingSnap.data().value : "--";
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div class="card-header">
-        <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
-        <span class="avg-badge">${avg.toFixed(0)}</span>
-      </div>
-      <div class="avatar">🧑‍🎓</div>
-      <h3 class="name">${profile.name || "Unknown"}</h3>
-      <p class="bio">${profile.aboutMe || "No description yet."}</p>
-      <span class="your-rating">Aura Given by You: ${userRating}</span>
-      <div class="rating">
-        <input type="number" min="-1000" max="1000">
-        <button>Rate</button>
-      </div>
-      <a href="profile.html?uid=${uid}" class="action">View Profile</a>
-    `;
-
-    // Set badge color
-    const badge = card.querySelector('.avg-badge');
-    if (badge) badge.style.backgroundColor = getRatingColor(avg);
-
-    const rateBtn = card.querySelector("button");
-    const rateInput = card.querySelector("input");
-
-    rateBtn.onclick = async () => {
-      const value = parseInt(rateInput.value);
-      if (isNaN(value) || value < -1000 || value > 1000) { alert("Rating must be between -1000 and 1000"); return; }
-
-      const ratingRef = doc(db,"ratings",uid,"users",currentUser.uid);
-      const profileRef = doc(db,"profiles",uid);
-
-      await setDoc(ratingRef,{value,updatedAt:serverTimestamp()});
-
-      const yourBadge = card.querySelector('.your-rating');
-      if (yourBadge) yourBadge.textContent = `Your: ${value}`;
-
-      const allRatingsSnap = await getDocs(collection(db,"ratings",uid,"users"));
-      let total = 0;
-      allRatingsSnap.forEach(r => total += r.data().value);
-      const newAvg = allRatingsSnap.empty ? 0 : total / allRatingsSnap.size;
-
-      await updateDoc(profileRef,{ratingAvg:newAvg,ratingCount:allRatingsSnap.size});
-
-      if (badge) {
-        badge.textContent = newAvg.toFixed(0);
-        badge.style.backgroundColor = getRatingColor(newAvg);
-      }
-
-      rateInput.value = "";
-    };
-
-    connectionsContainer.appendChild(card);
-  }
-}
 </script>
 </body>
 </html>
