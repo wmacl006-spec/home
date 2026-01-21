@@ -169,15 +169,19 @@ body {
 <div class="dashboard">
 
   <aside class="profile">
-    <h1>Your Profile</h1>
-    <input id="editName" placeholder="Name">
-    <input id="editField" placeholder="Field of Study">
-    <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
-    <button id="saveBtn">Save Profile</button>
-    <button class="secondary" id="shareBtn">Share Profile</button>
-    <button class="secondary" id="scanBtn">Scan QR</button>
-    <button class="secondary" id="logoutBtn">Log Out</button>
-  </aside>
+  <h1>Your Profile</h1>
+  <input id="editName" placeholder="Name">
+  <input id="editField" placeholder="Field of Study">
+  <textarea id="editBio" rows="4" placeholder="About Me"></textarea>
+  <div style="margin-bottom:1rem;">
+    <strong>Average Rating:</strong> <span id="myAvgRating">--</span>
+  </div>
+  <button id="saveBtn">Save Profile</button>
+  <button class="secondary" id="shareBtn">Share Profile</button>
+  <button class="secondary" id="scanBtn">Scan QR</button>
+  <button class="secondary" id="logoutBtn">Log Out</button>
+</aside>
+
 
   <main class="connections">
     <h2>Your Connections</h2>
@@ -250,6 +254,18 @@ onAuthStateChanged(auth, async user => {
     editField.value = data.fieldOfStudy || "";
     editBio.value = data.aboutMe || "";
   }
+
+  // Compute your average rating
+const ratingsSnap = await getDocs(collection(db, "ratings", currentUser.uid, "users"));
+let myAvg = 0;
+if (!ratingsSnap.empty) {
+  let total = 0;
+  ratingsSnap.forEach(r => total += r.data().value);
+  myAvg = total / ratingsSnap.size;
+}
+
+document.getElementById("myAvgRating").textContent = myAvg.toFixed(1);
+
 
   await loadConnections();
 });
