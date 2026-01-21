@@ -32,7 +32,6 @@ body {
   min-height:100vh;
 }
 
-/* LEFT COLUMN */
 .profile {
   background:var(--panel);
   border-right:1px solid #242424;
@@ -53,7 +52,6 @@ body {
   border-radius:10px;
   padding:.75rem .9rem;
   color:var(--white);
-  font-size:.9rem;
   margin-bottom:1rem;
 }
 
@@ -70,7 +68,6 @@ body {
 
 .profile button.secondary { margin-top:.8rem; }
 
-/* RIGHT COLUMN */
 .connections { padding:3rem; }
 
 .connections h2 {
@@ -87,13 +84,11 @@ body {
   gap:1.5rem;
 }
 
-/* CARD */
 .card {
   background:linear-gradient(145deg,#1e1e1e,#121212);
   border-radius:18px;
   padding:14px;
   border:3px solid #2b2b2b;
-  box-shadow:0 14px 30px rgba(0,0,0,.6);
 }
 
 .card h3 {
@@ -119,7 +114,7 @@ body {
 .card span.positive { background:#2ecc71; }
 .card span.negative { background:#e74c3c; }
 
-.card .avatar {
+.avatar {
   height:120px;
   background:radial-gradient(circle at top,#2a2a2a,#0f0f0f);
   border-radius:12px;
@@ -141,7 +136,6 @@ body {
   margin-bottom:.6rem;
 }
 
-/* ACTIONS */
 .actions {
   display:flex;
   gap:.4rem;
@@ -163,7 +157,6 @@ body {
   color:#e74c3c;
 }
 
-/* QR MODAL */
 #qrModal {
   position:fixed;
   inset:0;
@@ -172,6 +165,7 @@ body {
   align-items:center;
   justify-content:center;
 }
+
 #qrModal .panel {
   background:var(--panel);
   padding:2rem;
@@ -197,7 +191,7 @@ body {
   </aside>
 
   <main class="connections">
-    <h2>Your Connections</h2>
+    <h2 id="sectionTitle">Your Connections</h2>
     <div class="grid" id="connectionsContainer"></div>
   </main>
 
@@ -206,9 +200,7 @@ body {
 <div id="qrModal" onclick="this.style.display='none'">
   <div class="panel" onclick="event.stopPropagation()">
     <div id="qr"></div>
-    <p style="margin-top:1rem;font-size:.85rem;color:var(--gray)">
-      Scan to add me
-    </p>
+    <p style="margin-top:1rem;font-size:.85rem;color:var(--gray)">Scan to add me</p>
   </div>
 </div>
 
@@ -236,11 +228,11 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* DOM */
 const editName = document.getElementById("editName");
 const editField = document.getElementById("editField");
 const editBio = document.getElementById("editBio");
-const connectionsContainer = document.getElementById("connectionsContainer");
+const container = document.getElementById("connectionsContainer");
+const sectionTitle = document.getElementById("sectionTitle");
 const qrModal = document.getElementById("qrModal");
 const qr = document.getElementById("qr");
 
@@ -254,7 +246,7 @@ onAuthStateChanged(auth, async user => {
   }
   currentUser = user;
   await loadProfile();
-  await loadConnections();
+  await loadUsers();
 });
 
 /* PROFILE */
@@ -272,15 +264,11 @@ async function loadProfile() {
 }
 
 document.getElementById("saveBtn").onclick = async () => {
-  await setDoc(
-    doc(db,"profiles",currentUser.uid),
-    {
-      name:editName.value,
-      fieldOfStudy:editField.value,
-      aboutMe:editBio.value
-    },
-    { merge:true }
-  );
+  await setDoc(doc(db,"profiles",currentUser.uid),{
+    name:editName.value,
+    fieldOfStudy:editField.value,
+    aboutMe:editBio.value
+  },{merge:true});
 };
 
 document.getElementById("logoutBtn").onclick = async () => {
@@ -290,58 +278,62 @@ document.getElementById("logoutBtn").onclick = async () => {
 
 document.getElementById("scanBtn").onclick = () => location.href = "scan.html";
 
-/* SHARE (QR) */
 document.getElementById("shareBtn").onclick = () => {
-  qr.innerHTML = "";
-  new QRCode(qr, {
-    text: `liszt:add:${currentUser.uid}`,
-    width:200,
-    height:200,
-    colorDark:"#ffffff",
-    colorLight:"#161616"
+  qr.innerHTML="";
+  new QRCode(qr,{
+    text:`liszt:add:${currentUser.uid}`,
+    width:200,height:200,
+    colorDark:"#fff",colorLight:"#161616"
   });
-  qrModal.style.display = "flex";
+  qrModal.style.display="flex";
 };
 
-/* RATINGS */
-async function averageRating(uid) {
+/* RATING */
+async function averageRating(uid){
   const snap = await getDocs(collection(db,"ratings",uid,"users"));
-  if (snap.empty) return 0;
+  if(snap.empty) return 0;
   let t=0,c=0;
-  snap.forEach(d=>{ t+=Number(d.data().value)||0; c++; });
+  snap.forEach(d=>{t+=Number(d.data().value)||0;c++;});
   return Math.round(t/c);
 }
 
-/* CONNECTIONS */
-async function loadConnections() {
-  connectionsContainer.innerHTML = "";
+/* USERS (connections OR fallback) */
+async function loadUsers(){
+  container.innerHTML="";
 
-  const snap = await getDocs(
+  const connSnap = await getDocs(
     collection(db,"connections",currentUser.uid,"users")
   );
 
-  if (snap.empty) {
-    connectionsContainer.innerHTML = "<p>No connections yet</p>";
-    return;
+  let uids = [];
+
+  if (!connSnap.empty) {
+    connSnap.forEach(d=>{
+      const v=d.data().uid||d.id;
+      if(v!==currentUser.uid) uids.push(v);
+    });
+  } else {
+    sectionTitle.textContent="Discover Users";
+    const profiles = await getDocs(collection(db,"profiles"));
+    profiles.forEach(d=>{
+      if(d.id!==currentUser.uid) uids.push(d.id);
+    });
   }
 
-  for (const d of snap.docs) {
-    const uid = d.data().uid || d.id;
-
+  for (const uid of uids) {
     const pSnap = await getDoc(doc(db,"profiles",uid));
-    const p = pSnap.exists() ? pSnap.data() : {};
-
+    if (!pSnap.exists()) continue;
+    const p = pSnap.data();
     const avg = await averageRating(uid);
 
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <h3>
-        ${p.name || uid}
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`
+      <h3>${p.name||uid}
         <span class="${avg>0?"positive":avg<0?"negative":""}">${avg}</span>
       </h3>
       <div class="avatar">🧑‍🎓</div>
-      <p>${p.aboutMe || "No description"}</p>
+      <p>${p.aboutMe||"No description"}</p>
       <div class="actions">
         <input type="number" min="-1000" max="1000" placeholder="Rate">
         <button>Rate</button>
@@ -349,26 +341,22 @@ async function loadConnections() {
       </div>
     `;
 
-    const rateInput = card.querySelector("input");
-    const [rateBtn, removeBtn] = card.querySelectorAll("button");
+    const [rateBtn,removeBtn]=card.querySelectorAll("button");
+    const input=card.querySelector("input");
 
-    rateBtn.onclick = async () => {
-      if (rateInput.value === "") return;
-      await setDoc(
-        doc(db,"ratings",uid,"users",currentUser.uid),
-        { value: Math.max(-1000,Math.min(1000,Number(rateInput.value))) }
-      );
-      loadConnections();
+    rateBtn.onclick=async()=>{
+      if(input.value==="")return;
+      await setDoc(doc(db,"ratings",uid,"users",currentUser.uid),
+        {value:Number(input.value)});
+      loadUsers();
     };
 
-    removeBtn.onclick = async () => {
-      await deleteDoc(
-        doc(db,"connections",currentUser.uid,"users",d.id)
-      );
-      loadConnections();
+    removeBtn.onclick=async()=>{
+      await deleteDoc(doc(db,"connections",currentUser.uid,"users",uid));
+      loadUsers();
     };
 
-    connectionsContainer.appendChild(card);
+    container.appendChild(card);
   }
 }
 </script>
