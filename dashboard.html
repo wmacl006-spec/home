@@ -205,11 +205,16 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 <script type="module">
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs } 
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 /* ================= FIREBASE ================= */
 
@@ -297,9 +302,7 @@ logoutBtn.onclick = async () => {
   location.href = "Liszt.html";
 };
 
-scanBtn.onclick = () => {
-  location.href = "scan.html";
-};
+scanBtn.onclick = () => location.href = "scan.html";
 
 shareBtn.onclick = () => {
   qr.innerHTML = "";
@@ -332,10 +335,10 @@ async function getAverageRating(cardUid) {
     }
   });
 
-  return count === 0 ? 0 : Math.round(total / count);
+  return Math.round(total / count);
 }
 
-  async function submitRating(cardUid, value) {
+async function submitRating(cardUid, value) {
   const ratingRef = doc(db, "ratings", cardUid, "users", currentUser.uid);
 
   await setDoc(
@@ -347,7 +350,6 @@ async function getAverageRating(cardUid) {
     { merge: true }
   );
 }
-
 
 /* ================= CONNECTIONS ================= */
 
@@ -381,67 +383,36 @@ async function loadConnections() {
     card.className = "card";
 
     card.innerHTML = `
-  <h3>
-    ${profile.name || "Unknown"}
-    <span class="${scoreClass}">${avgScore}</span>
-  </h3>
+      <h3>
+        ${profile.name || "Unknown"}
+        <span class="${scoreClass}">${avgScore}</span>
+      </h3>
 
-  <div class="avatar">🧑‍🎓</div>
+      <div class="avatar">🧑‍🎓</div>
 
-  <p>
-    <strong>Ability:</strong><br>
-    ${profile.aboutMe || "No description yet."}
-  </p>
+      <p>
+        <strong>Ability:</strong><br>
+        ${profile.aboutMe || "No description yet."}
+      </p>
 
-  <div style="display:flex; gap:.4rem; margin-bottom:.5rem;">
-    <input 
-      type="number"
-      min="-1000"
-      max="1000"
-      placeholder="Rate"
-      style="
-        flex:1;
-        background:#0f0f0f;
-        border:1px solid #2b2b2b;
-        border-radius:8px;
-        padding:.3rem;
-        color:white;
-        font-size:.7rem;
-      "
-    />
-    <button
-      style="
-        padding:.3rem .6rem;
-        border-radius:8px;
-        border:1px solid #2b2b2b;
-        background:#161616;
-        color:white;
-        font-size:.7rem;
-        cursor:pointer;
-      "
-    >
-      Rate
-    </button>
-  </div>
+      <div style="display:flex; gap:.4rem; margin-bottom:.5rem;">
+        <input type="number" min="-1000" max="1000" placeholder="Rate" />
+        <button>Rate</button>
+      </div>
 
-  <a href="profile.html?uid=${connection.uid}" class="action">
-    View Profile
-  </a>
-`;
+      <a href="profile.html?uid=${connection.uid}" class="action">
+        View Profile
+      </a>
+    `;
 
     const input = card.querySelector("input");
-const button = card.querySelector("button");
+    const button = card.querySelector("button");
 
-button.onclick = async () => {
-  if (input.value === "") return;
-
-  await submitRating(connection.uid, input.value);
-  alert("Rating saved");
-
-  await loadConnections(); // refresh averages
-};
-
-
+    button.onclick = async () => {
+      if (input.value === "") return;
+      await submitRating(connection.uid, input.value);
+      await loadConnections();
+    };
 
     connectionsContainer.appendChild(card);
   }
