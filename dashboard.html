@@ -82,95 +82,83 @@ body {
 }
 
 .card h3 {
-  font-family:'Comfortaa';
-  font-size:.95rem;
-  background:#0f0f0f;
-  padding:.45rem .6rem;
-  border-radius:10px;
-  border:1px solid #2b2b2b;
-  margin-bottom:.6rem;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Comfortaa';
+  font-size: .9rem;
+  margin-bottom: .5rem;
+  padding: .3rem .5rem;
+  border-bottom: 1px solid #2b2b2b;
 }
 
-.card h3 span {
-  font-size:.65rem;
-  padding:.2rem .45rem;
-  border-radius:999px;
-  background:var(--pink);
-  color:white;
-  text-transform:uppercase;
+.card .avatar {
+  width: 100%;
+  height: 120px;
+  margin: .7rem 0;
+  border-radius: 12px;
+  background: radial-gradient(circle at top, #2a2a2a, #0f0f0f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
 }
 
-.avg-rating {
-  background:#101010;
-  border:1px solid #2b2b2b;
-  padding:.25rem .5rem;
-  border-radius:6px;
-  font-size:.7rem;
+.card .name {
+  font-family: 'Comfortaa';
+  font-size: .95rem;
+  margin-bottom: .25rem;
 }
 
-.avatar {
-  height:120px;
-  background:radial-gradient(circle at top,#2a2a2a,#0f0f0f);
-  border-radius:12px;
-  border:2px solid #000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:3rem;
-  margin-bottom:.7rem;
+.card .bio {
+  font-size: .75rem;
+  color: var(--gray);
+  margin-bottom: .5rem;
 }
 
-.card p {
-  background:#0f0f0f;
-  border:1px solid #2b2b2b;
-  border-radius:10px;
-  padding:.6rem;
-  font-size:.75rem;
-  margin-bottom:.7rem;
-  color:var(--gray);
+.card .your-rating {
+  font-size: .75rem;
+  margin-bottom: .5rem;
 }
 
-.rating {
-  display:flex;
-  gap:.4rem;
-  margin-bottom:.6rem;
+.card .rating {
+  display: flex;
+  gap: .4rem;
+  margin-bottom: .6rem;
 }
 
-.rating input {
-  width:80px;
-  background:#101010;
-  border:1px solid #242424;
-  color:white;
-  border-radius:8px;
-  padding:.3rem;
-  font-size:.7rem;
+.card .rating input {
+  flex: 1;
+  padding: .3rem;
+  font-size: .7rem;
+  border-radius: 8px;
+  border: 1px solid #242424;
+  background: #101010;
+  color: white;
 }
 
-.rating button {
-  flex:1;
-  font-size:.65rem;
-  border-radius:8px;
-  border:1px solid #242424;
-  background:#161616;
-  color:white;
-  cursor:pointer;
+.card .rating button {
+  font-size: .7rem;
+  border-radius: 8px;
+  border: 1px solid #242424;
+  background: #161616;
+  color: white;
+  cursor: pointer;
+  padding: .3rem .5rem;
 }
 
-.action {
-  display:block;
-  text-align:center;
-  padding:.45rem;
-  font-size:.7rem;
-  border-radius:10px;
-  border:1px solid #2b2b2b;
-  background:#161616;
-  color:white;
-  text-decoration:none;
+.card .action {
+  display: block;
+  text-align: center;
+  padding: .45rem;
+  font-size: .7rem;
+  border-radius: 10px;
+  border: 1px solid #2b2b2b;
+  background: #161616;
+  color: white;
+  text-decoration: none;
 }
+
 
 #qrModal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; }
 #qrModal .panel { background:var(--panel); padding:2rem; border-radius:14px; text-align:center; }
@@ -315,22 +303,27 @@ async function loadConnections() {
 
   // 3️⃣ Create card once
   const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML = `
-    <h3>
-      <span class="name">${profile.name || "Unknown"}</span>
-      <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
-      <span class="avg-rating" data-uid="${uid}">${avg.toFixed(1)}</span>
-      <span class="your-rating" data-uid="${uid}">Your: ${userRating}</span>
-    </h3>
-    <div class="avatar">🧑‍🎓</div>
-    <p>${profile.aboutMe || "No description yet."}</p>
-    <div class="rating">
-      <input type="number" min="-1000" max="1000">
-      <button>Rate</button>
-    </div>
-    <a href="profile.html?uid=${uid}" class="action">View Profile</a>
-  `;
+card.className = "card";
+card.innerHTML = `
+  <h3>
+    <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
+    <span class="avg-rating" data-uid="${uid}">${avg.toFixed(1)}</span>
+  </h3>
+
+  <div class="avatar">🧑‍🎓</div>
+
+  <div class="name">${profile.name || "Unknown"}</div>
+  <div class="bio">${profile.aboutMe || "No description yet."}</div>
+  <div class="your-rating" data-uid="${uid}">Your: ${userRating}</div>
+
+  <div class="rating">
+    <input type="number" min="-1000" max="1000" placeholder="Rate...">
+    <button>Rate</button>
+  </div>
+
+  <a href="profile.html?uid=${uid}" class="action">View Profile</a>
+`;
+
 
   // 4️⃣ Attach rate button logic
   const rateBtn = card.querySelector("button");
