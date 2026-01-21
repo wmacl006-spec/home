@@ -303,27 +303,56 @@ async function loadConnections() {
     const rateInput = card.querySelector("input");
 
     rateBtn.onclick = async () => {
-      const value = parseInt(rateInput.value);
-      if (isNaN(value) || value < -1000 || value > 1000) return;
+  const value = parseInt(rateInput.value);
+  if (isNaN(value) || value < -1000 || value > 1000) {
+    alert("Rating must be between -1000 and 1000");
+    return;
+  }
 
-      const ratingRef = doc(db,"ratings",uid,"users",currentUser.uid);
-      const profileRef = doc(db,"profiles",uid);
-      const existing = await getDoc(ratingRef);
+  const ratingRef = doc(db, "ratings", uid, "users", currentUser.uid);
+  const profileRef = doc(db, "profiles", uid);
 
-      if (existing.exists()) {
-        const old = existing.data().value;
-        const diff = value - old;
-        await updateDoc(profileRef,{ratingAvg:increment(diff/profile.ratingCount)});
-        await updateDoc(ratingRef,{value,updatedAt:serverTimestamp()});
-      } else {
-        const count = (profile.ratingCount || 0) + 1;
-        const avg = ((profile.ratingAvg || 0)*(count-1)+value)/count;
-        await updateDoc(profileRef,{ratingAvg:avg,ratingCount:count});
-        await setDoc(ratingRef,{value,updatedAt:serverTimestamp()});
-      }
+  const ratingSnap = await getDoc(ratingRef);
+  const profileSnap = await getDoc(profileRef);
+  const profileData = profileSnap.data();
 
-      location.reload();
-    };
+  let newAvg, newCount;
+
+  if (ratingSnap.exists()) {
+    // Update existing rating
+    const oldValue = ratingSnap.data().value;
+
+    newCount = profileData.ratingCount;
+    newAvg =
+      ((profileData.ratingAvg * newCount) - oldValue + value) / newCount;
+
+    await updateDoc(ratingRef, {
+      value,
+      updatedAt: serverTimestamp()
+    });
+
+  } else {
+    // New rating
+    newCount = (profileData.ratingCount || 0) + 1;
+    newAvg =
+      ((profileData.ratingAvg || 0) * (newCount - 1) + value) / newCount;
+
+    await setDoc(ratingRef, {
+      value,
+      updatedAt: serverTimestamp()
+    });
+  }
+
+  await updateDoc(profileRef, {
+    ratingAvg: newAvg,
+    ratingCount: newCount
+  });
+
+  // ✅ UPDATE UI IMMEDIATELY
+  card.querySelector(".avg-rating").textContent = newAvg.toFixed(1);
+  rateInput.value = "";
+};
+
 
     connectionsContainer.appendChild(card);
   }
