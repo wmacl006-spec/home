@@ -302,7 +302,10 @@ async function loadConnections() {
 
     // Compute average dynamically
     const ratingsCol = collection(db, "ratings", uid, "users");
-    const ratingsSnap = await getDocs(ratingsCol);
+    // Get current user's rating for this connection
+const userRatingSnap = await getDoc(doc(db, "ratings", uid, "users", currentUser.uid));
+const userRating = userRatingSnap.exists() ? userRatingSnap.data().value : "--";
+
     let avg = 0;
     if (!ratingsSnap.empty) {
       let total = 0;
@@ -317,6 +320,8 @@ async function loadConnections() {
         <span class="name">${profile.name || "Unknown"}</span>
         <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
         <span class="avg-rating" data-uid="${uid}">${avg.toFixed(1)}</span>
+<span class="your-rating" data-uid="${uid}">Your: --</span>
+
       </h3>
       <div class="avatar">🧑‍🎓</div>
       <p>${profile.aboutMe || "No description yet."}</p>
@@ -340,6 +345,11 @@ async function loadConnections() {
       const ratingRef = doc(db, "ratings", uid, "users", currentUser.uid);
       const profileRef = doc(db, "profiles", uid);
 
+      // Update "Your Rating" badge
+const yourBadge = card.querySelector(`.your-rating[data-uid="${uid}"]`);
+if (yourBadge) yourBadge.textContent = `Your: ${value}`;
+
+
       // Save/update user's rating
       await setDoc(ratingRef, { value, updatedAt: serverTimestamp() });
 
@@ -359,6 +369,25 @@ async function loadConnections() {
 
       rateInput.value = "";
     };
+
+    const card = document.createElement("div");
+card.className = "card";
+card.innerHTML = `
+  <h3>
+    <span class="name">${profile.name || "Unknown"}</span>
+    <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
+    <span class="avg-rating" data-uid="${uid}">${avg.toFixed(1)}</span>
+    <span class="your-rating" data-uid="${uid}">Your: ${userRating}</span>
+  </h3>
+  <div class="avatar">🧑‍🎓</div>
+  <p>${profile.aboutMe || "No description yet."}</p>
+  <div class="rating">
+    <input type="number" min="-1000" max="1000">
+    <button>Rate</button>
+  </div>
+  <a href="profile.html?uid=${uid}" class="action">View Profile</a>
+`;
+
 
     connectionsContainer.appendChild(card);
   }
