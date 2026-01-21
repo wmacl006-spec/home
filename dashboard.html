@@ -191,7 +191,7 @@ body {
   </aside>
 
   <main class="connections">
-    <h2 id="sectionTitle">Your Connections</h2>
+    <h2>Your Connections</h2>
     <div class="grid" id="connectionsContainer"></div>
   </main>
 
@@ -225,16 +225,13 @@ const app = initializeApp({
   authDomain: "liszt-df660.firebaseapp.com",
   projectId: "liszt-df660"
 });
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const editName = document.getElementById("editName");
-const editField = document.getElementById("editField");
-const editBio = document.getElementById("editBio");
 const container = document.getElementById("connectionsContainer");
-const sectionTitle = document.getElementById("sectionTitle");
-const qrModal = document.getElementById("qrModal");
 const qr = document.getElementById("qr");
+const qrModal = document.getElementById("qrModal");
 
 let currentUser;
 
@@ -245,30 +242,20 @@ onAuthStateChanged(auth, async user => {
     return;
   }
   currentUser = user;
-  await loadProfile();
-  await loadUsers();
+  await loadConnections();
 });
 
-/* PROFILE */
-async function loadProfile() {
-  const ref = doc(db,"profiles",currentUser.uid);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) {
-    await setDoc(ref,{ name:"", fieldOfStudy:"", aboutMe:"" });
-    return;
-  }
-  const d = snap.data();
-  editName.value = d.name || "";
-  editField.value = d.fieldOfStudy || "";
-  editBio.value = d.aboutMe || "";
-}
-
-document.getElementById("saveBtn").onclick = async () => {
-  await setDoc(doc(db,"profiles",currentUser.uid),{
-    name:editName.value,
-    fieldOfStudy:editField.value,
-    aboutMe:editBio.value
-  },{merge:true});
+/* SHARE */
+document.getElementById("shareBtn").onclick = () => {
+  qr.innerHTML = "";
+  new QRCode(qr, {
+    text: `liszt:add:${currentUser.uid}`,
+    width:200,
+    height:200,
+    colorDark:"#ffffff",
+    colorLight:"#161616"
+  });
+  qrModal.style.display = "flex";
 };
 
 document.getElementById("logoutBtn").onclick = async () => {
@@ -278,62 +265,32 @@ document.getElementById("logoutBtn").onclick = async () => {
 
 document.getElementById("scanBtn").onclick = () => location.href = "scan.html";
 
-document.getElementById("shareBtn").onclick = () => {
-  qr.innerHTML="";
-  new QRCode(qr,{
-    text:`liszt:add:${currentUser.uid}`,
-    width:200,height:200,
-    colorDark:"#fff",colorLight:"#161616"
-  });
-  qrModal.style.display="flex";
-};
+/* CONNECTIONS */
+async function loadConnections() {
+  container.innerHTML = "";
 
-/* RATING */
-async function averageRating(uid){
-  const snap = await getDocs(collection(db,"ratings",uid,"users"));
-  if(snap.empty) return 0;
-  let t=0,c=0;
-  snap.forEach(d=>{t+=Number(d.data().value)||0;c++;});
-  return Math.round(t/c);
-}
-
-/* USERS (connections OR fallback) */
-async function loadUsers(){
-  container.innerHTML="";
-
-  const connSnap = await getDocs(
+  const snap = await getDocs(
     collection(db,"connections",currentUser.uid,"users")
   );
 
-  let uids = [];
-
-  if (!connSnap.empty) {
-    connSnap.forEach(d=>{
-      const v=d.data().uid||d.id;
-      if(v!==currentUser.uid) uids.push(v);
-    });
-  } else {
-    sectionTitle.textContent="Discover Users";
-    const profiles = await getDocs(collection(db,"profiles"));
-    profiles.forEach(d=>{
-      if(d.id!==currentUser.uid) uids.push(d.id);
-    });
+  if (snap.empty) {
+    container.innerHTML = "<p>No connections found</p>";
+    return;
   }
 
-  for (const uid of uids) {
+  for (const d of snap.docs) {
+    const uid = d.data().uid || d.id;
     const pSnap = await getDoc(doc(db,"profiles",uid));
     if (!pSnap.exists()) continue;
-    const p = pSnap.data();
-    const avg = await averageRating(uid);
 
-    const card=document.createElement("div");
-    card.className="card";
-    card.innerHTML=`
-      <h3>${p.name||uid}
-        <span class="${avg>0?"positive":avg<0?"negative":""}">${avg}</span>
-      </h3>
+    const p = pSnap.data();
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h3>${p.name || "Unknown"} <span>0</span></h3>
       <div class="avatar">🧑‍🎓</div>
-      <p>${p.aboutMe||"No description"}</p>
+      <p>${p.aboutMe || "No description"}</p>
       <div class="actions">
         <input type="number" min="-1000" max="1000" placeholder="Rate">
         <button>Rate</button>
@@ -341,19 +298,9 @@ async function loadUsers(){
       </div>
     `;
 
-    const [rateBtn,removeBtn]=card.querySelectorAll("button");
-    const input=card.querySelector("input");
-
-    rateBtn.onclick=async()=>{
-      if(input.value==="")return;
-      await setDoc(doc(db,"ratings",uid,"users",currentUser.uid),
-        {value:Number(input.value)});
-      loadUsers();
-    };
-
-    removeBtn.onclick=async()=>{
-      await deleteDoc(doc(db,"connections",currentUser.uid,"users",uid));
-      loadUsers();
+    card.querySelector(".remove").onclick = async () => {
+      await deleteDoc(doc(db,"connections",currentUser.uid,"users",d.id));
+      loadConnections();
     };
 
     container.appendChild(card);
