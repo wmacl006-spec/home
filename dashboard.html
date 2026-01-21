@@ -209,6 +209,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+/* ================= FIREBASE ================= */
+
 const firebaseConfig = {
   apiKey: "AIzaSyD8LdaUeS-bDvT1oAQteRnndQDDB86n4Ds",
   authDomain: "liszt-df660.firebaseapp.com",
@@ -221,6 +223,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+/* ================= DOM ================= */
 
 const editName = document.getElementById("editName");
 const editField = document.getElementById("editField");
@@ -236,20 +240,36 @@ const qrModal = document.getElementById("qrModal");
 let currentUser;
 let profileRef;
 
+/* ================= AUTH ================= */
+
 onAuthStateChanged(auth, async user => {
-  if (!user) { location.href = "Liszt.html"; return; }
+  if (!user) {
+    location.href = "Liszt.html";
+    return;
+  }
+
   currentUser = user;
   profileRef = doc(db, "profiles", user.uid);
+
   await loadOrCreateProfile();
   await loadConnections();
 });
 
+/* ================= PROFILE ================= */
+
 async function loadOrCreateProfile() {
   const snap = await getDoc(profileRef);
+
   if (!snap.exists()) {
-    await setDoc(profileRef, { name:"", fieldOfStudy:"", aboutMe:"", createdAt:new Date() });
+    await setDoc(profileRef, {
+      name: "",
+      fieldOfStudy: "",
+      aboutMe: "",
+      createdAt: new Date()
+    });
     return;
   }
+
   const data = snap.data();
   editName.value = data.name || "";
   editField.value = data.fieldOfStudy || "";
@@ -257,7 +277,16 @@ async function loadOrCreateProfile() {
 }
 
 saveBtn.onclick = async () => {
-  await setDoc(profileRef, { name: editName.value, fieldOfStudy: editField.value, aboutMe: editBio.value, updatedAt: new Date() }, { merge:true });
+  await setDoc(
+    profileRef,
+    {
+      name: editName.value,
+      fieldOfStudy: editField.value,
+      aboutMe: editBio.value,
+      updatedAt: new Date()
+    },
+    { merge: true }
+  );
   alert("Profile saved");
 };
 
@@ -266,15 +295,25 @@ logoutBtn.onclick = async () => {
   location.href = "Liszt.html";
 };
 
-scanBtn.onclick = () => { location.href = "scan.html"; };
+scanBtn.onclick = () => {
+  location.href = "scan.html";
+};
 
 shareBtn.onclick = () => {
   qr.innerHTML = "";
-  new QRCode(qr, { text:`liszt:add:${currentUser.uid}`, width:200, height:200, colorDark:"#ffffff", colorLight:"#161616" });
+  new QRCode(qr, {
+    text: `liszt:add:${currentUser.uid}`,
+    width: 200,
+    height: 200,
+    colorDark: "#ffffff",
+    colorLight: "#161616"
+  });
   qrModal.style.display = "flex";
 };
 
-  async function getAverageRating(cardUid) {
+/* ================= RATINGS ================= */
+
+async function getAverageRating(cardUid) {
   const ratingsCol = collection(db, "ratings", cardUid, "users");
   const snap = await getDocs(ratingsCol);
 
@@ -294,6 +333,7 @@ shareBtn.onclick = () => {
   return count === 0 ? 0 : Math.round(total / count);
 }
 
+/* ================= CONNECTIONS ================= */
 
 async function loadConnections() {
   connectionsContainer.innerHTML = "Loading connections…";
@@ -302,6 +342,7 @@ async function loadConnections() {
   const usersSnap = await getDocs(usersCol);
 
   connectionsContainer.innerHTML = "";
+
   if (usersSnap.empty) {
     connectionsContainer.innerHTML = "<p>No connections yet</p>";
     return;
@@ -313,7 +354,6 @@ async function loadConnections() {
     const profileSnap = await getDoc(doc(db, "profiles", connection.uid));
     const profile = profileSnap.exists() ? profileSnap.data() : {};
 
-    // ✅ GET AVERAGE PER CARD
     const avgScore = await getAverageRating(connection.uid);
 
     const scoreClass =
@@ -323,6 +363,7 @@ async function loadConnections() {
 
     const card = document.createElement("div");
     card.className = "card";
+
     card.innerHTML = `
       <h3>
         ${profile.name || "Unknown"}
@@ -344,7 +385,7 @@ async function loadConnections() {
     connectionsContainer.appendChild(card);
   }
 }
-
 </script>
+
 </body>
 </html>
