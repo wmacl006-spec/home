@@ -297,50 +297,54 @@ shareBtn.onclick = () => {
 
 async function loadConnections() {
   connectionsContainer.innerHTML = "Loading connections…";
+
   const usersCol = collection(db, "connections", currentUser.uid, "users");
   const usersSnap = await getDocs(usersCol);
-  const avgScore = await getAverageRating(connection.uid);
-
-  const scoreClass =
-  avgScore > 0 ? "positive" :
-  avgScore < 0 ? "negative" :
-  "neutral";
-
-
 
   connectionsContainer.innerHTML = "";
-  if (usersSnap.empty) { connectionsContainer.innerHTML="<p>No connections yet</p>"; return; }
+  if (usersSnap.empty) {
+    connectionsContainer.innerHTML = "<p>No connections yet</p>";
+    return;
+  }
 
   for (const docSnap of usersSnap.docs) {
     const connection = docSnap.data();
+
     const profileSnap = await getDoc(doc(db, "profiles", connection.uid));
     const profile = profileSnap.exists() ? profileSnap.data() : {};
+
+    // ✅ GET AVERAGE PER CARD
+    const avgScore = await getAverageRating(connection.uid);
+
+    const scoreClass =
+      avgScore > 0 ? "positive" :
+      avgScore < 0 ? "negative" :
+      "neutral";
 
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-  <h3>
-    ${profile.name || "Unknown"}
-    <span class="${scoreClass}">${avgScore}</span>
+      <h3>
+        ${profile.name || "Unknown"}
+        <span class="${scoreClass}">${avgScore}</span>
+      </h3>
 
-  </h3>
+      <div class="avatar">🧑‍🎓</div>
 
-  <div class="avatar">🧑‍🎓</div>
+      <p>
+        <strong>Ability:</strong><br>
+        ${profile.aboutMe || "No description yet."}
+      </p>
 
-  <p>
-    <strong>Ability:</strong><br>
-    ${profile.aboutMe || "No description yet."}
-  </p>
-
-  <a href="profile.html?uid=${connection.uid}" class="action">
-    View Profile
-  </a>
-`;
-
+      <a href="profile.html?uid=${connection.uid}" class="action">
+        View Profile
+      </a>
+    `;
 
     connectionsContainer.appendChild(card);
   }
 }
+
 </script>
 </body>
 </html>
