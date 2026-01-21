@@ -321,14 +321,26 @@ async function loadConnections() {
     const profileSnap = await getDoc(doc(db,"profiles",uid));
     const profile = profileSnap.data() || {};
 
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <h3>
-        <span class="name">${profile.name || "Unknown"}</span>
-        <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
-        <span class="avg-rating" data-uid="${uid}">${(profile.ratingAvg ?? 0).toFixed(1)}</span>
-      </h3>
+    // ✅ Compute average dynamically from all ratings
+const ratingsCol = collection(db, "ratings", uid, "users");
+const ratingsSnap = await getDocs(ratingsCol);
+let avg = 0;
+if (!ratingsSnap.empty) {
+  let total = 0;
+  ratingsSnap.forEach(r => total += r.data().value);
+  avg = total / ratingsSnap.size;
+}
+
+const card = document.createElement("div");
+card.className = "card";
+card.innerHTML = `
+  <h3>
+    <span class="name">${profile.name || "Unknown"}</span>
+    <span class="field">${profile.fieldOfStudy || "Trainer"}</span>
+    <span class="avg-rating" data-uid="${uid}">${avg.toFixed(1)}</span>
+  </h3>
+;
+
 
       <div class="avatar">🧑‍🎓</div>
       <p>${profile.aboutMe || "No description yet."}</p>
@@ -362,16 +374,19 @@ async function loadConnections() {
       const profileData = profileSnap.data() || {};
       let newAvg, newCount;
 
-      if (ratingSnap.exists()) {
-        const oldValue = ratingSnap.data().value;
-        newCount = profileData.ratingCount;
-        newAvg = ((profileData.ratingAvg * newCount) - oldValue + value) / newCount;
-        await updateDoc(ratingRef, { value, updatedAt: serverTimestamp() });
-      } else {
-        newCount = (profileData.ratingCount || 0) + 1;
-        newAvg = ((profileData.ratingAvg || 0) * (newCount - 1) + value) / newCount;
-        await setDoc(ratingRef, { value, updatedAt: serverTimestamp() });
-      }
+      // After writing/updating the current user's rating
+const allRatingsSnap = await getDocs(collection(db, "ratings", uid, "users"));
+let total = 0;
+allRatingsSnap.forEach(r => total += r.data().value);
+newAvg = allRatingsSnap.empty ? 0 : total / allRatingsSnap.size;
+newCount = allRatingsSnap.size;
+
+// Update profile document
+await updateDoc(profileRef, {
+  ratingAvg: newAvg,
+  ratingCount: newCount
+});
+
 
       await updateDoc(profileRef, { ratingAvg: newAvg, ratingCount: newCount });
 
