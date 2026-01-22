@@ -113,6 +113,13 @@ input:focus {
   border-color: var(--pink);
   box-shadow: 0 0 0 2px rgba(176, 11, 85, 0.25);
 }
+  .auth-message {
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  color: #ff6b9a; /* soft pink error */
+  min-height: 1em; /* prevents layout jump */
+}
+
 
 button {
   padding: 0.65rem 1.4rem;
@@ -156,6 +163,8 @@ button:hover {
 
     <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
+    <p id="authMessage" class="auth-message"></p>
+
 
     <div class="actions">
       <button onclick="signUp()">Sign Up</button>
@@ -184,14 +193,46 @@ const auth = getAuth(app);
 
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
+const messageEl = document.getElementById("authMessage");
 
 window.signUp = async () => {
-  await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+  messageEl.textContent = "";
+  try {
+    await createUserWithEmailAndPassword(
+      auth,
+      emailInput.value,
+      passwordInput.value
+    );
+  } catch (error) {
+    if (error.code === "auth/email-already-in-use") {
+      messageEl.textContent = "Already signed up";
+    } else {
+      messageEl.textContent = "Something went wrong. Try again.";
+    }
+  }
 };
 
 window.signIn = async () => {
-  await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+  messageEl.textContent = "";
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      emailInput.value,
+      passwordInput.value
+    );
+  } catch (error) {
+    if (
+      error.code === "auth/wrong-password" ||
+      error.code === "auth/user-not-found" ||
+      error.code === "auth/invalid-login-credentials"
+    ) {
+      messageEl.textContent = "Incorrect email or password";
+    } else {
+      messageEl.textContent = "Something went wrong. Try again.";
+    }
+  }
 };
+
 
 // Redirect authenticated users
 onAuthStateChanged(auth, (user) => {
