@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live PDF Room</title>
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; background:#111; color:#fff; text-align:center; }
+    canvas { border:1px solid #444; margin-top:10px; }
+    #controls { margin:20px; }
+    #drawCanvas { position:absolute; left:50%; transform:translateX(-50%); }
+  </style>
+</head>
+<body>
+
+<h2>Live PDF Room</h2>
+<div id="controls">
+  <button onclick="createRoom()">Create Room</button>
+  <input id="roomInput" placeholder="Room ID" />
+  <button onclick="joinRoom()">Join Room</button><br/><br/>
+  <input type="file" id="pdfUpload" accept="application/pdf" />
+</div>
+
+<canvas id="pdfCanvas" width="800" height="1000"></canvas>
+<canvas id="drawCanvas" width="800" height="1000"></canvas>
+
+<script type="module">
+// ---------------- FIREBASE MODULAR SDK ----------------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+import { getDatabase, ref as dbRef, set, push, onChildAdded, get } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBUQgksDWqis5CYkivxYnQTHY9GHiSR8SA",
+  authDomain: "pdfproject-79cac.firebaseapp.com",
+  databaseURL: "https://pdfproject-79cac-default-rtdb.firebaseio.com",
+  projectId: "pdfproject-79cac",
+  storageBucket: "pdfproject-79cac.appspot.com", // us-central1 bucket
+  messagingSenderId: "588286215167",
+  appId: "1:588286215167:web:d31467d50048fd6916ddca",
+  measurementId: "G-XPNL0HWQXD"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const storage = getStorage(app);
+
+let roomId = null;
+let isHost = false;
+
+const pdfCanvas = document.getElementById('pdfCanvas');
+const drawCanvas = document.getElementById('drawCanvas');
+const ctx = drawCanvas.getContext('2d');
+
+// ---------------- ROOM LOGIC ----------------
+function createRoom() {
+  roomId = Math.random().toString(36).substring(2, 8);
+  isHost = true;
+  alert("Room created: " + roomId);
+  listenForDrawing();
+}
+
+function joinRoom() {
+  roomId = document.getElementById('roomInput').value;
+  if (!roomId) return alert('Enter room ID');
+  listenForDrawing();
+  loadPDF();
+}
+
+// ---------------- PDF UPLOAD ----------------
+document.getElementById('pdfUpload').addEventListener('change', async (e) => {
+  if (!isHost || !roomId) return;
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const fileRef = storageRef(storage, `rooms/${roomId}/file.pdf`);
+  await uploadBytes(fileRef, file);
+  const url = await getDownloadURL(fileRef);
+
+  await set(dbRef(database, `rooms/${roomId}/pdf`), url);
+  renderPDF(url);
+});
+
+async function loadPDF() {
+  const snap = await get(dbRef(database, `rooms/${roomId}/pdf`));
+  if (snap.exists()) renderPDF(snap.val());
+}
+
+async function renderPDF(url) {
+  const pdf = await pdfjsLib.getDocument(url).promise;
+  const page = await pdf.getPage(1);
+  const viewport = page.getViewport({ scale: 1.5 });
+  pdfCanvas.width = viewport.width;
+  pdfCanvas.height = viewport.height;
+  drawCanvas.width = viewport.width;
+  drawCanvas.height = viewport.height;
+  await page.render({ canvasContext: pdfCanvas.getContext('2d'), viewport }).promise;
+}
+
+// ---------------- DRAWING ----------------
+let drawing = false;
+
+drawCanvas.addEventListener('mousedown', () => drawing = true);
+drawCanvas.addEventListener('mouseup', () => drawing = false);
+drawCanvas.addEventListener('mousemove', (e) => {
+  if (!drawing || !isHost || !roomId) return;
+  const rect = drawCanvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  ctx.fillStyle = 'red';
+  ctx.fillRect(x, y, 3, 3);
+
+  push(dbRef(database, `rooms/${roomId}/draw`), { x, y });
+});
+
+function listenForDrawing() {
+  onChildAdded(dbRef(database, `rooms/${roomId}/draw`), (snap) => {
+    const { x, y } = snap.val();
+    ctx.fillStyle = 'red';
+    ctx.fillRect(x, y, 3, 3);
+  });
+}
+</script>
+
+</body>
+</html>
