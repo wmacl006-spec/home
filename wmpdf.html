@@ -10,9 +10,16 @@
 
   <style>
     body { font-family: Arial, sans-serif; background:#111; color:#fff; text-align:center; margin:0; padding:0; }
-    #controls { padding:20px; }
+    #controls { padding:20px; position: relative; z-index: 20; }
     canvas { border:1px solid #444; display:block; margin:10px auto; }
-    #drawCanvas { position:absolute; left:50%; transform:translateX(-50%); top:0; z-index:10; }
+    #pdfCanvas { position: relative; z-index: 5; }
+    #drawCanvas {
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      top:200px; /* leave space for buttons */
+      z-index:10;
+    }
   </style>
 </head>
 <body>
