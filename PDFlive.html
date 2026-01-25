@@ -72,16 +72,6 @@ header {
   z-index:2;
 }
 
-#viewer {
-  touch-action: pan-x pan-y pinch-zoom;
-  overscroll-behavior: contain;
-}
-
-.draw-layer,
-.pdf-layer {
-  touch-action: none;
-}
-
 /* ---------- Toolbar ---------- */
 #toolbar {
   display: none; /* hide for everyone initially */
@@ -391,9 +381,6 @@ input#joinInput:focus {
       <input data-bind="eraser" readonly />
     </div>
 
-    <div class="tool" onclick="zoomOut()">−</div>
-<div class="tool" onclick="zoomIn()">+</div>
-
     <button class="secondary" onclick="closeSettings()">Close</button>
   </div>
 </div>
@@ -430,7 +417,6 @@ window.goHome = () => {
 
 /* ---------- STATE ---------- */
 
-let pdfScale = 1.2;
 
 
 let roomCode, isHost=false, pdfUrl;
@@ -511,17 +497,6 @@ function updateEraserCursor() {
   eraserCursor.style.height = size + "px";
 }
 
-window.zoomIn = () => {
-  pdfScale = Math.min(3, pdfScale + 0.2);
-  renderPDF(pdfUrl);
-};
-
-window.zoomOut = () => {
-  pdfScale = Math.max(0.6, pdfScale - 0.2);
-  renderPDF(pdfUrl);
-};
-
-  
 updateToolbar();
 
 /* ---------- ROOM ---------- */
@@ -603,9 +578,7 @@ async function renderPDF(url){
   const pdf=await pdfjsLib.getDocument(url).promise;
   for(let i=1;i<=pdf.numPages;i++){
     const p=await pdf.getPage(i);
-
-const v = p.getViewport({ scale: pdfScale });
-    
+    const v=p.getViewport({scale:1.4});
     const w=document.createElement("div");
     w.className="page";
     const pc=document.createElement("canvas");
@@ -671,29 +644,6 @@ function enableDrawing(c, page) {
     ly = y;
   };
 }
-
-
-  let lastDist = null;
-
-viewer.addEventListener("touchmove", e => {
-  if (e.touches.length !== 2) {
-    lastDist = null;
-    return;
-  }
-
-  const [a, b] = e.touches;
-  const dx = a.clientX - b.clientX;
-  const dy = a.clientY - b.clientY;
-  const dist = Math.hypot(dx, dy);
-
-  if (lastDist) {
-    const delta = dist - lastDist;
-    pdfScale = Math.min(3, Math.max(0.6, pdfScale + delta * 0.002));
-    renderPDF(pdfUrl);
-  }
-
-  lastDist = dist;
-}, { passive: false });
 
 
   /* ---------- KEYBINDS ---------- */
