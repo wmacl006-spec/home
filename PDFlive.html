@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>PDFlive</title>
+  
 <link rel="icon" type="image/png" href="logo.png">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -34,7 +34,6 @@ body {
   overflow:hidden;
 }
 
-/* ---------- Layout ---------- */
 #workspace { display:none; height:100vh; }
 
 header {
@@ -59,7 +58,6 @@ header {
   gap:32px;
 }
 
-/* ---------- PDF Layers (original look) ---------- */
 .page {
   position:relative;
   box-shadow:0 20px 40px rgba(0,0,0,.4);
@@ -72,9 +70,8 @@ header {
   z-index:2;
 }
 
-/* ---------- Toolbar ---------- */
 #toolbar {
-  display: none; /* hide for everyone initially */
+  display: none;
   position: fixed;
   bottom: 24px;
   right: 24px;
@@ -87,9 +84,7 @@ header {
   z-index: 999;
   box-shadow: var(--shadow);
 }
-
-
-
+  
 .tool-row {
   display:flex;
   gap:12px;
@@ -140,7 +135,6 @@ input[type=range] {
   accent-color:var(--accent);
 }
 
-/* ---------- Home ---------- */
 .center {
   display:flex;
   align-items:center;
@@ -220,17 +214,15 @@ input#joinInput:focus {
   box-shadow:0 0 10px rgba(255,0,90,0.5);
 }
 
-/* ---------- Upload/Download Buttons Side by Side ---------- */
 #workspace header > div:last-child {
   display:flex;
   gap:12px;
   align-items:center;
 }
 
-/* Unified style for header buttons and upload label */
 #workspace header button,
 #uploadControls label {
-  background: #b00b55;       /* accent color */
+  background: #b00b55;
   color: white;
   padding: 8px 14px;
   border-radius: 12px;
@@ -239,15 +231,15 @@ input#joinInput:focus {
   cursor: pointer;
   transition: all var(--transition);
   text-align: center;
-  display: inline-flex;       /* ensures transform works properly */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 #workspace header button:hover,
 #uploadControls label:hover {
-  background: #d4146a;       /* lighter hover */
-  transform: scale(1.05);     /* match the inflate effect */
+  background: #d4146a;
+  transform: scale(1.05);
   box-shadow: 0 6px 20px rgba(255, 0, 90, 0.4);
 }
 
@@ -311,12 +303,9 @@ input#joinInput:focus {
   outline-offset: -2px;
 }
 
-
 #viewerWrapper {
   transform-origin: top center;
 }
-
-
 
 </style>
 </head>
@@ -342,7 +331,6 @@ input#joinInput:focus {
 <button id="zoomOutBtn">－</button>
 <button id="zoomResetBtn">Reset</button>
 
-      
       <div id="uploadControls">
         <label style="cursor:pointer">Upload
           <input type="file" id="pdfUpload" hidden />
@@ -359,7 +347,6 @@ input#joinInput:focus {
 
 </div>
 
-<!-- HOST-ONLY TOOLBAR -->
 <div id="toolbar">
   <div class="tool-row">
     <div class="tool color" data-index="0"></div>
@@ -421,30 +408,21 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-
 window.goHome = () => {
   window.location.href = "index.html";
 };
-
-
-/* ---------- STATE ---------- */
 
 let zoom = 1;
 const ZOOM_STEP = 0.1;
 const ZOOM_MIN = 0.9;
 const ZOOM_MAX = 3;
-
 let ratio = window.devicePixelRatio || 3;
-
-  
 let roomCode, isHost=false, pdfUrl;
 let tool="pen";
 let activeProfile=0;
 let brushSize=3;
 const profiles=["#b00b55","#00c2ff","#00ff9c"];
-
 const settingsBtn = document.getElementById("settingsBtn");
-
 const modal = document.getElementById("settingsModal");
 
 if (modal) {
@@ -452,13 +430,10 @@ if (modal) {
   window.closeSettings = () => modal.classList.add("hidden");
 }
 
-
 function applyZoom() {
   const wrapper = document.getElementById("viewerWrapper");
   wrapper.style.transform = `scale(${zoom})`;
 }
-
-
 
   zoomInBtn.onclick = () => {
   zoom = Math.min(ZOOM_MAX, zoom + ZOOM_STEP);
@@ -475,9 +450,6 @@ zoomResetBtn.onclick = () => {
   applyZoom();
 };
 
-
-  
-/* ---------- TOOLBAR ---------- */
 const toolbar=document.getElementById("toolbar");
 const colorTools=document.querySelectorAll(".tool.color");
 
@@ -540,7 +512,6 @@ function updateEraserCursor() {
 
 updateToolbar();
 
-/* ---------- ROOM ---------- */
 window.hostRoom=()=>{isHost=true;roomCode=Math.random().toString(36).slice(2,7).toUpperCase();start()};
 window.joinRoom=()=>{roomCode=joinInput.value.toUpperCase();if(roomCode)start()};
 
@@ -550,10 +521,10 @@ async function start(){
   roomLabel.textContent=roomCode;
 
   if(isHost){
-  toolbar.style.display = "flex";  // only host sees toolbar
+  toolbar.style.display = "flex";
 } else {
-  uploadControls.style.display = "none"; // joined users cannot upload
-  toolbar.style.display = "none";        // hide toolbar for them
+  uploadControls.style.display = "none";
+  toolbar.style.display = "none";
 }
 
   const pdfRef=ref(db,`rooms/${roomCode}/pdf`);
@@ -566,16 +537,16 @@ async function start(){
       await uploadBytes(r,f);
       pdfUrl=await getDownloadURL(r);
       await set(pdfRef,pdfUrl);
-      await renderPDF(pdfUrl); // render PDF first
-      drawExistingStrokes();   // then draw existing strokes
+      await renderPDF(pdfUrl);
+      drawExistingStrokes();
     };
   }
 
   const snap=await get(pdfRef);
   if(snap.exists()){
     pdfUrl=snap.val();
-    await renderPDF(pdfUrl);  // wait for PDF to render
-    drawExistingStrokes();    // then draw old strokes
+    await renderPDF(pdfUrl);
+    drawExistingStrokes();
   }
 
   function drawExistingStrokes(){
@@ -586,13 +557,10 @@ async function start(){
     });
   }
 
-  // Listen for new strokes in real-time
   onChildAdded(drawRef, s => drawStroke(s.val()));
 
 }
 
-
-/* ---------- DRAWING ---------- */
 function drawStroke(s){
   const c=document.getElementById(`draw-${s.page}`);
   if(!c) return;
@@ -627,8 +595,6 @@ async function renderPDF(url){
     pc.className="pdf-layer";
     dc.className="draw-layer";
 
-// High‑resolution drawing canvas
-
 dc.width = v.width * ratio;
 dc.height = v.height * ratio;
 
@@ -638,7 +604,6 @@ dc.style.height = v.height + "px";
 const ctx = dc.getContext("2d");
 ctx.scale(ratio, ratio);
 
-    
     pc.width=dc.width=v.width;
     pc.height=dc.height=v.height;
     dc.id=`draw-${i}`;
@@ -659,8 +624,6 @@ function enableDrawing(c, page) {
     lx = ((e.clientX - b.left) / zoom) * ratio;
 ly = ((e.clientY - b.top) / zoom) * ratio;
 
-
-    // ✅ THIS is your pasted code — correct
     push(r, {
       page,
       x1: lx,
@@ -684,8 +647,6 @@ ly = ((e.clientY - b.top) / zoom) * ratio;
     const x = ((e.clientX - b.left) / zoom) * ratio;
 const y = ((e.clientY - b.top) / zoom) * ratio;
 
-
-
     push(r, {
       page,
       x1: lx,
@@ -702,8 +663,6 @@ const y = ((e.clientY - b.top) / zoom) * ratio;
   };
 }
 
-
-  /* ---------- KEYBINDS ---------- */
 const defaultBinds = {
   color0: "1",
   color1: "2",
@@ -749,7 +708,6 @@ document.addEventListener("keydown", e => {
   }
 });
 
-/* ---------- EXPORT ---------- */
 window.downloadAnnotatedPDF = async () => {
   if (!pdfUrl) return;
 
@@ -804,7 +762,6 @@ function leaveRoom() {
   uploadControls.style.display = "flex";
   toolbar.style.display = "none";
 }
-
 
   document.getElementById("leaveBtn").onclick = leaveRoom;
 
