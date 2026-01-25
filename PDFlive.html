@@ -354,6 +354,33 @@ input#joinInput:focus {
   <input type="range" id="sizeSlider" min="1" max="20" value="3" />
 </div>
 
+  <div id="settingsModal" class="modal hidden">
+  <div class="modal-card">
+    <h3>Keybinds</h3>
+
+    <div class="bind">
+      <span>Color 1</span>
+      <input data-bind="color0" readonly />
+    </div>
+    <div class="bind">
+      <span>Color 2</span>
+      <input data-bind="color1" readonly />
+    </div>
+    <div class="bind">
+      <span>Color 3</span>
+      <input data-bind="color2" readonly />
+    </div>
+    <div class="bind">
+      <span>Eraser</span>
+      <input data-bind="eraser" readonly />
+    </div>
+
+    <button class="secondary" onclick="closeSettings()">Close</button>
+  </div>
+</div>
+
+  <div id="eraserCursor"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded, get, set, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -449,9 +476,6 @@ function updateToolbar(){
   }
 }
 
-updateToolbar();
-
-
   const eraserCursor = document.getElementById("eraserCursor");
 
 document.addEventListener("mousemove", e => {
@@ -467,6 +491,7 @@ function updateEraserCursor() {
   eraserCursor.style.height = size + "px";
 }
 
+updateToolbar();
 
 /* ---------- ROOM ---------- */
 window.hostRoom=()=>{isHost=true;roomCode=Math.random().toString(36).slice(2,7).toUpperCase();start()};
@@ -597,7 +622,7 @@ const defaultBinds = {
 };
 
 let keybinds = JSON.parse(localStorage.getItem("keybinds")) || defaultBinds;
-1
+
 const inputs = modal.querySelectorAll("input");
 
 inputs.forEach(input => {
@@ -692,36 +717,7 @@ function leaveRoom() {
 
   document.getElementById("leaveBtn").onclick = leaveRoom;
 
-
-  
 </script>
-
-  <div id="settingsModal" class="modal hidden">
-  <div class="modal-card">
-    <h3>Keybinds</h3>
-
-    <div class="bind">
-      <span>Color 1</span>
-      <input data-bind="color0" readonly />
-    </div>
-    <div class="bind">
-      <span>Color 2</span>
-      <input data-bind="color1" readonly />
-    </div>
-    <div class="bind">
-      <span>Color 3</span>
-      <input data-bind="color2" readonly />
-    </div>
-    <div class="bind">
-      <span>Eraser</span>
-      <input data-bind="eraser" readonly />
-    </div>
-
-    <button class="secondary" onclick="closeSettings()">Close</button>
-  </div>
-</div>
-
-  <div id="eraserCursor"></div>
 
 </body>
 </html>
