@@ -295,17 +295,16 @@ input#joinInput:focus {
 
 #eraserCursor {
   position: fixed;
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   pointer-events: none;
   transform: translate(-50%, -50%);
   z-index: 2000;
   display: none;
-  box-shadow: 0 0 12px rgba(255,255,255,0.25);
-  backdrop-filter: blur(2px);
 }
+
 
 
 
@@ -486,7 +485,7 @@ document.addEventListener("mousemove", e => {
 });
 
 function updateEraserCursor() {
-  const size = brushSize * 2;
+  const size = brushSize;
   eraserCursor.style.width = size + "px";
   eraserCursor.style.height = size + "px";
 }
