@@ -595,29 +595,56 @@ async function renderPDF(url){
   }
 }
 
-function enableDrawing(c,page){
-  let d=false,lx,ly;
-  const r=ref(db,`rooms/${roomCode}/draw`);
-  c.onmousedown=e=>{
-    d=true;
-    const b=c.getBoundingClientRect();
-    lx=e.clientX-b.left; ly=e.clientY-b.top;
-  };
-  c.onmouseup=c.onmouseleave=()=>d=false;
-  c.onmousemove=e=>{
-    if(!d) return;
-    const b=c.getBoundingClientRect();
-    const x=e.clientX-b.left,y=e.clientY-b.top;
-    push(r,{
+function enableDrawing(c, page) {
+  let d = false, lx, ly;
+  const r = ref(db, `rooms/${roomCode}/draw`);
+
+  c.onmousedown = e => {
+    d = true;
+    const b = c.getBoundingClientRect();
+    lx = e.clientX - b.left;
+    ly = e.clientY - b.top;
+
+    // ✅ THIS is your pasted code — correct
+    push(r, {
       page,
-      x1:lx,y1:ly,x2:x,y2:y,
-      color:profiles[activeProfile],
-      erase:tool==="eraser",
-      size:brushSize
+      x1: lx,
+      y1: ly,
+      x2: lx,
+      y2: ly,
+      color: profiles[activeProfile],
+      erase: tool === "eraser",
+      size: brushSize
     });
-    lx=x; ly=y;
+  };
+
+  c.onmouseup = c.onmouseleave = () => {
+    d = false;
+  };
+
+  c.onmousemove = e => {
+    if (!d) return;
+
+    const b = c.getBoundingClientRect();
+    const x = e.clientX - b.left;
+    const y = e.clientY - b.top;
+
+    push(r, {
+      page,
+      x1: lx,
+      y1: ly,
+      x2: x,
+      y2: y,
+      color: profiles[activeProfile],
+      erase: tool === "eraser",
+      size: brushSize
+    });
+
+    lx = x;
+    ly = y;
   };
 }
+
 
   /* ---------- KEYBINDS ---------- */
 const defaultBinds = {
