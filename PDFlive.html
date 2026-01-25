@@ -312,6 +312,9 @@ input#joinInput:focus {
 }
 
 
+#viewerWrapper {
+  transform-origin: top center;
+}
 
 
 
@@ -334,17 +337,26 @@ input#joinInput:focus {
   <header>
     <div>Room <strong id="roomLabel"></strong></div>
     <div>
+
+      <button id="zoomInBtn">＋</button>
+<button id="zoomOutBtn">－</button>
+<button id="zoomResetBtn">Reset</button>
+
+      
       <div id="uploadControls">
         <label style="cursor:pointer">Upload
           <input type="file" id="pdfUpload" hidden />
         </label>
       </div>
-      <button onclick="downloadAnnotatedPDF()">⬇ PDF</button>
+      <button onclick="downloadAnnotatedPDF()">Download</button>
       <button id="leaveBtn">Leave</button>
     </div>
   </header>
 
+  <div id="viewerWrapper">
   <div id="viewer"></div>
+</div>
+
 </div>
 
 <!-- HOST-ONLY TOOLBAR -->
@@ -417,8 +429,14 @@ window.goHome = () => {
 
 /* ---------- STATE ---------- */
 
+let zoom = 1;
+const ZOOM_STEP = 0.1;
+const ZOOM_MIN = 0.9;
+const ZOOM_MAX = 3;
 
+let ratio = window.devicePixelRatio || 3;
 
+  
 let roomCode, isHost=false, pdfUrl;
 let tool="pen";
 let activeProfile=0;
@@ -434,6 +452,28 @@ if (modal) {
   window.closeSettings = () => modal.classList.add("hidden");
 }
 
+
+function applyZoom() {
+  const wrapper = document.getElementById("viewerWrapper");
+  wrapper.style.transform = `scale(${zoom})`;
+}
+
+
+
+  zoomInBtn.onclick = () => {
+  zoom = Math.min(ZOOM_MAX, zoom + ZOOM_STEP);
+  applyZoom();
+};
+
+zoomOutBtn.onclick = () => {
+  zoom = Math.max(ZOOM_MIN, zoom - ZOOM_STEP);
+  applyZoom();
+};
+
+zoomResetBtn.onclick = () => {
+  zoom = 1;
+  applyZoom();
+};
 
 
   
@@ -492,7 +532,8 @@ document.addEventListener("mousemove", e => {
 });
 
 function updateEraserCursor() {
-  const size = brushSize;
+  const size = brushSize * zoom * ratio;
+
   eraserCursor.style.width = size + "px";
   eraserCursor.style.height = size + "px";
 }
@@ -585,6 +626,19 @@ async function renderPDF(url){
     const dc=document.createElement("canvas");
     pc.className="pdf-layer";
     dc.className="draw-layer";
+
+// High‑resolution drawing canvas
+
+dc.width = v.width * ratio;
+dc.height = v.height * ratio;
+
+dc.style.width = v.width + "px";
+dc.style.height = v.height + "px";
+
+const ctx = dc.getContext("2d");
+ctx.scale(ratio, ratio);
+
+    
     pc.width=dc.width=v.width;
     pc.height=dc.height=v.height;
     dc.id=`draw-${i}`;
@@ -602,8 +656,9 @@ function enableDrawing(c, page) {
   c.onmousedown = e => {
     d = true;
     const b = c.getBoundingClientRect();
-    lx = e.clientX - b.left;
-    ly = e.clientY - b.top;
+    lx = ((e.clientX - b.left) / zoom) * ratio;
+ly = ((e.clientY - b.top) / zoom) * ratio;
+
 
     // ✅ THIS is your pasted code — correct
     push(r, {
@@ -626,8 +681,10 @@ function enableDrawing(c, page) {
     if (!d) return;
 
     const b = c.getBoundingClientRect();
-    const x = e.clientX - b.left;
-    const y = e.clientY - b.top;
+    const x = ((e.clientX - b.left) / zoom) * ratio;
+const y = ((e.clientY - b.top) / zoom) * ratio;
+
+
 
     push(r, {
       page,
@@ -707,6 +764,7 @@ window.downloadAnnotatedPDF = async () => {
     if (!canvas) continue;
 
     const pngDataUrl = canvas.toDataURL("image/png");
+
     const pngImage = await doc.embedPng(pngDataUrl);
 
     const { width, height } = page.getSize();
