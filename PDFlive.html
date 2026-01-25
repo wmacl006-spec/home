@@ -289,6 +289,11 @@ input#joinInput:focus {
   text-align: center;
 }
 
+  .home-btn {
+  margin-top: 10px;
+}
+
+
 
 
 </style>
@@ -302,6 +307,7 @@ input#joinInput:focus {
     <button onclick="hostRoom()">Host</button><br><br>
     <input id="joinInput" placeholder="ROOM CODE" />
     <button class="secondary" onclick="joinRoom()">Join</button>
+    <button class="secondary home-btn" onclick="goHome()">Home</button>
   </div>
 </div>
 
@@ -356,6 +362,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
+
+
+window.goHome = () => {
+  window.location.href = "index.html";
+};
+
 
 /* ---------- STATE ---------- */
 
