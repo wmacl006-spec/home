@@ -293,6 +293,19 @@ input#joinInput:focus {
   margin-top: 10px;
 }
 
+#eraserCursor {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  display: none;
+  box-shadow: 0 0 12px rgba(255,255,255,0.25);
+  backdrop-filter: blur(2px);
+}
 
 
 
@@ -415,16 +428,45 @@ colorPicker.oninput=e=>{
   colorTools[activeProfile].style.background=e.target.value;
 };
 
-sizeSlider.oninput=e=>{
-  brushSize=+e.target.value;
+sizeSlider.oninput = e => {
+  brushSize = +e.target.value;
+  if (tool === "eraser") updateEraserCursor();
 };
+1
 
 function updateToolbar(){
   document.querySelectorAll(".tool").forEach(t=>t.classList.remove("active"));
-  if(tool==="pen") colorTools[activeProfile].classList.add("active");
-  if(tool==="eraser") document.querySelector(".eraser").classList.add("active");
+
+  if(tool==="pen") {
+    colorTools[activeProfile].classList.add("active");
+    eraserCursor.style.display = "none";
+  }
+
+  if(tool==="eraser") {
+    document.querySelector(".eraser").classList.add("active");
+    eraserCursor.style.display = "block";
+    updateEraserCursor();
+  }
 }
+
 updateToolbar();
+
+
+  const eraserCursor = document.getElementById("eraserCursor");
+
+document.addEventListener("mousemove", e => {
+  if (tool !== "eraser") return;
+
+  eraserCursor.style.left = e.clientX + "px";
+  eraserCursor.style.top = e.clientY + "px";
+});
+
+function updateEraserCursor() {
+  const size = brushSize * 2;
+  eraserCursor.style.width = size + "px";
+  eraserCursor.style.height = size + "px";
+}
+
 
 /* ---------- ROOM ---------- */
 window.hostRoom=()=>{isHost=true;roomCode=Math.random().toString(36).slice(2,7).toUpperCase();start()};
@@ -678,6 +720,8 @@ function leaveRoom() {
     <button class="secondary" onclick="closeSettings()">Close</button>
   </div>
 </div>
+
+  <div id="eraserCursor"></div>
 
 </body>
 </html>
