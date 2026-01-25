@@ -332,16 +332,20 @@ input#joinInput:focus {
 
 <div id="workspace">
   <header>
-    <div>Room <strong id="roomLabel"></strong></div>
     <div>
-      <div id="uploadControls">
-        <label style="cursor:pointer">Upload
-          <input type="file" id="pdfUpload" hidden />
-        </label>
-      </div>
-      <button onclick="downloadAnnotatedPDF()">⬇ PDF</button>
-      <button id="leaveBtn">Leave</button>
-    </div>
+  <div id="uploadControls">
+    <label style="cursor:pointer">Upload
+      <input type="file" id="pdfUpload" hidden />
+    </label>
+  </div>
+
+  <button onclick="zoomOut()">➖</button>
+  <button onclick="zoomIn()">➕</button>
+
+  <button onclick="downloadAnnotatedPDF()">⬇ PDF</button>
+  <button id="leaveBtn">Leave</button>
+</div>
+
   </header>
 
   <div id="viewer"></div>
@@ -435,6 +439,9 @@ if (modal) {
 }
 
 
+let zoomLevel = 1.4;
+const MIN_ZOOM = 0.6;
+const MAX_ZOOM = 3;
 
   
 /* ---------- TOOLBAR ---------- */
@@ -550,6 +557,21 @@ async function start(){
 
 }
 
+window.zoomIn = async () => {
+  if (!pdfUrl || zoomLevel >= MAX_ZOOM) return;
+  zoomLevel += 0.2;
+  await renderPDF(pdfUrl);
+  drawExistingStrokes();
+};
+
+window.zoomOut = async () => {
+  if (!pdfUrl || zoomLevel <= MIN_ZOOM) return;
+  zoomLevel -= 0.2;
+  await renderPDF(pdfUrl);
+  drawExistingStrokes();
+};
+
+
 
 /* ---------- DRAWING ---------- */
 function drawStroke(s){
@@ -578,7 +600,8 @@ async function renderPDF(url){
   const pdf=await pdfjsLib.getDocument(url).promise;
   for(let i=1;i<=pdf.numPages;i++){
     const p=await pdf.getPage(i);
-    const v=p.getViewport({scale:1.4});
+    const v = p.getViewport({ scale: zoomLevel });
+
     const w=document.createElement("div");
     w.className="page";
     const pc=document.createElement("canvas");
