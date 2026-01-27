@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mouse Tug Multiplayer</title>
+<style>
+  body { margin: 0; font-family: Arial, sans-serif; background: #111; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100vh; }
+  #login { margin-top: 50px; }
+  input, button { padding: 10px; margin: 5px; font-size: 16px; }
+  #game { display: none; position: relative; }
+  canvas { background: #222; display: block; margin: auto; }
+  .button-zone { position: absolute; width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; color: #fff; }
+  #red { background: red; top: 50px; left: 50px; }
+  #green { background: green; bottom: 50px; right: 50px; }
+  #blue { background: blue; top: 50px; right: 50px; }
+  .progress { position: absolute; width: 100%; height: 5px; background: #555; bottom: 0; left: 0; }
+  .progress-fill { height: 5px; background: #fff; width: 0%; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h2>Mouse Tug Multiplayer</h2>
+  <input type="text" id="username" placeholder="Enter username">
+  <button id="hostBtn">Host Match</button>
+  <input type="text" id="matchId" placeholder="Match ID to join">
+  <button id="joinBtn">Join Match</button>
+</div>
+
+<div id="game">
+  <h3 id="status"></h3>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <div id="red" class="button-zone">RED</div>
+  <div id="green" class="button-zone">GREEN</div>
+  <div id="blue" class="button-zone">BLUE</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyBLGHnTu5DpSZUAT3JzKqjwxkZh-2_-iUg",
+  authDomain: "mousegame-2e944.firebaseapp.com",
+  databaseURL: "https://mousegame-2e944-default-rtdb.firebaseio.com/",
+  projectId: "mousegame-2e944",
+  storageBucket: "mousegame-2e944.firebasestorage.app",
+  messagingSenderId: "876618992556",
+  appId: "1:876618992556:web:1e00bcd02c7065b1888809",
+  measurementId: "G-V4E94CKSE6"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// Elements
+const loginDiv = document.getElementById('login');
+const usernameInput = document.getElementById('username');
+const hostBtn = document.getElementById('hostBtn');
+const joinBtn = document.getElementById('joinBtn');
+const matchIdInput = document.getElementById('matchId');
+const gameDiv = document.getElementById('game');
+const statusText = document.getElementById('status');
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const buttons = {
+  red: document.getElementById('red'),
+  green: document.getElementById('green'),
+  blue: document.getElementById('blue')
+};
+
+// Game state
+let matchId = null;
+let username = null;
+let players = {};
+let cursor = { x: canvas.width/2, y: canvas.height/2 };
+let buttonProgress = { red:0, green:0, blue:0 };
+const BUTTON_TIME = 1500; // ms to win
+
+// Host match
+hostBtn.onclick = async () => {
+  username = usernameInput.value.trim();
+  if (!username) return alert('Enter username');
+  matchId = push(ref(db, 'matches')).key;
+  await set(ref(db, `matches/${matchId}`), {
+    players: { [username]: { mouseX:0, mouseY:0, clicking:false } },
+    cursor: { x: canvas.width/2, y: canvas.height/2 },
+    buttons: { red:0, green:0, blue:0 }
+  });
+  startGame();
+  alert(`Match hosted! ID: ${matchId}`);
+};
+
+// Join match
+joinBtn.onclick = async () => {
+  username = usernameInput.value.trim();
+  if (!username) return alert('Enter username');
+  matchId = matchIdInput.value.trim();
+  if (!matchId) return alert('Enter match ID');
+  const matchRef = ref(db, `matches/${matchId}/players/${username}`);
+  await set(matchRef, { mouseX:0, mouseY:0, clicking:false });
+  startGame();
+};
+
+// Start game UI
+function startGame() {
+  loginDiv.style.display = 'none';
+  gameDiv.style.display = 'block';
+  statusText.innerText = `Match: ${matchId}`;
+  setupFirebaseListeners();
+  setupInput();
+  requestAnimationFrame(gameLoop);
+}
+
+// Listen for Firebase updates
+function setupFirebaseListeners() {
+  const matchRef = ref(db, `matches/${matchId}`);
+  onValue(matchRef, snapshot => {
+    const data = snapshot.val();
+    if (!data) return;
+    players = data.players || {};
+    cursor = data.cursor || cursor;
+    buttonProgress = data.buttons || buttonProgress;
+  });
+}
+
+// Handle input
+let mousePos = { x: canvas.width/2, y: canvas.height/2 };
+let clicking = false;
+
+function setupInput() {
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mousePos = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    updateFirebaseInput();
+  });
+  canvas.addEventListener('mousedown', () => { clicking = true; updateFirebaseInput(); });
+  canvas.addEventListener('mouseup', () => { clicking = false; updateFirebaseInput(); });
+}
+
+function updateFirebaseInput() {
+  if (!matchId || !username) return;
+  update(ref(db, `matches/${matchId}/players/${username}`), {
+    mouseX: mousePos.x,
+    mouseY: mousePos.y,
+    clicking: clicking
+  });
+}
+
+// Game loop
+let lastTime = performance.now();
+function gameLoop(now) {
+  const dt = now - lastTime;
+  lastTime = now;
+
+  // Compute weighted cursor average
+  let sumX = 0, sumY = 0, count = 0;
+  for (let p in players) {
+    const w = players[p].clicking ? 1.5 : 1;
+    sumX += (players[p].mouseX || canvas.width/2) * w;
+    sumY += (players[p].mouseY || canvas.height/2) * w;
+    count += w;
+  }
+  cursor.x = sumX/count || cursor.x;
+  cursor.y = sumY/count || cursor.y;
+
+  // Check buttons
+  for (let b in buttons) {
+    const rect = buttons[b].getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    const left = rect.left - canvasRect.left;
+    const top = rect.top - canvasRect.top;
+    if (cursor.x > left && cursor.x < left + rect.width &&
+        cursor.y > top && cursor.y < top + rect.height &&
+        clicking) {
+      buttonProgress[b] += dt;
+      if (buttonProgress[b] >= BUTTON_TIME) {
+        alert(`Player ${username} wins by pressing ${b.toUpperCase()}!`);
+        // Reset buttons
+        buttonProgress = { red:0, green:0, blue:0 };
+        set(ref(db, `matches/${matchId}/buttons`), buttonProgress);
+      }
+    } else {
+      buttonProgress[b] = Math.max(buttonProgress[b]-dt, 0);
+    }
+  }
+
+  // Update button progress in Firebase
+  set(ref(db, `matches/${matchId}/buttons`), buttonProgress);
+
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+// Draw everything
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Draw buttons
+  for (let b in buttons) {
+    const rect = buttons[b].getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    const x = rect.left - canvasRect.left + rect.width/2;
+    const y = rect.top - canvasRect.top + rect.height/2;
+    ctx.fillStyle = b;
+    ctx.beginPath();
+    ctx.arc(x, y, 50, 0, Math.PI*2);
+    ctx.fill();
+
+    // Progress bar
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(x-50, y+60, 100*(buttonProgress[b]/BUTTON_TIME), 10);
+  }
+
+  // Draw shared cursor
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(cursor.x, cursor.y, 10, 0, Math.PI*2);
+  ctx.fill();
+
+  // Draw player pull arrows
+  for (let p in players) {
+    const px = players[p].mouseX || canvas.width/2;
+    const py = players[p].mouseY || canvas.height/2;
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(cursor.x, cursor.y);
+    ctx.stroke();
+  }
+}
+</script>
+
+</body>
+</html>
