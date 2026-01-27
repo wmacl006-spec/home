@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>PDFlive</title>
-  
 <link rel="icon" type="image/png" href="logo.png">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -71,7 +71,7 @@ header {
 }
 
 #toolbar {
-  display: none;
+  display: none; 
   position: fixed;
   bottom: 24px;
   right: 24px;
@@ -84,7 +84,7 @@ header {
   z-index: 999;
   box-shadow: var(--shadow);
 }
-  
+
 .tool-row {
   display:flex;
   gap:12px;
@@ -231,15 +231,15 @@ input#joinInput:focus {
   cursor: pointer;
   transition: all var(--transition);
   text-align: center;
-  display: inline-flex;
+  display: inline-flex; 
   align-items: center;
   justify-content: center;
 }
 
 #workspace header button:hover,
 #uploadControls label:hover {
-  background: #d4146a;
-  transform: scale(1.05);
+  background: #d4146a;  
+  transform: scale(1.05); 
   box-shadow: 0 6px 20px rgba(255, 0, 90, 0.4);
 }
 
@@ -297,7 +297,6 @@ input#joinInput:focus {
   display: none;
   box-sizing: border-box;
 
-  /* dual contrast ring */
   border: 1px solid rgba(0, 0, 0, 0.9);
   outline: 1px solid rgba(255, 255, 255, 0.9);
   outline-offset: -2px;
@@ -346,7 +345,6 @@ input#joinInput:focus {
 </div>
 
 </div>
-
 <div id="toolbar">
   <div class="tool-row">
     <div class="tool color" data-index="0"></div>
@@ -416,13 +414,17 @@ let zoom = 1;
 const ZOOM_STEP = 0.1;
 const ZOOM_MIN = 0.9;
 const ZOOM_MAX = 3;
+
 let ratio = window.devicePixelRatio || 3;
+  
 let roomCode, isHost=false, pdfUrl;
 let tool="pen";
 let activeProfile=0;
 let brushSize=3;
 const profiles=["#b00b55","#00c2ff","#00ff9c"];
+
 const settingsBtn = document.getElementById("settingsBtn");
+
 const modal = document.getElementById("settingsModal");
 
 if (modal) {
@@ -433,6 +435,7 @@ if (modal) {
 function applyZoom() {
   const wrapper = document.getElementById("viewerWrapper");
   wrapper.style.transform = `scale(${zoom})`;
+  if (tool === "eraser") updateEraserCursor();
 }
 
   zoomInBtn.onclick = () => {
@@ -477,7 +480,6 @@ sizeSlider.oninput = e => {
   brushSize = +e.target.value;
   if (tool === "eraser") updateEraserCursor();
 };
-1
 
 function updateToolbar(){
   document.querySelectorAll(".tool").forEach(t=>t.classList.remove("active"));
@@ -504,7 +506,7 @@ document.addEventListener("mousemove", e => {
 });
 
 function updateEraserCursor() {
-  const size = brushSize * zoom * ratio;
+  const size = brushSize * zoom * ratio * 0.8; // tweak multiplier if desired
 
   eraserCursor.style.width = size + "px";
   eraserCursor.style.height = size + "px";
@@ -521,10 +523,10 @@ async function start(){
   roomLabel.textContent=roomCode;
 
   if(isHost){
-  toolbar.style.display = "flex";
+  toolbar.style.display = "flex"; 
 } else {
-  uploadControls.style.display = "none";
-  toolbar.style.display = "none";
+  uploadControls.style.display = "none"; 
+  toolbar.style.display = "none"; 
 }
 
   const pdfRef=ref(db,`rooms/${roomCode}/pdf`);
@@ -546,7 +548,7 @@ async function start(){
   if(snap.exists()){
     pdfUrl=snap.val();
     await renderPDF(pdfUrl);
-    drawExistingStrokes();
+    drawExistingStrokes(); 
   }
 
   function drawExistingStrokes(){
@@ -773,6 +775,5 @@ function leaveRoom() {
   document.getElementById("leaveBtn").onclick = leaveRoom;
 
 </script>
-
 </body>
 </html>
