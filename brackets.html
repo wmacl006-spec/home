@@ -1,12 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Brackets</title>
+<meta charset="UTF-8">
+<title>Brackets</title>
 
-  <link rel="stylesheet" href="css/theme.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:#0e0e11;
+  --panel:#16161c;
+  --border:#262633;
+  --accent:#b00b55;
+  --accent-hover:#d4146a;
+  --text:#ffffff;
+  --muted:#9aa0a6;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 420px;
+  margin: auto;
+  padding: 60px 20px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+}
+
+h1, h2 {
+  margin-top: 0;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  background: #0e0e11;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: white;
+  margin-bottom: 14px;
+}
+
+button {
+  width: 100%;
+  background: var(--accent);
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--accent-hover);
+}
+
+a {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.grid {
+  display: grid;
+  gap: 14px;
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
@@ -14,23 +90,23 @@
   <h1>Brackets</h1>
   <p class="muted">Competitive brackets. Real stakes.</p>
 
-  <!-- AUTH CARD -->
+  <!-- AUTH -->
   <div class="card" id="authCard">
     <h2 id="authTitle">Sign In</h2>
 
-    <input id="email" type="email" placeholder="Email" style="width:100%; padding:12px; margin-bottom:12px;">
-    <input id="password" type="password" placeholder="Password" style="width:100%; padding:12px; margin-bottom:16px;">
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
 
-    <button id="authBtn" style="width:100%;">Sign In</button>
+    <button id="authBtn">Sign In</button>
 
-    <p style="text-align:center; margin-top:14px;">
+    <p style="text-align:center;margin-top:12px;">
       <span id="toggleText">Don't have an account?</span>
-      <a href="#" id="toggleAuth">Sign up</a>
+      <a id="toggleAuth">Sign up</a>
     </p>
   </div>
 
-  <!-- MAIN NAV (HIDDEN UNTIL LOGGED IN) -->
-  <div id="mainNav" class="grid" style="display:none; margin-top:30px;">
+  <!-- NAV -->
+  <div id="mainNav" class="grid" style="display:none;margin-top:20px;">
     <a href="join.html"><button>Join a Comp</button></a>
     <a href="my-comps.html"><button>My Comps</button></a>
     <a href="profile.html"><button>Profile</button></a>
@@ -40,7 +116,7 @@
 </div>
 
 <script type="module">
-import { auth } from ".bracketsbe.js";
+import { auth } from "./bracketsbe.js";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -54,10 +130,8 @@ const toggleText = document.getElementById("toggleText");
 
 let isSignIn = true;
 
-toggleAuth.onclick = (e) => {
-  e.preventDefault();
+toggleAuth.onclick = () => {
   isSignIn = !isSignIn;
-
   authTitle.textContent = isSignIn ? "Sign In" : "Sign Up";
   authBtn.textContent = isSignIn ? "Sign In" : "Create Account";
   toggleText.textContent = isSignIn
@@ -67,24 +141,24 @@ toggleAuth.onclick = (e) => {
 };
 
 authBtn.onclick = async () => {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
   try {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
     if (isSignIn) {
       await signInWithEmailAndPassword(auth, email, password);
     } else {
       await createUserWithEmailAndPassword(auth, email, password);
     }
-  } catch (err) {
-    alert(err.message);
+  } catch (e) {
+    alert(e.message);
   }
 };
 
 onAuthStateChanged(auth, user => {
   if (user) {
-    document.getElementById("authCard").style.display = "none";
-    document.getElementById("mainNav").style.display = "grid";
+    authCard.style.display = "none";
+    mainNav.style.display = "grid";
   }
 });
 </script>
