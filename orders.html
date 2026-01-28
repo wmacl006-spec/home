@@ -201,14 +201,16 @@ function loadOrders(){
       }
 
       else if (o.type === "faq") {
-        div.innerHTML = `
-          <strong>FAQ Question</strong><br>
-          <small>${new Date(o.timestamp).toLocaleString()}</small>
-          <hr>
-          <p>${o.question}</p>
-          <button class="delete" onclick="archiveOrder('${id}')">Archive</button>
-        `;
-      }
+  div.innerHTML = `
+    <strong>FAQ Question</strong><br>
+    <strong>${o.name || "Anonymous"}</strong><br>
+    <small>${new Date(o.timestamp).toLocaleString()}</small>
+    <hr>
+    <p>${o.question}</p>
+    <button class="delete" onclick="archiveOrder('${id}')">Archive</button>
+  `;
+}
+
 
       else {
         div.innerHTML = `
