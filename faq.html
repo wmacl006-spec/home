@@ -225,6 +225,7 @@
 
   <section class="faq-tools">
     <input id="search" type="text" placeholder="Search questions…" />
+    <input id="name" type="text" placeholder="Your name…" />
     <textarea id="ask" placeholder="Ask a question…"></textarea>
     <button id="submitQuestion">Submit Question</button>
     <div id="status" class="status"></div>
@@ -293,24 +294,28 @@ document.getElementById('search').addEventListener('input',e=>{
 });
 
 /* Submit FAQ to inbox */
-document.getElementById('submitQuestion').addEventListener('click',async()=>{
+document.getElementById('submitQuestion').addEventListener('click', async () => {
+  const name = document.getElementById('name').value.trim();
   const input = document.getElementById('ask');
   const status = document.getElementById('status');
   const question = input.value.trim();
-  if(!question) return;
+
+  if (!question) return;
 
   status.textContent = "Submitting…";
 
-  try{
+  try {
     await db.ref("orders").push({
       type: "faq",
+      name: name || "Anonymous",
       question,
       timestamp: Date.now()
     });
 
     input.value = "";
+    document.getElementById('name').value = "";
     status.textContent = "Question submitted.";
-  }catch{
+  } catch {
     status.textContent = "Submission failed.";
   }
 });
