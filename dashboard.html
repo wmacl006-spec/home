@@ -282,12 +282,11 @@ const firebaseConfig = {
   appId: "1:920604591347:web:29cd6c51f2837e1b4e2386"
 };
 
-const storage = getStorage(app);
-const avatarUpload = document.getElementById("avatarUpload");
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
+const avatarUpload = document.getElementById("avatarUpload");
 
 // DOM elements
 const editName = document.getElementById("editName");
