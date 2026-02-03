@@ -354,9 +354,31 @@ async function loadConnections() {
   }
 
   for (const u of usersSnap.docs) {
-    const uid = String(u.data().uid);
-    const profileSnap = await getDoc(doc(db,"profiles",uid));
-    const profile = profileSnap.data() || {};
+  const uid = String(u.data().uid);
+
+  const profileSnap = await getDoc(doc(db, "profiles", uid));
+
+  // 🔧 AUTO-CLEAN BROKEN CONNECTIONS
+  if (!profileSnap.exists()) {
+    console.warn("Removing broken connection:", uid);
+
+    await deleteDoc(
+      doc(db, "connections", currentUser.uid, "users", uid)
+    );
+
+    continue; // skip rendering this card
+  }
+
+  const profile = profileSnap.data();
+
+
+if (!profileSnap.exists()) {
+  console.warn("Missing profile for", uid);
+  continue; // skip broken card entirely
+}
+
+const profile = profileSnap.data();
+
 
     // Compute average rating from all users
     const ratingsSnap = await getDocs(collection(db, "ratings", uid, "users"));
@@ -389,10 +411,11 @@ card.innerHTML = `
   <div class="avatar">
   ${
     profile.avatarURL
-      ? `<img src="${profile.avatarURL}" alt="avatar">`
-      : `._.`
+      ? `<img src="${profile.avatarURL}" alt="avatar" loading="lazy">`
+      : `<span style="color:#666">No image</span>`
   }
 </div>
+
 
 
 <div class="name">
