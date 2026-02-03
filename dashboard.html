@@ -445,6 +445,23 @@ if (ratingBadge) {
 onAuthStateChanged(auth, async user => {
   if (!user) { location.href = "Liszt.html"; return; }
   currentUser = user;
+
+  const pendingAdd = localStorage.getItem("pendingAddUID");
+
+if (pendingAdd && pendingAdd !== user.uid) {
+  await setDoc(
+    doc(db, "connections", user.uid, "users", pendingAdd),
+    { uid: pendingAdd, addedAt: serverTimestamp() }
+  );
+
+  await setDoc(
+    doc(db, "connections", pendingAdd, "users", user.uid),
+    { uid: user.uid, addedAt: serverTimestamp() }
+  );
+
+  localStorage.removeItem("pendingAddUID");
+}
+  
   profileRef = doc(db, "profiles", user.uid);
 
   const snap = await getDoc(profileRef);
