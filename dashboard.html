@@ -449,18 +449,24 @@ onAuthStateChanged(auth, async user => {
   const pendingAdd = localStorage.getItem("pendingAddUID");
 
 if (pendingAdd && pendingAdd !== user.uid) {
-  await setDoc(
-    doc(db, "connections", user.uid, "users", pendingAdd),
-    { uid: pendingAdd, addedAt: serverTimestamp() }
-  );
+  try {
+    await setDoc(
+      doc(db, "connections", user.uid, "users", pendingAdd),
+      { uid: pendingAdd, addedAt: serverTimestamp() }
+    );
 
-  await setDoc(
-    doc(db, "connections", pendingAdd, "users", user.uid),
-    { uid: user.uid, addedAt: serverTimestamp() }
-  );
+    await setDoc(
+      doc(db, "connections", pendingAdd, "users", user.uid),
+      { uid: user.uid, addedAt: serverTimestamp() }
+    );
 
-  localStorage.removeItem("pendingAddUID");
+    localStorage.removeItem("pendingAddUID");
+    console.log("✅ Connection added via QR");
+  } catch (err) {
+    console.error("❌ QR add failed:", err);
+  }
 }
+
   
   profileRef = doc(db, "profiles", user.uid);
 
