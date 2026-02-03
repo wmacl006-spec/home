@@ -527,7 +527,11 @@ avatarUpload.onchange = async () => {
   await uploadBytes(avatarRef, file);
   const url = await getDownloadURL(avatarRef);
 
-  await updateDoc(profileRef, { avatarURL: url });
+// 🔥 cache-busting
+const bustedURL = `${url}?v=${Date.now()}`;
+
+await updateDoc(profileRef, { avatarURL: bustedURL });
+
 
   alert("Avatar updated");
   await loadConnections(); // refresh cards
