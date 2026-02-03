@@ -187,14 +187,24 @@ removeBtn.onclick = async () => {
   const confirmed = confirm("Are you sure you want to remove this card?");
   if (!confirmed) return;
 
-  const myRef = doc(db, "connections", currentUser.uid, "users", otherUid);
-  const theirRef = doc(db, "connections", otherUid, "users", currentUser.uid);
+  // Always treat UIDs as strings to avoid phone/PC mismatch
+  const myUid = String(currentUser.uid);
+  const other = String(otherUid);
 
-  await deleteDoc(myRef);
-  await deleteDoc(theirRef);
+  // Delete both sides of the connection
+  const myRef = doc(db, "connections", myUid, "users", other);
+  const theirRef = doc(db, "connections", other, "users", myUid);
 
-  alert("Card removed");
-  location.href = "dashboard.html";
+  try {
+    await deleteDoc(myRef);
+    await deleteDoc(theirRef);
+
+    alert("Card removed");
+    location.href = "dashboard.html";
+  } catch (err) {
+    console.error("Remove failed:", err);
+    alert("Error removing card");
+  }
 };
 </script>
 </body>
