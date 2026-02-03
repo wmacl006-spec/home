@@ -183,29 +183,33 @@ async function loadProfile() {
 }
 
 /* -------------------- REMOVE CARD -------------------- */
+import { deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
 removeBtn.onclick = async () => {
   const confirmed = confirm("Are you sure you want to remove this card?");
   if (!confirmed) return;
 
-  // Always treat UIDs as strings
   const myUid = String(currentUser.uid);
   const other = String(otherUid);
 
-  // Delete both sides of the connection
   const myRef = doc(db, "connections", myUid, "users", other);
   const theirRef = doc(db, "connections", other, "users", myUid);
 
   try {
-    await deleteDoc(myRef);
-    await deleteDoc(theirRef);
+    if ((await getDoc(myRef)).exists()) {
+      await deleteDoc(myRef);
+    }
+    if ((await getDoc(theirRef)).exists()) {
+      await deleteDoc(theirRef);
+    }
 
-    alert("Card removed");
     location.href = "dashboard.html";
   } catch (err) {
-    console.error("❌ Remove failed:", err);
-    alert("Error removing card");
+    console.error(err);
+    alert("Failed to remove card");
   }
 };
+
 </script>
 </body>
 </html>
