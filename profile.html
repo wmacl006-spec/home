@@ -183,7 +183,7 @@ async function loadProfile() {
 }
 
 /* -------------------- REMOVE CARD -------------------- */
-import { deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 removeBtn.onclick = async () => {
   const confirmed = confirm("Are you sure you want to remove this card?");
@@ -199,16 +199,18 @@ removeBtn.onclick = async () => {
     if ((await getDoc(myRef)).exists()) {
       await deleteDoc(myRef);
     }
+
     if ((await getDoc(theirRef)).exists()) {
       await deleteDoc(theirRef);
     }
 
     location.href = "dashboard.html";
   } catch (err) {
-    console.error(err);
+    console.error("Remove failed:", err);
     alert("Failed to remove card");
   }
 };
+
 
 </script>
 </body>
