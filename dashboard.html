@@ -245,6 +245,25 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 <script type="module">
+
+const params = new URLSearchParams(window.location.search);
+const addUid = params.get("add");
+
+if (addUid && auth.currentUser) {
+  const myUid = auth.currentUser.uid;
+
+  if (addUid !== myUid) {
+    await setDoc(
+      doc(db, "connections", myUid, "users", addUid),
+      { uid: addUid, addedAt: serverTimestamp() },
+      { merge: true }
+    );
+
+    // optional: clean URL after adding
+    history.replaceState({}, "", "/dashboard.html");
+  }
+}
+  
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
@@ -484,7 +503,16 @@ logoutBtn.onclick = async () => {
 scanBtn.onclick = () => { location.href = "scan.html"; };
 shareBtn.onclick = () => {
   qr.innerHTML = "";
-  new QRCode(qr, { text:`liszt:add:${currentUser.uid}`, width:200, height:200, colorDark:"#ffffff", colorLight:"#161616" });
+  const url = `https://williammaclean.ca/dashboard.html?add=${currentUser.uid}`;
+
+new QRCode(qr, {
+  text: url,
+  width: 200,
+  height: 200,
+  colorDark: "#ffffff",
+  colorLight: "#161616"
+});
+
   qrModal.style.display = "flex";
 };
 
