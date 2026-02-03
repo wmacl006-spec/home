@@ -354,7 +354,7 @@ async function loadConnections() {
   }
 
   for (const u of usersSnap.docs) {
-    const uid = u.data().uid;
+    const uid = String(u.data().uid);
     const profileSnap = await getDoc(doc(db,"profiles",uid));
     const profile = profileSnap.data() || {};
 
@@ -425,7 +425,7 @@ card.innerHTML = `
         return;
       }
 
-      const ratingRef = doc(db, "ratings", uid, "users", currentUser.uid);
+      const ratingRef = doc(db, "ratings", String(uid), "users", String(currentUser.uid));
       const profileRef = doc(db, "profiles", uid);
 
       // Save/update user's rating
@@ -474,14 +474,14 @@ onAuthStateChanged(auth, async user => {
 if (pendingAdd && pendingAdd !== user.uid) {
   try {
     await setDoc(
-      doc(db, "connections", user.uid, "users", pendingAdd),
-      { uid: pendingAdd, addedAt: serverTimestamp() }
-    );
+  doc(db, "connections", String(user.uid), "users", String(pendingAddUID)),
+  { uid: String(pendingAddUID), addedAt: serverTimestamp() }
+);
 
-    await setDoc(
-      doc(db, "connections", pendingAdd, "users", user.uid),
-      { uid: user.uid, addedAt: serverTimestamp() }
-    );
+await setDoc(
+  doc(db, "connections", String(pendingAddUID), "users", String(user.uid)),
+  { uid: String(user.uid), addedAt: serverTimestamp() }
+);
 
     localStorage.removeItem("pendingAddUID");
     console.log("✅ Connection added via QR");
