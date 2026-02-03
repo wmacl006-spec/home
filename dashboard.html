@@ -272,24 +272,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-
-const urlParams = new URLSearchParams(window.location.search);
-const addUid = urlParams.get("add");
-
-onAuthStateChanged(auth, user => {
-  if (!user) {
-    // Not signed in → redirect to login but preserve the UID
-    window.location.href = `login.html?add=${addUid}`;
-    return;
-  }
-
-  if (addUid) {
-    // User is signed in → add connection
-    addConnection(addUid);
-  }
-});
-  
 // DOM elements
 const editName = document.getElementById("editName");
 const editField = document.getElementById("editField");
@@ -502,14 +484,7 @@ logoutBtn.onclick = async () => {
 scanBtn.onclick = () => { location.href = "scan.html"; };
 shareBtn.onclick = () => {
   qr.innerHTML = "";
-  new QRCode(qr, {
-  text: `https://williammaclean.ca/Liszt.html?add=${currentUser.uid}`,
-  width: 200,
-  height: 200,
-  colorDark: "#ffffff",
-  colorLight: "#161616"
-});
-
+  new QRCode(qr, { text:`liszt:add:${currentUser.uid}`, width:200, height:200, colorDark:"#ffffff", colorLight:"#161616" });
   qrModal.style.display = "flex";
 };
 
