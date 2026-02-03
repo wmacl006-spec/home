@@ -103,19 +103,14 @@ body {
 
 .avatar {
   height:120px;
+  background:radial-gradient(circle at top,#2a2a2a,#0f0f0f);
   border-radius:12px;
   border:2px solid #000;
-  overflow:hidden;
-  background:#0f0f0f;
   display:flex;
   align-items:center;
   justify-content:center;
-}
-
-.avatar img {
-  width:100%;
-  height:100%;
-  object-fit:cover;
+  font-size:3rem;
+  margin-bottom:.5rem;
 }
 
 .bio {
@@ -222,7 +217,6 @@ body {
   <input id="editName" placeholder="Name">
   <input id="editField" placeholder="Set">
   <textarea id="editBio" rows="4" placeholder="About You"></textarea>
-  <input type="file" id="avatarUpload" accept="image/*">
   <div style="margin-bottom:1rem;">
     <span>Your Aura: </span>
     <span id="profileRating" class="avg-badge" style="background:#242424;">0</span>
@@ -253,14 +247,6 @@ body {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
-  
 import {
   getFirestore,
   doc,
@@ -269,7 +255,6 @@ import {
   getDocs,
   collection,
   updateDoc,
-  deleteDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
@@ -286,8 +271,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
-const avatarUpload = document.getElementById("avatarUpload");
 
 // DOM elements
 const editName = document.getElementById("editName");
@@ -354,23 +337,10 @@ async function loadConnections() {
     return;
   }
 
-for (const u of usersSnap.docs) {
-  const uid = String(u.data().uid);
-
-  const profileSnap = await getDoc(doc(db, "profiles", uid));
-
-  // 🔧 AUTO-CLEAN BROKEN CONNECTIONS
-  if (!profileSnap.exists()) {
-    console.warn("Removing broken connection:", uid);
-
-    await deleteDoc(
-      doc(db, "connections", currentUser.uid, "users", uid)
-    );
-
-    continue; // skip rendering this card
-  }
-
-  const profile = profileSnap.data();
+  for (const u of usersSnap.docs) {
+    const uid = u.data().uid;
+    const profileSnap = await getDoc(doc(db,"profiles",uid));
+    const profile = profileSnap.data() || {};
 
     // Compute average rating from all users
     const ratingsSnap = await getDocs(collection(db, "ratings", uid, "users"));
@@ -400,15 +370,7 @@ card.innerHTML = `
     ${avg.toFixed(1)}
   </span>
 
-  <div class="avatar">
-  ${
-    profile.avatarURL
-      ? `<img src="${profile.avatarURL}" alt="avatar" loading="lazy">`
-      : `<span style="color:#666">No image</span>`
-  }
-</div>
-
-
+  <div class="avatar">._.</div>
 
 <div class="name">
   ${truncate(profile.name || "Unknown", 15)}
@@ -440,7 +402,7 @@ card.innerHTML = `
         return;
       }
 
-      const ratingRef = doc(db, "ratings", String(uid), "users", String(currentUser.uid));
+      const ratingRef = doc(db, "ratings", uid, "users", currentUser.uid);
       const profileRef = doc(db, "profiles", uid);
 
       // Save/update user's rating
@@ -483,29 +445,6 @@ if (ratingBadge) {
 onAuthStateChanged(auth, async user => {
   if (!user) { location.href = "Liszt.html"; return; }
   currentUser = user;
-
-  const pendingAdd = localStorage.getItem("pendingAddUID");
-
-if (pendingAdd && pendingAdd !== user.uid) {
-  try {
-    await setDoc(
-      doc(db, "connections", String(user.uid), "users", String(pendingAdd)),
-      { uid: String(pendingAdd), addedAt: serverTimestamp() }
-    );
-
-    await setDoc(
-      doc(db, "connections", String(pendingAdd), "users", String(user.uid)),
-      { uid: String(user.uid), addedAt: serverTimestamp() }
-    );
-
-    localStorage.removeItem("pendingAddUID");
-    console.log("✅ Connection added via QR");
-  } catch (err) {
-    console.error("❌ QR add failed:", err);
-  }
-}
-
-  
   profileRef = doc(db, "profiles", user.uid);
 
   const snap = await getDoc(profileRef);
@@ -518,25 +457,6 @@ if (pendingAdd && pendingAdd !== user.uid) {
     editBio.value = data.aboutMe || "";
   }
 
-avatarUpload.onchange = async () => {
-  if (!avatarUpload.files[0]) return;
-
-  const file = avatarUpload.files[0];
-  const avatarRef = ref(storage, `avatars/${currentUser.uid}.jpg`);
-
-  await uploadBytes(avatarRef, file);
-  const url = await getDownloadURL(avatarRef);
-
-// 🔥 cache-busting
-const bustedURL = `${url}?v=${Date.now()}`;
-
-await updateDoc(profileRef, { avatarURL: bustedURL });
-
-
-  alert("Avatar updated");
-  await loadConnections(); // refresh cards
-};
-  
   // Show current user profile rating
   await updateProfileRating();
 
@@ -564,14 +484,7 @@ logoutBtn.onclick = async () => {
 scanBtn.onclick = () => { location.href = "scan.html"; };
 shareBtn.onclick = () => {
   qr.innerHTML = "";
-  new QRCode(qr, {
-  text: `https://williammaclean.ca/Liszt.html?add=${currentUser.uid}`,
-  width: 200,
-  height: 200,
-  colorDark: "#ffffff",
-  colorLight: "#161616"
-});
-
+  new QRCode(qr, { text:`liszt:add:${currentUser.uid}`, width:200, height:200, colorDark:"#ffffff", colorLight:"#161616" });
   qrModal.style.display = "flex";
 };
 
