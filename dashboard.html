@@ -474,14 +474,14 @@ onAuthStateChanged(auth, async user => {
 if (pendingAdd && pendingAdd !== user.uid) {
   try {
     await setDoc(
-  doc(db, "connections", String(user.uid), "users", String(pendingAddUID)),
-  { uid: String(pendingAddUID), addedAt: serverTimestamp() }
-);
+      doc(db, "connections", String(user.uid), "users", String(pendingAdd)),
+      { uid: String(pendingAdd), addedAt: serverTimestamp() }
+    );
 
-await setDoc(
-  doc(db, "connections", String(pendingAddUID), "users", String(user.uid)),
-  { uid: String(user.uid), addedAt: serverTimestamp() }
-);
+    await setDoc(
+      doc(db, "connections", String(pendingAdd), "users", String(user.uid)),
+      { uid: String(user.uid), addedAt: serverTimestamp() }
+    );
 
     localStorage.removeItem("pendingAddUID");
     console.log("✅ Connection added via QR");
