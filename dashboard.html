@@ -245,24 +245,6 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 <script type="module">
-
-const params = new URLSearchParams(window.location.search);
-const addUid = params.get("add");
-
-if (addUid && auth.currentUser) {
-  const myUid = auth.currentUser.uid;
-
-  if (addUid !== myUid) {
-    await setDoc(
-      doc(db, "connections", myUid, "users", addUid),
-      { uid: addUid, addedAt: serverTimestamp() },
-      { merge: true }
-    );
-
-    // optional: clean URL after adding
-    history.replaceState({}, "", "/dashboard.html");
-  }
-}
   
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
@@ -290,6 +272,32 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+
+const params = new URLSearchParams(window.location.search);
+const addUid = params.get("add");
+
+if (addUid) {
+  sessionStorage.setItem("pendingAdd", addUid);
+}
+
+const params = new URLSearchParams(window.location.search);
+const addUid = params.get("add");
+
+if (addUid && auth.currentUser) {
+  const myUid = auth.currentUser.uid;
+
+  if (addUid !== myUid) {
+    await setDoc(
+      doc(db, "connections", myUid, "users", addUid),
+      { uid: addUid, addedAt: serverTimestamp() },
+      { merge: true }
+    );
+
+    // optional: clean URL after adding
+    history.replaceState({}, "", "/dashboard.html");
+  }
+}
 
 // DOM elements
 const editName = document.getElementById("editName");
@@ -462,26 +470,22 @@ if (ratingBadge) {
 
 // Auth state
 onAuthStateChanged(auth, async user => {
-  if (!user) { location.href = "Liszt.html"; return; }
-  currentUser = user;
-  profileRef = doc(db, "profiles", user.uid);
+  if (!user) return;
 
-  const snap = await getDoc(profileRef);
-  if (!snap.exists()) {
-    await setDoc(profileRef, { name:"", fieldOfStudy:"", aboutMe:"", ratingAvg:0, ratingCount:0 });
-  } else {
-    const data = snap.data();
-    editName.value = data.name || "";
-    editField.value = data.fieldOfStudy || "";
-    editBio.value = data.aboutMe || "";
+  const pendingAdd = sessionStorage.getItem("pendingAdd");
+  if (pendingAdd && pendingAdd !== user.uid) {
+    await setDoc(
+      doc(db, "connections", user.uid, "users", pendingAdd),
+      { uid: pendingAdd, addedAt: serverTimestamp() },
+      { merge: true }
+    );
+
+    sessionStorage.removeItem("pendingAdd");
   }
 
-  // Show current user profile rating
-  await updateProfileRating();
-
-  // Load connections
-  await loadConnections();
+  location.href = "dashboard.html";
 });
+
 
 // Save profile
 saveBtn.onclick = async () => {
@@ -503,7 +507,7 @@ logoutBtn.onclick = async () => {
 scanBtn.onclick = () => { location.href = "scan.html"; };
 shareBtn.onclick = () => {
   qr.innerHTML = "";
-  const url = `https://williammaclean.ca/dashboard.html?add=${currentUser.uid}`;
+  const url = `https://williammaclean.ca/Liszt.html?add=${currentUser.uid}`;
 
 new QRCode(qr, {
   text: url,
