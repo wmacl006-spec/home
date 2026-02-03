@@ -269,6 +269,7 @@ import {
   getDocs,
   collection,
   updateDoc,
+  deleteDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
@@ -353,7 +354,7 @@ async function loadConnections() {
     return;
   }
 
-  for (const u of usersSnap.docs) {
+for (const u of usersSnap.docs) {
   const uid = String(u.data().uid);
 
   const profileSnap = await getDoc(doc(db, "profiles", uid));
@@ -370,15 +371,6 @@ async function loadConnections() {
   }
 
   const profile = profileSnap.data();
-
-
-if (!profileSnap.exists()) {
-  console.warn("Missing profile for", uid);
-  continue; // skip broken card entirely
-}
-
-const profile = profileSnap.data();
-
 
     // Compute average rating from all users
     const ratingsSnap = await getDocs(collection(db, "ratings", uid, "users"));
