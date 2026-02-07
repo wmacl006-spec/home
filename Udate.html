@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>uDate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0b0b0f;
+  --panel:#14141a;
+  --border:#242430;
+  --accent:#b00b55;
+  --accent-soft:#ff3b8a22;
+  --text:#ffffff;
+  --muted:#9ca3af;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,sans-serif;
+  background:radial-gradient(1200px 600px at top, #1a0a12, var(--bg));
+  color:var(--text);
+  min-height:100vh;
+}
+
+.container{
+  max-width:420px;
+  margin:auto;
+  padding:24px 16px 80px;
+}
+
+header{
+  text-align:center;
+  margin-bottom:24px;
+}
+header h1{
+  margin:0;
+  font-size:2.4rem;
+  letter-spacing:-1px;
+}
+header span{
+  color:var(--accent);
+}
+header p{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:.95rem;
+}
+
+.card{
+  background:linear-gradient(180deg, #16161e, #12121a);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:18px;
+  box-shadow:0 10px 30px #00000055;
+}
+
+input, textarea, button{
+  width:100%;
+  margin-top:12px;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#0c0c12;
+  color:var(--text);
+  font-size:.95rem;
+}
+
+textarea{resize:none; height:90px}
+
+button{
+  background:linear-gradient(135deg, var(--accent), #ff4f9a);
+  border:none;
+  font-weight:600;
+  letter-spacing:.3px;
+  cursor:pointer;
+  transition:.25s;
+}
+button:hover{filter:brightness(1.1)}
+
+button.secondary{
+  background:#1c1c26;
+}
+
+.hidden{display:none}
+
+.profile-img{
+  width:100%;
+  aspect-ratio:3/4;
+  object-fit:cover;
+  border-radius:14px;
+  margin-bottom:14px;
+}
+
+.meta{
+  color:var(--muted);
+  font-size:.9rem;
+  margin-bottom:8px;
+}
+
+.actions{
+  display:flex;
+  gap:12px;
+  margin-top:14px;
+}
+
+.match{
+  padding:12px;
+  border-radius:12px;
+  background:var(--accent-soft);
+  border:1px solid #b00b5544;
+  margin-bottom:10px;
+}
+.match strong{display:block}
+
+.footer{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  padding:12px;
+  background:linear-gradient(180deg, transparent, #0b0b0f 60%);
+  text-align:center;
+  color:var(--muted);
+  font-size:.75rem;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <h1>u<span>Date</span></h1>
+  <p>connections, after class</p>
+</header>
+
+<!-- AUTH -->
+<div id="auth" class="card">
+  <input id="email" placeholder="Email" />
+  <input id="password" type="password" placeholder="Password" />
+  <button onclick="signIn()">Sign in / Create account</button>
+</div>
+
+<!-- PROFILE SETUP -->
+<div id="setup" class="card hidden">
+  <h3>Create profile</h3>
+  <input id="name" placeholder="Name" />
+  <input id="major" placeholder="Major" />
+  <textarea id="bio" placeholder="Short bio"></textarea>
+  <input type="file" id="photo" />
+  <button onclick="saveProfile()">Save profile</button>
+</div>
+
+<!-- SWIPE -->
+<div id="swipe" class="card hidden">
+  <img id="swipePhoto" class="profile-img" />
+  <h3 id="swipeName"></h3>
+  <div class="meta" id="swipeMajor"></div>
+  <p id="swipeBio"></p>
+
+  <div class="actions">
+    <button class="secondary" onclick="pass()">Pass</button>
+    <button onclick="like()">Like</button>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div id="matches" class="card hidden">
+  <h3>Matches</h3>
+  <div id="matchList"></div>
+</div>
+
+</div>
+
+<div class="footer">© uDate</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  collection,
+  getDocs,
+  arrayUnion
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAWztHdZXqLQmIoPre_Dn_UUmWvNSmwFLU",
+  authDomain: "udate-64fd3.firebaseapp.com",
+  projectId: "udate-64fd3",
+  storageBucket: "udate-64fd3.firebasestorage.app",
+  messagingSenderId: "88367490035",
+  appId: "1:88367490035:web:148a75f67585428cb6e886"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+let user;
+let profiles=[];
+let index=0;
+
+window.signIn = async ()=>{
+  try{
+    await signInWithEmailAndPassword(auth,email.value,password.value);
+  }catch{
+    await createUserWithEmailAndPassword(auth,email.value,password.value);
+  }
+};
+
+onAuthStateChanged(auth, async u=>{
+  if(!u) return;
+  user=u;
+  auth.classList.add("hidden");
+  const snap=await getDoc(doc(db,"users",user.uid));
+  snap.exists() ? loadApp() : setup.classList.remove("hidden");
+});
+
+window.saveProfile = async ()=>{
+  const file=photo.files[0];
+  const r=ref(storage,`profiles/${user.uid}`);
+  await uploadBytes(r,file);
+  const url=await getDownloadURL(r);
+
+  await setDoc(doc(db,"users",user.uid),{
+    name:name.value,
+    major:major.value,
+    bio:bio.value,
+    photo:url,
+    likes:[],
+    matches:[]
+  });
+  setup.classList.add("hidden");
+  loadApp();
+};
+
+async function loadApp(){
+  swipe.classList.remove("hidden");
+  matches.classList.remove("hidden");
+  profiles=[];
+  index=0;
+  const snap=await getDocs(collection(db,"users"));
+  snap.forEach(d=>{
+    if(d.id!==user.uid) profiles.push({id:d.id,...d.data()});
+  });
+  show();
+  loadMatches();
+}
+
+function show(){
+  if(index>=profiles.length) return;
+  const p=profiles[index];
+  swipePhoto.src=p.photo;
+  swipeName.textContent=p.name;
+  swipeMajor.textContent=p.major;
+  swipeBio.textContent=p.bio;
+}
+
+window.pass=()=>{index++;show();};
+
+window.like=async ()=>{
+  const t=profiles[index];
+  const me=doc(db,"users",user.uid);
+  const them=doc(db,"users",t.id);
+
+  await updateDoc(me,{likes:arrayUnion(t.id)});
+  const ts=await getDoc(them);
+
+  if(ts.data().likes?.includes(user.uid)){
+    await updateDoc(me,{matches:arrayUnion(t.id)});
+    await updateDoc(them,{matches:arrayUnion(user.uid)});
+    alert("It’s a match 💖");
+    loadMatches();
+  }
+  index++; show();
+};
+
+async function loadMatches(){
+  matchList.innerHTML="";
+  const me=await getDoc(doc(db,"users",user.uid));
+  for(const id of me.data().matches||[]){
+    const u=await getDoc(doc(db,"users",id));
+    matchList.innerHTML+=`
+      <div class="match">
+        <strong>${u.data().name}</strong>
+        ${u.data().major}
+      </div>`;
+  }
+}
+</script>
+</body>
+</html>
