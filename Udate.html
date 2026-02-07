@@ -13,7 +13,7 @@
   --panel:#14141a;
   --border:#242430;
   --accent:#b00b55;
-  --accent-soft:#ff3b8a22;
+  --accent-soft:#b00b5522;
   --text:#ffffff;
   --muted:#9ca3af;
 }
@@ -41,11 +41,8 @@ header{
 header h1{
   margin:0;
   font-size:2.4rem;
-  letter-spacing:-1px;
 }
-header span{
-  color:var(--accent);
-}
+header span{color:var(--accent)}
 header p{
   margin-top:6px;
   color:var(--muted);
@@ -58,7 +55,6 @@ header p{
   border-radius:18px;
   padding:18px;
   margin-bottom:18px;
-  box-shadow:0 10px 30px #00000055;
 }
 
 input, textarea, button{
@@ -72,17 +68,14 @@ input, textarea, button{
   font-size:.95rem;
 }
 
-textarea{resize:none; height:90px}
+textarea{resize:none;height:90px}
 
 button{
   background:linear-gradient(135deg, var(--accent), #ff4f9a);
   border:none;
   font-weight:600;
-  letter-spacing:.3px;
   cursor:pointer;
-  transition:.25s;
 }
-button:hover{filter:brightness(1.1)}
 
 button.secondary{
   background:#1c1c26;
@@ -107,7 +100,6 @@ button.secondary{
 .actions{
   display:flex;
   gap:12px;
-  margin-top:14px;
 }
 
 .match{
@@ -116,19 +108,6 @@ button.secondary{
   background:var(--accent-soft);
   border:1px solid #b00b5544;
   margin-bottom:10px;
-}
-.match strong{display:block}
-
-.footer{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  padding:12px;
-  background:linear-gradient(180deg, transparent, #0b0b0f 60%);
-  text-align:center;
-  color:var(--muted);
-  font-size:.75rem;
 }
 </style>
 </head>
@@ -142,44 +121,41 @@ button.secondary{
 </header>
 
 <!-- AUTH -->
-<div id="auth" class="card">
-  <input id="email" placeholder="Email" />
-  <input id="password" type="password" placeholder="Password" />
-  <button onclick="signIn()">Sign in / Create account</button>
+<div id="authCard" class="card">
+  <input id="emailInput" placeholder="Email" />
+  <input id="passwordInput" type="password" placeholder="Password" />
+  <button id="authBtn">Sign in / Create account</button>
 </div>
 
 <!-- PROFILE SETUP -->
-<div id="setup" class="card hidden">
+<div id="setupCard" class="card hidden">
   <h3>Create profile</h3>
-  <input id="name" placeholder="Name" />
-  <input id="major" placeholder="Major" />
-  <textarea id="bio" placeholder="Short bio"></textarea>
-  <input type="file" id="photo" />
-  <button onclick="saveProfile()">Save profile</button>
+  <input id="nameInput" placeholder="Name" />
+  <input id="majorInput" placeholder="Major" />
+  <textarea id="bioInput" placeholder="Short bio"></textarea>
+  <input type="file" id="photoInput" accept="image/*" />
+  <button id="saveProfileBtn">Save profile</button>
 </div>
 
 <!-- SWIPE -->
-<div id="swipe" class="card hidden">
+<div id="swipeCard" class="card hidden">
   <img id="swipePhoto" class="profile-img" />
   <h3 id="swipeName"></h3>
   <div class="meta" id="swipeMajor"></div>
   <p id="swipeBio"></p>
-
   <div class="actions">
-    <button class="secondary" onclick="pass()">Pass</button>
-    <button onclick="like()">Like</button>
+    <button class="secondary" id="passBtn">Pass</button>
+    <button id="likeBtn">Like</button>
   </div>
 </div>
 
 <!-- MATCHES -->
-<div id="matches" class="card hidden">
+<div id="matchesCard" class="card hidden">
   <h3>Matches</h3>
   <div id="matchList"></div>
 </div>
 
 </div>
-
-<div class="footer">© uDate</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -220,94 +196,124 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-let user;
-let profiles=[];
-let index=0;
+let currentUser = null;
+let profiles = [];
+let index = 0;
 
-window.signIn = async ()=>{
-  try{
-    await signInWithEmailAndPassword(auth,email.value,password.value);
-  }catch{
-    await createUserWithEmailAndPassword(auth,email.value,password.value);
+// DOM
+const authCard = document.getElementById("authCard");
+const setupCard = document.getElementById("setupCard");
+const swipeCard = document.getElementById("swipeCard");
+const matchesCard = document.getElementById("matchesCard");
+
+// AUTH
+document.getElementById("authBtn").onclick = async () => {
+  const email = emailInput.value.trim();
+  const pass = passwordInput.value.trim();
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch {
+    await createUserWithEmailAndPassword(auth, email, pass);
   }
 };
 
-onAuthStateChanged(auth, async u=>{
-  if(!u) return;
-  user=u;
-  auth.classList.add("hidden");
-  const snap=await getDoc(doc(db,"users",user.uid));
-  snap.exists() ? loadApp() : setup.classList.remove("hidden");
+onAuthStateChanged(auth, async (u) => {
+  if (!u) return;
+  currentUser = u;
+  authCard.classList.add("hidden");
+
+  const snap = await getDoc(doc(db, "users", currentUser.uid));
+  snap.exists() ? loadApp() : setupCard.classList.remove("hidden");
 });
 
-window.saveProfile = async ()=>{
-  const file=photo.files[0];
-  const r=ref(storage,`profiles/${user.uid}`);
-  await uploadBytes(r,file);
-  const url=await getDownloadURL(r);
+// PROFILE
+document.getElementById("saveProfileBtn").onclick = async () => {
+  const file = photoInput.files[0];
+  if (!file) return alert("Upload a photo");
 
-  await setDoc(doc(db,"users",user.uid),{
-    name:name.value,
-    major:major.value,
-    bio:bio.value,
-    photo:url,
-    likes:[],
-    matches:[]
+  const r = ref(storage, `profiles/${currentUser.uid}`);
+  await uploadBytes(r, file);
+  const url = await getDownloadURL(r);
+
+  await setDoc(doc(db, "users", currentUser.uid), {
+    name: nameInput.value,
+    major: majorInput.value,
+    bio: bioInput.value,
+    photo: url,
+    likes: [],
+    matches: []
   });
-  setup.classList.add("hidden");
+
+  setupCard.classList.add("hidden");
   loadApp();
 };
 
-async function loadApp(){
-  swipe.classList.remove("hidden");
-  matches.classList.remove("hidden");
-  profiles=[];
-  index=0;
-  const snap=await getDocs(collection(db,"users"));
-  snap.forEach(d=>{
-    if(d.id!==user.uid) profiles.push({id:d.id,...d.data()});
+// APP
+async function loadApp() {
+  swipeCard.classList.remove("hidden");
+  matchesCard.classList.remove("hidden");
+
+  profiles = [];
+  index = 0;
+
+  const snap = await getDocs(collection(db, "users"));
+  snap.forEach(d => {
+    if (d.id !== currentUser.uid) {
+      profiles.push({ id: d.id, ...d.data() });
+    }
   });
-  show();
+
+  showProfile();
   loadMatches();
 }
 
-function show(){
-  if(index>=profiles.length) return;
-  const p=profiles[index];
-  swipePhoto.src=p.photo;
-  swipeName.textContent=p.name;
-  swipeMajor.textContent=p.major;
-  swipeBio.textContent=p.bio;
+function showProfile() {
+  if (index >= profiles.length) {
+    swipeName.textContent = "No more profiles";
+    swipePhoto.src = "";
+    swipeMajor.textContent = "";
+    swipeBio.textContent = "";
+    return;
+  }
+  const p = profiles[index];
+  swipePhoto.src = p.photo;
+  swipeName.textContent = p.name;
+  swipeMajor.textContent = p.major;
+  swipeBio.textContent = p.bio;
 }
 
-window.pass=()=>{index++;show();};
+document.getElementById("passBtn").onclick = () => {
+  index++;
+  showProfile();
+};
 
-window.like=async ()=>{
-  const t=profiles[index];
-  const me=doc(db,"users",user.uid);
-  const them=doc(db,"users",t.id);
+document.getElementById("likeBtn").onclick = async () => {
+  const target = profiles[index];
+  const meRef = doc(db, "users", currentUser.uid);
+  const themRef = doc(db, "users", target.id);
 
-  await updateDoc(me,{likes:arrayUnion(t.id)});
-  const ts=await getDoc(them);
+  await updateDoc(meRef, { likes: arrayUnion(target.id) });
 
-  if(ts.data().likes?.includes(user.uid)){
-    await updateDoc(me,{matches:arrayUnion(t.id)});
-    await updateDoc(them,{matches:arrayUnion(user.uid)});
+  const themSnap = await getDoc(themRef);
+  if (themSnap.data().likes?.includes(currentUser.uid)) {
+    await updateDoc(meRef, { matches: arrayUnion(target.id) });
+    await updateDoc(themRef, { matches: arrayUnion(currentUser.uid) });
     alert("It’s a match 💖");
     loadMatches();
   }
-  index++; show();
+
+  index++;
+  showProfile();
 };
 
-async function loadMatches(){
-  matchList.innerHTML="";
-  const me=await getDoc(doc(db,"users",user.uid));
-  for(const id of me.data().matches||[]){
-    const u=await getDoc(doc(db,"users",id));
-    matchList.innerHTML+=`
+async function loadMatches() {
+  matchList.innerHTML = "";
+  const snap = await getDoc(doc(db, "users", currentUser.uid));
+  for (const id of snap.data().matches || []) {
+    const u = await getDoc(doc(db, "users", id));
+    matchList.innerHTML += `
       <div class="match">
-        <strong>${u.data().name}</strong>
-        ${u.data().major}
+        <strong>${u.data().name}</strong><br>${u.data().major}
       </div>`;
   }
 }
