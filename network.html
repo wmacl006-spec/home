@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Social Network — View Only</title>
+  <style>
+    :root {
+      --bg-1: #05070d;
+      --bg-2: #0b1020;
+      --panel: rgba(13, 16, 28, 0.86);
+      --panel-2: rgba(19, 23, 39, 0.92);
+      --border: rgba(255,255,255,0.08);
+      --text: #f5f7ff;
+      --muted: #a8b0c7;
+      --accent: #b00b55;
+      --accent-soft: rgba(176, 11, 85, 0.18);
+      --accent-strong: rgba(176, 11, 85, 0.35);
+      --gold: #ffd166;
+      --shadow: 0 24px 80px rgba(0,0,0,0.5);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(176, 11, 85, 0.10), transparent 22%),
+        radial-gradient(circle at 85% 25%, rgba(255, 255, 255, 0.03), transparent 20%),
+        radial-gradient(circle at 50% 80%, rgba(176, 11, 85, 0.07), transparent 18%),
+        linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .ui {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      pointer-events: auto;
+    }
+
+    .title-panel {
+      padding: 16px 18px;
+      min-width: 280px;
+      max-width: 560px;
+    }
+
+    .title-panel h1 {
+      margin: 0 0 6px;
+      font-size: 20px;
+      letter-spacing: 0.2px;
+    }
+
+    .title-panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .controls {
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      max-width: 760px;
+    }
+
+    .search-wrap {
+      position: relative;
+      width: 260px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.045);
+      color: var(--text);
+      outline: none;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: rgba(176, 11, 85, 0.55);
+      box-shadow: 0 0 0 4px rgba(176, 11, 85, 0.14);
+      background: rgba(255,255,255,0.06);
+    }
+
+    input[type="text"]::placeholder {
+      color: #9ca6c0;
+    }
+
+    button,
+    .home-btn {
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.16s ease;
+      min-height: 44px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:hover,
+    .home-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.10);
+    }
+
+    .ghost {
+      background: rgba(255,255,255,0.04);
+    }
+
+    .home-btn {
+      border-color: rgba(176,11,85,0.35);
+      background: linear-gradient(135deg, rgba(176,11,85,0.26), rgba(176,11,85,0.10));
+      font-weight: 800;
+    }
+
+    .home-btn:hover {
+      background: linear-gradient(135deg, rgba(176,11,85,0.34), rgba(176,11,85,0.14));
+    }
+
+    .suggestions {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(12, 15, 26, 0.98);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+      display: none;
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 40;
+    }
+
+    .suggestion {
+      padding: 11px 13px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 14px;
+    }
+
+    .suggestion:last-child {
+      border-bottom: 0;
+    }
+
+    .suggestion:hover {
+      background: rgba(176,11,85,0.14);
+    }
+
+    .left-info {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      width: 365px;
+      padding: 16px 18px;
+      pointer-events: auto;
+    }
+
+    .right-info {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      width: 430px;
+      padding: 16px 18px;
+      pointer-events: auto;
+      max-height: calc(100vh - 120px);
+      overflow: auto;
+    }
+
+    .left-info h3,
+    .right-info h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .selected-box {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .stat-card {
+      padding: 12px 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .stat-card .k {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-card .v {
+      margin-top: 6px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .section {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .connections-current {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      max-height: 280px;
+      overflow: auto;
+    }
+
+    .connection-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .connection-row span {
+      font-size: 13px;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(176,11,85,0.14);
+      border: 1px solid rgba(176,11,85,0.24);
+      color: #ffd1e6;
+    }
+
+    .label-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .node-label {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      text-shadow:
+        0 0 10px rgba(0,0,0,0.88),
+        0 0 20px rgba(0,0,0,0.78);
+      opacity: 0.96;
+    }
+
+    .node-label.selected {
+      color: #ff73b6;
+      text-shadow:
+        0 0 12px rgba(176,11,85,0.95),
+        0 0 28px rgba(176,11,85,0.48),
+        0 0 12px rgba(0,0,0,0.8);
+    }
+
+    .node-label.hovered {
+      color: var(--gold);
+    }
+
+    @media (max-width: 1100px) {
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .search-wrap {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .left-info,
+      .right-info {
+        width: calc(100% - 32px);
+        position: static;
+        margin: 16px;
+      }
+
+      .ui {
+        overflow: auto;
+      }
+
+      html, body {
+        overflow: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <div class="ui">
+    <div class="topbar">
+      <div class="panel title-panel">
+        <h1>3D Social Network</h1>
+        <p>
+          View-only mode. This page only reads from Firestore and cannot change the graph.
+          Drag to rotate, right drag to pan, scroll to zoom, and click a node to lock it.
+          Layout is grouped so densely related people tend to cluster, while weaker-linked people drift further out.
+        </p>
+      </div>
+
+      <div class="panel controls">
+        <a class="home-btn" href="https://williammaclean.ca/index">Home</a>
+
+        <div class="search-wrap">
+          <input id="searchInput" type="text" placeholder="Search a person..." autocomplete="off" />
+          <div id="searchSuggestions" class="suggestions"></div>
+        </div>
+
+        <button id="focusBtn" class="ghost">Focus Selected</button>
+        <button id="clearBtn" class="ghost">Clear Highlight</button>
+      </div>
+    </div>
+
+    <div class="panel left-info">
+      <h3>Overview</h3>
+      <div class="muted">
+        Left drag rotates. Right drag pans. Scroll zooms.
+        <br><br>
+        This is read-only. It can view people, descriptions, and connections, but cannot save, add, remove, or edit anything.
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="k">People</div>
+          <div id="peopleCount" class="v">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="k">Connections</div>
+          <div id="connectionCount" class="v">0</div>
+        </div>
+      </div>
+
+      <div id="selectedInfo" class="selected-box"><strong>Selected:</strong> None</div>
+      <div id="fireStatus" class="status">Connecting to Firestore...</div>
+    </div>
+
+    <div class="panel right-info">
+      <h3>Selected Person</h3>
+      <div id="selectedName" class="muted">No one selected</div>
+
+      <div class="section">
+        <h3 style="margin:0 0 8px;">Description</h3>
+        <div id="selectedDescription" class="muted">No description</div>
+      </div>
+
+      <div class="section">
+        <h3 style="margin:0 0 8px;">Connections</h3>
+        <div id="degreeBadge" class="badge">0 links</div>
+        <div id="currentConnections" class="connections-current"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="labelLayer" class="label-layer"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
+    import {
+      getFirestore,
+      doc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeAlNErvYowZVfRRYFjeRGYeT4-XPDrp4",
+      authDomain: "network-1c734.firebaseapp.com",
+      projectId: "network-1c734",
+      storageBucket: "network-1c734.firebasestorage.app",
+      messagingSenderId: "192427975478",
+      appId: "1:192427975478:web:34bcb670de30f5d2fe8997",
+      measurementId: "G-0CBKNDC2GK"
+    };
+
+    const EMPTY_GRAPH = {
+      people: [],
+      edges: [],
+      descriptions: {}
+    };
+
+    const app = initializeApp(firebaseConfig);
+    try { getAnalytics(app); } catch (_) {}
+    const db = getFirestore(app);
+    const graphRef = doc(db, "graphs", "socialNetwork");
+
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const labelLayer = document.getElementById("labelLayer");
+
+    const searchInput = document.getElementById("searchInput");
+    const searchSuggestions = document.getElementById("searchSuggestions");
+    const selectedInfo = document.getElementById("selectedInfo");
+    const selectedName = document.getElementById("selectedName");
+    const selectedDescription = document.getElementById("selectedDescription");
+    const currentConnections = document.getElementById("currentConnections");
+    const degreeBadge = document.getElementById("degreeBadge");
+    const fireStatus = document.getElementById("fireStatus");
+    const focusBtn = document.getElementById("focusBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const peopleCount = document.getElementById("peopleCount");
+    const connectionCount = document.getElementById("connectionCount");
+
+    let graphData = structuredClone(EMPTY_GRAPH);
+    let initializedFromFirestore = false;
+
+    const nodes = [];
+    const nodeMap = new Map();
+
+    const camera = {
+      yaw: 0.62,
+      pitch: 0.20,
+      distance: 760,
+      panX: 0,
+      panY: 0,
+      focal: 760
+    };
+
+    const state = {
+      hovered: null,
+      selected: null,
+      dragMode: null,
+      isDragging: false,
+      lastX: 0,
+      lastY: 0,
+      suppressClick: false
+    };
+
+    function edgeKey(a, b) {
+      return [a, b].sort().join("||");
+    }
+
+    function normalizeData(data) {
+      const people = Array.isArray(data?.people)
+        ? data.people.filter(Boolean).map(v => String(v).trim()).filter(Boolean)
+        : [];
+
+      const uniquePeople = Array.from(new Set(people));
+
+      const descriptions = data?.descriptions && typeof data.descriptions === "object"
+        ? { ...data.descriptions }
+        : {};
+
+      const edgeSeen = new Set();
+      const edges = Array.isArray(data?.edges)
+        ? data.edges
+            .filter(e => e && e.a && e.b && e.a !== e.b)
+            .map(e => ({ a: String(e.a).trim(), b: String(e.b).trim() }))
+            .filter(e => uniquePeople.includes(e.a) && uniquePeople.includes(e.b))
+            .filter(e => {
+              const k = edgeKey(e.a, e.b);
+              if (edgeSeen.has(k)) return false;
+              edgeSeen.add(k);
+              return true;
+            })
+        : [];
+
+      const cleanDescriptions = {};
+      uniquePeople.forEach(name => {
+        cleanDescriptions[name] = typeof descriptions[name] === "string" ? descriptions[name] : "";
+      });
+
+      return {
+        people: uniquePeople,
+        edges,
+        descriptions: cleanDescriptions
+      };
+    }
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      updateLabels();
+    }
+
+    function buildAdjacency(data) {
+      const map = new Map();
+      data.people.forEach(name => map.set(name, new Set()));
+      data.edges.forEach(({ a, b }) => {
+        if (!map.has(a) || !map.has(b)) return;
+        map.get(a).add(b);
+        map.get(b).add(a);
+      });
+      return map;
+    }
+
+    function jaccardSimilarity(setA, setB) {
+      if (!setA || !setB) return 0;
+      let inter = 0;
+      for (const v of setA) if (setB.has(v)) inter++;
+      const union = setA.size + setB.size - inter;
+      if (union <= 0) return 0;
+      return inter / union;
+    }
+
+    function seededAngle(i, n) {
+      const golden = Math.PI * (3 - Math.sqrt(5));
+      return i * golden + (n * 0.073);
+    }
+
+    function initialClusteredPositions(data) {
+      const adjacency = buildAdjacency(data);
+      const names = [...data.people];
+
+      const degreeList = names
+        .map(name => ({ name, degree: adjacency.get(name)?.size || 0 }))
+        .sort((a, b) => b.degree - a.degree || a.name.localeCompare(b.name));
+
+      const hubs = degreeList.slice(0, Math.min(6, Math.max(1, Math.ceil(Math.sqrt(names.length || 1)))));
+      const hubNames = hubs.map(h => h.name);
+
+      const clusterCenters = new Map();
+      const baseHubRadius = 240;
+
+      hubNames.forEach((hub, i) => {
+        const angle = seededAngle(i, hubNames.length);
+        const lift = ((i % 3) - 1) * 110;
+        clusterCenters.set(hub, {
+          x: Math.cos(angle) * baseHubRadius * (1.0 + (i % 2) * 0.22),
+          y: lift,
+          z: Math.sin(angle) * baseHubRadius * (1.0 + ((i + 1) % 2) * 0.22)
+        });
+      });
+
+      const positions = new Map();
+      const clusters = new Map();
+
+      hubNames.forEach(h => clusters.set(h, [h]));
+
+      names.forEach(name => {
+        if (hubNames.includes(name)) return;
+
+        let bestHub = hubNames[0];
+        let bestScore = -Infinity;
+
+        hubNames.forEach(hub => {
+          const isDirect = adjacency.get(name).has(hub) ? 1 : 0;
+          const sim = jaccardSimilarity(adjacency.get(name), adjacency.get(hub));
+          const score = isDirect * 2.0 + sim * 3.5 + Math.random() * 0.01;
+          if (score > bestScore) {
+            bestScore = score;
+            bestHub = hub;
+          }
+        });
+
+        clusters.get(bestHub).push(name);
+      });
+
+      hubNames.forEach((hub, hubIndex) => {
+        const members = clusters.get(hub);
+        const center = clusterCenters.get(hub);
+        const hubDegree = adjacency.get(hub)?.size || 0;
+
+        members.forEach((name, i) => {
+          const deg = adjacency.get(name)?.size || 0;
+          const similarityToHub = jaccardSimilarity(adjacency.get(name), adjacency.get(hub));
+
+          if (name === hub) {
+            positions.set(name, { x: center.x, y: center.y, z: center.z });
+            return;
+          }
+
+          const localAngle = seededAngle(i + 1, members.length + hubIndex * 5);
+          const band = 85 + (1 - similarityToHub) * 160 + Math.max(0, 4 - deg) * 35;
+          const yBand = ((i % 5) - 2) * 34 + (Math.random() - 0.5) * 20;
+
+          positions.set(name, {
+            x: center.x + Math.cos(localAngle) * band,
+            y: center.y + yBand,
+            z: center.z + Math.sin(localAngle) * band
+          });
+        });
+      });
+
+      names.forEach((name, i) => {
+        if (positions.has(name)) return;
+        const deg = adjacency.get(name)?.size || 0;
+        const angle = seededAngle(i, names.length);
+        const far = 500 + Math.max(0, 3 - deg) * 110;
+        positions.set(name, {
+          x: Math.cos(angle) * far,
+          y: ((i % 7) - 3) * 70,
+          z: Math.sin(angle) * far
+        });
+      });
+
+      return { positions, adjacency };
+    }
+
+    function runClusteredForceLayout(data) {
+      const { positions, adjacency } = initialClusteredPositions(data);
+      const names = [...data.people];
+      const n = names.length;
+      if (!n) return { positions, adjacency };
+
+      const pos = new Map();
+      const vel = new Map();
+
+      names.forEach(name => {
+        const p = positions.get(name) || { x: 0, y: 0, z: 0 };
+        pos.set(name, { x: p.x, y: p.y, z: p.z });
+        vel.set(name, { x: 0, y: 0, z: 0 });
+      });
+
+      const maxDegree = Math.max(1, ...names.map(name => adjacency.get(name)?.size || 0));
+
+      for (let iter = 0; iter < 280; iter++) {
+        const forces = new Map();
+        names.forEach(name => forces.set(name, { x: 0, y: 0, z: 0 }));
+
+        for (let i = 0; i < n; i++) {
+          for (let j = i + 1; j < n; j++) {
+            const a = names[i];
+            const b = names[j];
+            const pa = pos.get(a);
+            const pb = pos.get(b);
+
+            let dx = pa.x - pb.x;
+            let dy = pa.y - pb.y;
+            let dz = pa.z - pb.z;
+            let distSq = dx * dx + dy * dy + dz * dz + 0.01;
+            let dist = Math.sqrt(distSq);
+
+            const degA = adjacency.get(a)?.size || 0;
+            const degB = adjacency.get(b)?.size || 0;
+            const sim = jaccardSimilarity(adjacency.get(a), adjacency.get(b));
+            const connected = adjacency.get(a).has(b);
+
+            const repulsionBase = connected ? 1800 : 9000;
+            const sparseBoost = 1 + Math.max(0, 4 - Math.min(degA, degB)) * 0.18;
+            const repulsion = (repulsionBase * sparseBoost) / distSq;
+
+            const fx = (dx / dist) * repulsion;
+            const fy = (dy / dist) * repulsion;
+            const fz = (dz / dist) * repulsion;
+
+            forces.get(a).x += fx;
+            forces.get(a).y += fy;
+            forces.get(a).z += fz;
+            forces.get(b).x -= fx;
+            forces.get(b).y -= fy;
+            forces.get(b).z -= fz;
+
+            if (connected || sim > 0.18) {
+              const desired = connected
+                ? 95 + (1 - sim) * 70 + Math.max(0, 3 - Math.min(degA, degB)) * 24
+                : 150 + (1 - sim) * 120;
+
+              const spring = connected ? 0.015 : 0.007;
+              const pull = (dist - desired) * spring;
+
+              const sfx = (dx / dist) * pull;
+              const sfy = (dy / dist) * pull;
+              const sfz = (dz / dist) * pull;
+
+              forces.get(a).x -= sfx;
+              forces.get(a).y -= sfy;
+              forces.get(a).z -= sfz;
+              forces.get(b).x += sfx;
+              forces.get(b).y += sfy;
+              forces.get(b).z += sfz;
+            }
+          }
+        }
+
+        names.forEach(name => {
+          const p = pos.get(name);
+          const v = vel.get(name);
+          const f = forces.get(name);
+          const degree = adjacency.get(name)?.size || 0;
+          const centrality = degree / maxDegree;
+
+          const targetRadius = 240 + (1 - centrality) * 300;
+          const currentRadius = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z) || 1;
+          const radialPull = (currentRadius - targetRadius) * 0.006;
+
+          f.x -= (p.x / currentRadius) * radialPull;
+          f.y -= (p.y / currentRadius) * radialPull;
+          f.z -= (p.z / currentRadius) * radialPull;
+
+          v.x = (v.x + f.x) * 0.86;
+          v.y = (v.y + f.y) * 0.86;
+          v.z = (v.z + f.z) * 0.86;
+
+          p.x += v.x;
+          p.y += v.y;
+          p.z += v.z;
+        });
+      }
+
+      return { positions: pos, adjacency };
+    }
+
+    function createNode(name, pos) {
+      const label = document.createElement("div");
+      label.className = "node-label";
+      label.textContent = name;
+      labelLayer.appendChild(label);
+
+      const node = {
+        name,
+        x: pos.x,
+        y: pos.y,
+        z: pos.z,
+        radius: 10.5,
+        screenX: 0,
+        screenY: 0,
+        scale: 1,
+        visible: true,
+        label,
+        connections: new Set()
+      };
+
+      nodes.push(node);
+      nodeMap.set(name, node);
+    }
+
+    function rebuildNetwork() {
+      nodes.length = 0;
+      nodeMap.clear();
+      labelLayer.innerHTML = "";
+
+      const { positions, adjacency } = runClusteredForceLayout(graphData);
+
+      graphData.people.forEach(name => createNode(name, positions.get(name) || { x: 0, y: 0, z: 0 }));
+
+      graphData.people.forEach(name => {
+        const node = nodeMap.get(name);
+        const links = adjacency.get(name) || new Set();
+        node.connections = new Set(links);
+      });
+
+      if (state.selected && !graphData.people.includes(state.selected)) {
+        state.selected = null;
+      }
+
+      updateCounts();
+      refreshSearchSuggestions("");
+      updateSelectedInfo();
+      renderSelectedPanel();
+    }
+
+    function updateCounts() {
+      peopleCount.textContent = String(graphData.people.length);
+      connectionCount.textContent = String(graphData.edges.length);
+    }
+
+    function rotatePoint(x, y, z) {
+      const cosY = Math.cos(camera.yaw);
+      const sinY = Math.sin(camera.yaw);
+      let dx = x * cosY - z * sinY;
+      let dz = x * sinY + z * cosY;
+
+      const cosX = Math.cos(camera.pitch);
+      const sinX = Math.sin(camera.pitch);
+      let dy = y * cosX - dz * sinX;
+      dz = y * sinX + dz * cosX;
+
+      return { x: dx, y: dy, z: dz };
+    }
+
+    function project(node) {
+      const r = rotatePoint(node.x, node.y, node.z);
+      const z = r.z + camera.distance;
+      const scale = camera.focal / Math.max(100, z);
+      const x = window.innerWidth / 2 + camera.panX + r.x * scale;
+      const y = window.innerHeight / 2 + camera.panY + r.y * scale;
+      return { x, y, z, scale };
+    }
+
+    function drawBackgroundStars() {
+      const count = 95;
+      for (let i = 0; i < count; i++) {
+        const x = (i * 137.508) % window.innerWidth;
+        const y = (i * 83.271) % window.innerHeight;
+        const size = (i % 3) + 0.8;
+        ctx.globalAlpha = 0.16 + (i % 5) * 0.05;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function drawEmptyState() {
+      if (graphData.people.length > 0) return;
+
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(255,255,255,0.88)";
+      ctx.font = "700 28px Inter, Arial, sans-serif";
+      ctx.fillText("No people found", cx, cy - 8);
+
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.font = "500 14px Inter, Arial, sans-serif";
+      ctx.fillText("This view-only page is waiting for Firestore graph data.", cx, cy + 22);
+      ctx.restore();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      drawBackgroundStars();
+
+      const projected = nodes.map(node => {
+        const p = project(node);
+        node.screenX = p.x;
+        node.screenY = p.y;
+        node.scale = p.scale;
+        node.visible = p.z > -40;
+        return { node, ...p };
+      });
+
+      graphData.edges.forEach(({ a, b }) => {
+        const na = nodeMap.get(a);
+        const nb = nodeMap.get(b);
+        if (!na || !nb || !na.visible || !nb.visible) return;
+
+        const selectedTouch = state.selected && (na.name === state.selected || nb.name === state.selected);
+        const hoveredTouch = state.hovered && (na.name === state.hovered || nb.name === state.hovered);
+
+        const sim = jaccardSimilarity(na.connections, nb.connections);
+        const alpha = 0.10 + sim * 0.26 + (selectedTouch ? 0.35 : 0) + (hoveredTouch ? 0.15 : 0);
+
+        ctx.beginPath();
+        ctx.moveTo(na.screenX, na.screenY);
+        ctx.lineTo(nb.screenX, nb.screenY);
+        ctx.lineWidth = selectedTouch ? 3.2 : hoveredTouch ? 2.4 : 1.35 + sim * 1.4;
+        ctx.strokeStyle = selectedTouch
+          ? "rgba(255, 115, 182, 0.95)"
+          : hoveredTouch
+            ? "rgba(255, 209, 102, 0.88)"
+            : `rgba(255,255,255,${Math.min(0.42, alpha).toFixed(3)})`;
+        ctx.stroke();
+      });
+
+      projected.sort((a, b) => a.z - b.z);
+
+      projected.forEach(({ node, scale }) => {
+        if (!node.visible) return;
+
+        const degree = node.connections.size;
+        const sizeBoost = 1 + Math.min(0.65, degree * 0.055);
+        const isSelected = state.selected === node.name;
+        const isHovered = state.hovered === node.name;
+        const radius = node.radius * scale * sizeBoost * (isSelected ? 1.35 : isHovered ? 1.16 : 1);
+
+        const glow = ctx.createRadialGradient(node.screenX, node.screenY, 0, node.screenX, node.screenY, radius * 3.5);
+        glow.addColorStop(0, isSelected ? "rgba(176,11,85,0.45)" : isHovered ? "rgba(255,209,102,0.30)" : "rgba(255,255,255,0.12)");
+        glow.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(node.screenX, node.screenY, radius * 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(node.screenX, node.screenY, radius, 0, Math.PI * 2);
+        ctx.fillStyle = isSelected ? "#ff4fa1" : isHovered ? "#ffd166" : "#f6d3e5";
+        ctx.fill();
+
+        ctx.lineWidth = isSelected ? 2.2 : 1.2;
+        ctx.strokeStyle = isSelected ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.42)";
+        ctx.stroke();
+      });
+
+      drawEmptyState();
+      updateLabels();
+      requestAnimationFrame(draw);
+    }
+
+    function updateLabels() {
+      nodes.forEach(node => {
+        if (!node.visible) {
+          node.label.style.display = "none";
+          return;
+        }
+
+        const isSelected = state.selected === node.name;
+        const isHovered = state.hovered === node.name;
+
+        node.label.style.display = "block";
+        node.label.style.left = node.screenX + "px";
+        node.label.style.top = (node.screenY - 18 - Math.max(0, node.scale * 7)) + "px";
+        node.label.style.opacity = String(Math.max(0.45, Math.min(1, node.scale * 0.9)));
+        node.label.classList.toggle("selected", isSelected);
+        node.label.classList.toggle("hovered", isHovered && !isSelected);
+      });
+    }
+
+    function findNodeAt(x, y) {
+      let best = null;
+      let bestDist = Infinity;
+
+      nodes.forEach(node => {
+        if (!node.visible) return;
+        const sizeBoost = 1 + Math.min(0.65, node.connections.size * 0.055);
+        const radius = node.radius * node.scale * sizeBoost * (state.selected === node.name ? 1.35 : state.hovered === node.name ? 1.16 : 1);
+        const dx = x - node.screenX;
+        const dy = y - node.screenY;
+        const d = Math.sqrt(dx * dx + dy * dy);
+
+        if (d <= Math.max(radius + 10, 14) && d < bestDist) {
+          best = node;
+          bestDist = d;
+        }
+      });
+
+      return best;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function updateSelectedInfo() {
+      if (!state.selected) {
+        selectedInfo.innerHTML = "<strong>Selected:</strong> None";
+        return;
+      }
+
+      const node = nodeMap.get(state.selected);
+      const connections = node ? Array.from(node.connections).sort() : [];
+      const description = graphData.descriptions[state.selected]?.trim() || "No description yet.";
+
+      selectedInfo.innerHTML = `
+        <strong>Selected:</strong> ${escapeHtml(state.selected)}
+        <br>
+        <strong>Description:</strong> ${escapeHtml(description)}
+        <br>
+        <strong>Connections:</strong> ${connections.length ? connections.map(escapeHtml).join(", ") : "None"}
+      `;
+    }
+
+    function renderSelectedPanel() {
+      if (!state.selected) {
+        selectedName.textContent = "No one selected";
+        selectedDescription.textContent = "No description";
+        degreeBadge.textContent = "0 links";
+        currentConnections.innerHTML = '<div class="muted">No one selected</div>';
+        return;
+      }
+
+      const node = nodeMap.get(state.selected);
+      const connections = node ? Array.from(node.connections).sort((a, b) => a.localeCompare(b)) : [];
+      const description = graphData.descriptions[state.selected]?.trim() || "No description";
+
+      selectedName.textContent = state.selected;
+      selectedDescription.textContent = description;
+      degreeBadge.textContent = `${connections.length} ${connections.length === 1 ? "link" : "links"}`;
+
+      currentConnections.innerHTML = "";
+      if (!connections.length) {
+        currentConnections.innerHTML = '<div class="muted">No connections</div>';
+        return;
+      }
+
+      connections.forEach(name => {
+        const row = document.createElement("div");
+        row.className = "connection-row";
+
+        const label = document.createElement("span");
+        label.textContent = name;
+
+        const btn = document.createElement("button");
+        btn.className = "ghost";
+        btn.textContent = "View";
+        btn.addEventListener("click", () => {
+          setSelected(name);
+          searchInput.value = name;
+          focusSelected();
+        });
+
+        row.appendChild(label);
+        row.appendChild(btn);
+        currentConnections.appendChild(row);
+      });
+    }
+
+    function setSelected(name) {
+      state.selected = name;
+      updateSelectedInfo();
+      renderSelectedPanel();
+    }
+
+    function clearSelected() {
+      state.selected = null;
+      updateSelectedInfo();
+      renderSelectedPanel();
+    }
+
+    function focusSelected() {
+      if (!state.selected) return;
+      const n = nodeMap.get(state.selected);
+      if (!n) return;
+      const p = project(n);
+      camera.panX += (window.innerWidth / 2 - p.x) * 0.75;
+      camera.panY += (window.innerHeight / 2 - p.y) * 0.75;
+    }
+
+    function refreshSearchSuggestions(filter) {
+      const q = (filter || "").trim().toLowerCase();
+      searchSuggestions.innerHTML = "";
+
+      if (!q) {
+        searchSuggestions.style.display = "none";
+        return;
+      }
+
+      const matches = graphData.people
+        .filter(name => name.toLowerCase().includes(q))
+        .sort((a, b) => a.localeCompare(b));
+
+      if (!matches.length) {
+        searchSuggestions.style.display = "none";
+        return;
+      }
+
+      matches.forEach(name => {
+        const item = document.createElement("div");
+        item.className = "suggestion";
+        item.textContent = name;
+        item.addEventListener("click", () => {
+          searchInput.value = name;
+          setSelected(name);
+          searchSuggestions.style.display = "none";
+          focusSelected();
+        });
+        searchSuggestions.appendChild(item);
+      });
+
+      searchSuggestions.style.display = "block";
+    }
+
+    searchInput.addEventListener("input", e => {
+      const value = e.target.value.trim();
+      refreshSearchSuggestions(value);
+      const exact = graphData.people.find(name => name.toLowerCase() === value.toLowerCase());
+      if (exact) setSelected(exact);
+    });
+
+    searchInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        const value = searchInput.value.trim().toLowerCase();
+        const found = graphData.people.find(name => name.toLowerCase() === value);
+        if (found) {
+          setSelected(found);
+          focusSelected();
+          searchSuggestions.style.display = "none";
+        }
+      }
+    });
+
+    document.addEventListener("click", e => {
+      const wrap = document.querySelector(".search-wrap");
+      if (wrap && !wrap.contains(e.target)) {
+        searchSuggestions.style.display = "none";
+      }
+    });
+
+    focusBtn.addEventListener("click", focusSelected);
+
+    clearBtn.addEventListener("click", () => {
+      clearSelected();
+      searchInput.value = "";
+    });
+
+    canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+    canvas.addEventListener("mousedown", e => {
+      state.dragMode = e.button === 2 ? "pan" : "rotate";
+      state.isDragging = true;
+      state.lastX = e.clientX;
+      state.lastY = e.clientY;
+      state.suppressClick = false;
+    });
+
+    window.addEventListener("mousemove", e => {
+      const hovered = findNodeAt(e.clientX, e.clientY);
+      state.hovered = hovered ? hovered.name : null;
+      canvas.style.cursor = hovered ? "pointer" : state.isDragging ? "grabbing" : "grab";
+
+      if (!state.isDragging) return;
+
+      const dx = e.clientX - state.lastX;
+      const dy = e.clientY - state.lastY;
+      state.lastX = e.clientX;
+      state.lastY = e.clientY;
+
+      if (Math.abs(dx) + Math.abs(dy) > 3) state.suppressClick = true;
+
+      if (state.dragMode === "rotate") {
+        camera.yaw += dx * 0.008;
+        camera.pitch += dy * 0.008;
+        const limit = Math.PI / 2 - 0.02;
+        camera.pitch = Math.max(-limit, Math.min(limit, camera.pitch));
+      } else if (state.dragMode === "pan") {
+        camera.panX += dx;
+        camera.panY += dy;
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      state.isDragging = false;
+      state.dragMode = null;
+    });
+
+    canvas.addEventListener("click", e => {
+      if (state.suppressClick) return;
+      const hit = findNodeAt(e.clientX, e.clientY);
+      if (hit) {
+        setSelected(hit.name);
+        searchInput.value = hit.name;
+      }
+    });
+
+    canvas.addEventListener("wheel", e => {
+      e.preventDefault();
+      camera.distance += e.deltaY * 0.55;
+      camera.distance = Math.max(220, Math.min(1700, camera.distance));
+    }, { passive: false });
+
+    window.addEventListener("resize", resize);
+
+    onSnapshot(graphRef, (snap) => {
+      try {
+        if (!snap.exists()) {
+          graphData = normalizeData(EMPTY_GRAPH);
+          rebuildNetwork();
+          fireStatus.textContent = "No Firestore graph document found.";
+          initializedFromFirestore = true;
+          return;
+        }
+
+        graphData = normalizeData(snap.data());
+        rebuildNetwork();
+        fireStatus.textContent = initializedFromFirestore ? "Synced from Firestore (read-only)." : "Loaded from Firestore (read-only).";
+        initializedFromFirestore = true;
+      } catch (error) {
+        console.error(error);
+        fireStatus.textContent = "Failed to load Firestore data.";
+      }
+    }, (error) => {
+      console.error(error);
+      fireStatus.textContent = "Firestore listener failed. Check your rules and Firestore setup.";
+    });
+
+    rebuildNetwork();
+    resize();
+    draw();
+  </script>
+</body>
+</html>
