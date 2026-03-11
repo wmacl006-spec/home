@@ -420,9 +420,9 @@
       <div class="panel title-panel">
         <h1>3D Social Network</h1>
         <p>
-          View-only mode. This page only reads from Firestore and cannot change the graph.
-          Drag to rotate, right drag to pan, scroll to zoom, and click a node to lock it.
-          Layout is grouped so densely related people tend to cluster, while weaker-linked people drift further out.
+          View-only mode. <br>
+          Drag to rotate, right drag to pan, scroll to zoom, and click a node to select it.
+          Layout is such that related people tend to cluster, while weaker-linked people drift further out.
         </p>
       </div>
 
@@ -444,8 +444,6 @@
       <h3>Overview</h3>
       <div class="muted">
         Left drag rotates. Right drag pans. Scroll zooms.
-        <br><br>
-        This is read-only. It can view people, descriptions, and connections, but cannot save, add, remove, or edit anything.
       </div>
 
       <div class="stats-grid">
@@ -1330,7 +1328,7 @@
 
         graphData = normalizeData(snap.data());
         rebuildNetwork();
-        fireStatus.textContent = initializedFromFirestore ? "Synced from Firestore (read-only)." : "Loaded from Firestore (read-only).";
+        fireStatus.textContent = initializedFromFirestore ? "Synced." : "Loaded from Firestore (read-only).";
         initializedFromFirestore = true;
       } catch (error) {
         console.error(error);
