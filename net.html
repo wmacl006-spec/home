@@ -1,1 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Social Network</title>
+  <style>
+    :root {
+      --bg-1: #05070d;
+      --bg-2: #0b1020;
+      --panel: rgba(13, 16, 28, 0.86);
+      --panel-2: rgba(19, 23, 39, 0.92);
+      --border: rgba(255,255,255,0.08);
+      --text: #f5f7ff;
+      --muted: #a8b0c7;
+      --accent: #b00b55;
+      --accent-soft: rgba(176, 11, 85, 0.18);
+      --accent-strong: rgba(176, 11, 85, 0.35);
+      --good: #34d399;
+      --danger: #fb7185;
+      --gold: #ffd166;
+      --shadow: 0 24px 80px rgba(0,0,0,0.5);
+      --radius: 18px;
+    }
 
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(176, 11, 85, 0.10), transparent 22%),
+        radial-gradient(circle at 85% 25%, rgba(255, 255, 255, 0.03), transparent 20%),
+        radial-gradient(circle at 50% 80%, rgba(176, 11, 85, 0.07), transparent 18%),
+        linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .ui {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      pointer-events: auto;
+    }
+
+    .title-panel {
+      padding: 16px 18px;
+      min-width: 280px;
+      max-width: 520px;
+    }
+
+    .title-panel h1 {
+      margin: 0 0 6px;
+      font-size: 20px;
+      letter-spacing: 0.2px;
+    }
+
+    .title-panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .controls {
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      max-width: 980px;
+    }
+
+    .search-wrap {
+      position: relative;
+      width: 250px;
+    }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.045);
+      color: var(--text);
+      outline: none;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: rgba(176, 11, 85, 0.55);
+      box-shadow: 0 0 0 4px rgba(176, 11, 85, 0.14);
+      background: rgba(255,255,255,0.06);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    option {
+      background: #101522;
+      color: var(--text);
+    }
+
+    input[type="text"]::placeholder,
+    textarea::placeholder {
+      color: #9ca6c0;
+    }
+
+    button {
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.16s ease;
+      min-height: 44px;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.10);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .accent {
+      background: linear-gradient(135deg, rgba(176,11,85,0.28), rgba(176,11,85,0.14));
+      border-color: rgba(176,11,85,0.35);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+
+    .accent:hover {
+      background: linear-gradient(135deg, rgba(176,11,85,0.36), rgba(176,11,85,0.18));
+    }
+
+    .good {
+      background: rgba(52,211,153,0.10);
+      border-color: rgba(52,211,153,0.28);
+    }
+
+    .danger {
+      background: rgba(251,113,133,0.10);
+      border-color: rgba(251,113,133,0.28);
+    }
+
+    .ghost {
+      background: rgba(255,255,255,0.04);
+    }
+
+    .home-btn {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(176,11,85,0.35);
+      color: var(--text);
+      background: linear-gradient(135deg, rgba(176,11,85,0.26), rgba(176,11,85,0.10));
+      font-weight: 800;
+      min-height: 44px;
+    }
+
+    .home-btn:hover {
+      background: linear-gradient(135deg, rgba(176,11,85,0.34), rgba(176,11,85,0.14));
+      transform: translateY(-1px);
+    }
+
+    .suggestions {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(12, 15, 26, 0.98);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+      display: none;
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 40;
+    }
+
+    .suggestion {
+      padding: 11px 13px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 14px;
+    }
+
+    .suggestion:last-child {
+      border-bottom: 0;
+    }
+
+    .suggestion:hover {
+      background: rgba(176,11,85,0.14);
+    }
+
+    .left-info {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      width: 365px;
+      padding: 16px 18px;
+      pointer-events: auto;
+    }
+
+    .right-info {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      width: 430px;
+      padding: 16px 18px;
+      pointer-events: auto;
+      max-height: calc(100vh - 120px);
+      overflow: auto;
+    }
+
+    .left-info h3,
+    .right-info h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .selected-box {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .small-label {
+      display: block;
+      margin: 11px 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .stat-card {
+      padding: 12px 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .stat-card .k {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-card .v {
+      margin-top: 6px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .label-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .node-label {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      text-shadow:
+        0 0 10px rgba(0,0,0,0.88),
+        0 0 20px rgba(0,0,0,0.78);
+      opacity: 0.96;
+    }
+
+    .node-label.selected {
+      color: #ff73b6;
+      text-shadow:
+        0 0 12px rgba(176,11,85,0.95),
+        0 0 28px rgba(176,11,85,0.48),
+        0 0 12px rgba(0,0,0,0.8);
+    }
+
+    .node-label.hovered {
+      color: var(--gold);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2,6,23,0.68);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 200;
+      pointer-events: auto;
+    }
+
+    .modal {
+      width: min(760px, 100%);
+      max-height: 88vh;
+      overflow: hidden;
+      border-radius: 24px;
+      background: rgba(11, 14, 24, 0.98);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 24px 100px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header, .modal-footer {
+      padding: 16px 18px;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .modal-footer {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .modal-header h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+    }
+
+    .modal-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .modal-body {
+      padding: 18px;
+      overflow: auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .connections-box {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .connections-top {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .connections-list {
+      max-height: 280px;
+      overflow: auto;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .conn-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .conn-item:hover {
+      background: rgba(176,11,85,0.10);
+    }
+
+    .conn-item input[type="checkbox"] {
+      transform: scale(1.12);
+      accent-color: var(--accent);
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: rgba(176,11,85,0.14);
+      border: 1px solid rgba(176,11,85,0.24);
+    }
+
+    .section {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .connections-current {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      max-height: 220px;
+      overflow: auto;
+    }
+
+    .connection-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .connection-row span {
+      font-size: 13px;
+    }
+
+    @media (max-width: 1100px) {
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .search-wrap {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .left-info,
+      .right-info {
+        width: calc(100% - 32px);
+        position: static;
+        margin: 16px;
+      }
+
+      .ui {
+        overflow: auto;
+      }
+
+      html, body {
+        overflow: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <div class="ui">
+    <div class="topbar">
+      <div class="panel title-panel">
+        <h1>3D Social Network</h1>
+        <p>
+          Starts blank. Add people and connections, and everything saves to Firestore so it reloads from there every time.
+          Drag to rotate, right drag to pan, scroll to zoom, and click a node to lock it.
+        </p>
+      </div>
+
+      <div class="panel controls">
+        <a class="home-btn" href="https://williammaclean.ca/index">Home</a>
+
+        <div class="search-wrap">
+          <input id="searchInput" type="text" placeholder="Search a person..." autocomplete="off" />
+          <div id="searchSuggestions" class="suggestions"></div>
+        </div>
+
+        <button id="focusBtn" class="ghost">Focus Selected</button>
+        <button id="clearBtn" class="ghost">Clear Highlight</button>
+        <button id="addBtn" class="accent">Add Person</button>
+      </div>
+    </div>
+
+    <div class="panel left-info">
+      <h3>Overview</h3>
+      <div class="muted">
+        Left drag rotates. Right drag pans. Scroll zooms.
+        <br><br>
+        Add people from the top right, then connect them. The graph starts empty and syncs live with Firestore.
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="k">People</div>
+          <div id="peopleCount" class="v">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="k">Connections</div>
+          <div id="connectionCount" class="v">0</div>
+        </div>
+      </div>
+
+      <div id="selectedInfo" class="selected-box"><strong>Selected:</strong> None</div>
+      <div id="fireStatus" class="status">Connecting to Firestore...</div>
+    </div>
+
+    <div class="panel right-info">
+      <h3>Selected Person</h3>
+      <div id="selectedName" class="muted">No one selected</div>
+
+      <label class="small-label" for="descriptionInput">Description</label>
+      <textarea id="descriptionInput" placeholder="Add a little description for this person..."></textarea>
+      <div class="row">
+        <button id="saveDescriptionBtn" class="good">Save Description</button>
+      </div>
+      <div id="descriptionStatus" class="status"></div>
+
+      <div class="section">
+        <h3 style="margin:0 0 8px;">Connections</h3>
+
+        <label class="small-label" for="addConnectionSelect">Add connection</label>
+        <select id="addConnectionSelect"></select>
+        <div class="row">
+          <button id="addConnectionBtn" class="accent">Add Connection</button>
+        </div>
+
+        <label class="small-label">Current connections</label>
+        <div id="currentConnections" class="connections-current"></div>
+        <div id="connectionStatus" class="status"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="labelLayer" class="label-layer"></div>
+
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add Person</h2>
+        <p>Add someone new, optionally write a description, and choose who they connect to.</p>
+      </div>
+
+      <div class="modal-body">
+        <div class="field">
+          <label for="newPersonName">Person name</label>
+          <input id="newPersonName" type="text" placeholder="Enter name..." />
+        </div>
+
+        <div class="field">
+          <label for="newPersonDescription">Description</label>
+          <textarea id="newPersonDescription" placeholder="Optional description..."></textarea>
+        </div>
+
+        <div class="field">
+          <label>Connected to</label>
+          <div class="connections-box">
+            <div class="connections-top">
+              <input id="connectionSearch" type="text" placeholder="Search existing people..." />
+            </div>
+            <div id="connectionsList" class="connections-list"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Selected connections</label>
+          <div id="selectedConnections" class="chip-row"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="closeModalBtn" class="ghost">Cancel</button>
+        <button id="savePersonBtn" class="accent">Save Person</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
+    import {
+      getFirestore,
+      doc,
+      onSnapshot,
+      setDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeAlNErvYowZVfRRYFjeRGYeT4-XPDrp4",
+      authDomain: "network-1c734.firebaseapp.com",
+      projectId: "network-1c734",
+      storageBucket: "network-1c734.firebasestorage.app",
+      messagingSenderId: "192427975478",
+      appId: "1:192427975478:web:34bcb670de30f5d2fe8997",
+      measurementId: "G-0CBKNDC2GK"
+    };
+
+    const EMPTY_GRAPH = {
+      people: [],
+      edges: [],
+      descriptions: {}
+    };
+
+    const app = initializeApp(firebaseConfig);
+    try { getAnalytics(app); } catch (_) {}
+    const db = getFirestore(app);
+
+    // Same Firestore location as before, but now starts blank instead of seeded defaults
+    const graphRef = doc(db, "graphs", "socialNetwork");
+
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const labelLayer = document.getElementById("labelLayer");
+
+    const searchInput = document.getElementById("searchInput");
+    const searchSuggestions = document.getElementById("searchSuggestions");
+    const selectedInfo = document.getElementById("selectedInfo");
+    const selectedName = document.getElementById("selectedName");
+    const descriptionInput = document.getElementById("descriptionInput");
+    const saveDescriptionBtn = document.getElementById("saveDescriptionBtn");
+    const descriptionStatus = document.getElementById("descriptionStatus");
+    const fireStatus = document.getElementById("fireStatus");
+    const focusBtn = document.getElementById("focusBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const addBtn = document.getElementById("addBtn");
+
+    const addConnectionSelect = document.getElementById("addConnectionSelect");
+    const addConnectionBtn = document.getElementById("addConnectionBtn");
+    const currentConnections = document.getElementById("currentConnections");
+    const connectionStatus = document.getElementById("connectionStatus");
+
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const newPersonName = document.getElementById("newPersonName");
+    const newPersonDescription = document.getElementById("newPersonDescription");
+    const connectionSearch = document.getElementById("connectionSearch");
+    const connectionsList = document.getElementById("connectionsList");
+    const selectedConnections = document.getElementById("selectedConnections");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const savePersonBtn = document.getElementById("savePersonBtn");
+
+    const peopleCount = document.getElementById("peopleCount");
+    const connectionCount = document.getElementById("connectionCount");
+
+    let graphData = structuredClone(EMPTY_GRAPH);
+    let modalSelected = new Set();
+    let initializedFromFirestore = false;
+
+    const nodes = [];
+    const nodeMap = new Map();
+
+    const camera = {
+      yaw: 0.52,
+      pitch: 0.18,
+      distance: 520,
+      panX: 0,
+      panY: 0,
+      focal: 600
+    };
+
+    const state = {
+      hovered: null,
+      selected: null,
+      dragMode: null,
+      isDragging: false,
+      lastX: 0,
+      lastY: 0,
+      suppressClick: false,
+      sphereRadius: 220
+    };
+
+    function edgeKey(a, b) {
+      return [a, b].sort().join("||");
+    }
+
+    function normalizeData(data) {
+      const people = Array.isArray(data?.people)
+        ? data.people.filter(Boolean).map(v => String(v).trim()).filter(Boolean)
+        : [];
+
+      const uniquePeople = Array.from(new Set(people));
+
+      const descriptions = data?.descriptions && typeof data.descriptions === "object"
+        ? { ...data.descriptions }
+        : {};
+
+      const edgeSeen = new Set();
+      const edges = Array.isArray(data?.edges)
+        ? data.edges
+            .filter(e => e && e.a && e.b && e.a !== e.b)
+            .map(e => ({ a: String(e.a).trim(), b: String(e.b).trim() }))
+            .filter(e => uniquePeople.includes(e.a) && uniquePeople.includes(e.b))
+            .filter(e => {
+              const k = edgeKey(e.a, e.b);
+              if (edgeSeen.has(k)) return false;
+              edgeSeen.add(k);
+              return true;
+            })
+        : [];
+
+      const cleanDescriptions = {};
+      uniquePeople.forEach(name => {
+        cleanDescriptions[name] = typeof descriptions[name] === "string" ? descriptions[name] : "";
+      });
+
+      return {
+        people: uniquePeople,
+        edges,
+        descriptions: cleanDescriptions
+      };
+    }
+
+    async function writeGraph(statusText = "Saved to Firestore.") {
+      try {
+        fireStatus.textContent = "Saving to Firestore...";
+        await setDoc(graphRef, {
+          people: graphData.people,
+          edges: graphData.edges,
+          descriptions: graphData.descriptions,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        fireStatus.textContent = statusText;
+      } catch (error) {
+        console.error(error);
+        fireStatus.textContent = "Firestore save failed. Check your rules and project setup.";
+      }
+    }
+
+    function updateCounts() {
+      peopleCount.textContent = String(graphData.people.length);
+      connectionCount.textContent = String(graphData.edges.length);
+    }
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      updateLabels();
+    }
+
+    function fibonacciSpherePositions(names, radius) {
+      const result = new Map();
+      const n = names.length;
+
+      if (n === 0) return result;
+      if (n === 1) {
+        result.set(names[0], { x: 0, y: 0, z: 0 });
+        return result;
+      }
+
+      const golden = Math.PI * (3 - Math.sqrt(5));
+
+      for (let i = 0; i < n; i++) {
+        const y = 1 - (i / Math.max(1, n - 1)) * 2;
+        const r = Math.sqrt(Math.max(0, 1 - y * y));
+        const theta = i * golden;
+        const x = Math.cos(theta) * r;
+        const z = Math.sin(theta) * r;
+        const jitter = 12;
+
+        result.set(names[i], {
+          x: x * (radius + (Math.random() - 0.5) * jitter),
+          y: y * (radius + (Math.random() - 0.5) * jitter),
+          z: z * (radius + (Math.random() - 0.5) * jitter)
+        });
+      }
+
+      return result;
+    }
+
+    function createNode(name, pos) {
+      const label = document.createElement("div");
+      label.className = "node-label";
+      label.textContent = name;
+      labelLayer.appendChild(label);
+
+      const node = {
+        name,
+        x: pos.x,
+        y: pos.y,
+        z: pos.z,
+        radius: 11,
+        screenX: 0,
+        screenY: 0,
+        scale: 1,
+        visible: true,
+        label,
+        connections: new Set()
+      };
+
+      nodes.push(node);
+      nodeMap.set(name, node);
+    }
+
+    function rebuildNetwork() {
+      nodes.length = 0;
+      nodeMap.clear();
+      labelLayer.innerHTML = "";
+
+      const positions = fibonacciSpherePositions(graphData.people, state.sphereRadius);
+      graphData.people.forEach(name => createNode(name, positions.get(name)));
+
+      graphData.edges.forEach(({ a, b }) => {
+        const na = nodeMap.get(a);
+        const nb = nodeMap.get(b);
+        if (!na || !nb) return;
+        na.connections.add(b);
+        nb.connections.add(a);
+      });
+
+      if (state.selected && !graphData.people.includes(state.selected)) {
+        state.selected = null;
+      }
+
+      updateCounts();
+      refreshSearchSuggestions("");
+      renderConnectionList();
+      updateSelectedInfo();
+      syncDescriptionPanel();
+      renderSelectedConnectionsPanel();
+    }
+
+    function rotatePoint(x, y, z) {
+      const cosY = Math.cos(camera.yaw);
+      const sinY = Math.sin(camera.yaw);
+      let dx = x * cosY - z * sinY;
+      let dz = x * sinY + z * cosY;
+
+      const cosX = Math.cos(camera.pitch);
+      const sinX = Math.sin(camera.pitch);
+      let dy = y * cosX - dz * sinX;
+      dz = y * sinX + dz * cosX;
+
+      return { x: dx, y: dy, z: dz };
+    }
+
+    function project(node) {
+      const r = rotatePoint(node.x, node.y, node.z);
+      const z = r.z + camera.distance;
+      const scale = camera.focal / Math.max(80, z);
+      const x = window.innerWidth / 2 + camera.panX + r.x * scale;
+      const y = window.innerHeight / 2 + camera.panY + r.y * scale;
+      return { x, y, z, scale };
+    }
+
+    function drawBackgroundStars() {
+      const count = 95;
+      for (let i = 0; i < count; i++) {
+        const x = (i * 137.508) % window.innerWidth;
+        const y = (i * 83.271) % window.innerHeight;
+        const size = (i % 3) + 0.8;
+        ctx.globalAlpha = 0.16 + (i % 5) * 0.05;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function drawEmptyState() {
+      if (graphData.people.length > 0) return;
+
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(255,255,255,0.88)";
+      ctx.font = "700 28px Inter, Arial, sans-serif";
+      ctx.fillText("No people yet", cx, cy - 8);
+
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.font = "500 14px Inter, Arial, sans-serif";
+      ctx.fillText("Click “Add Person” to start building the network.", cx, cy + 22);
+      ctx.restore();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      drawBackgroundStars();
+
+      const projected = nodes.map(node => {
+        const p = project(node);
+        node.screenX = p.x;
+        node.screenY = p.y;
+        node.scale = p.scale;
+        node.visible = p.z > -40;
+        return { node, ...p };
+      });
+
+      graphData.edges.forEach(({ a, b }) => {
+        const na = nodeMap.get(a);
+        const nb = nodeMap.get(b);
+        if (!na || !nb || !na.visible || !nb.visible) return;
+
+        const selectedTouch = state.selected && (na.name === state.selected || nb.name === state.selected);
+        const hoveredTouch = state.hovered && (na.name === state.hovered || nb.name === state.hovered);
+
+        ctx.beginPath();
+        ctx.moveTo(na.screenX, na.screenY);
+        ctx.lineTo(nb.screenX, nb.screenY);
+        ctx.lineWidth = selectedTouch ? 3.2 : hoveredTouch ? 2.4 : 1.45;
+        ctx.strokeStyle = selectedTouch
+          ? "rgba(255, 115, 182, 0.95)"
+          : hoveredTouch
+            ? "rgba(255, 209, 102, 0.82)"
+            : "rgba(255,255,255,0.16)";
+        ctx.stroke();
+      });
+
+      projected.sort((a, b) => a.z - b.z);
+
+      projected.forEach(({ node, scale }) => {
+        if (!node.visible) return;
+
+        const isSelected = state.selected === node.name;
+        const isHovered = state.hovered === node.name;
+        const radius = node.radius * scale * (isSelected ? 1.45 : isHovered ? 1.22 : 1);
+
+        const glow = ctx.createRadialGradient(node.screenX, node.screenY, 0, node.screenX, node.screenY, radius * 3.2);
+        glow.addColorStop(0, isSelected ? "rgba(176,11,85,0.45)" : isHovered ? "rgba(255,209,102,0.30)" : "rgba(255,255,255,0.14)");
+        glow.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(node.screenX, node.screenY, radius * 3.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(node.screenX, node.screenY, radius, 0, Math.PI * 2);
+        ctx.fillStyle = isSelected ? "#ff4fa1" : isHovered ? "#ffd166" : "#f6d3e5";
+        ctx.fill();
+
+        ctx.lineWidth = isSelected ? 2.2 : 1.2;
+        ctx.strokeStyle = isSelected ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.42)";
+        ctx.stroke();
+      });
+
+      drawEmptyState();
+      updateLabels();
+      requestAnimationFrame(draw);
+    }
+
+    function updateLabels() {
+      nodes.forEach(node => {
+        if (!node.visible) {
+          node.label.style.display = "none";
+          return;
+        }
+
+        const isSelected = state.selected === node.name;
+        const isHovered = state.hovered === node.name;
+
+        node.label.style.display = "block";
+        node.label.style.left = node.screenX + "px";
+        node.label.style.top = (node.screenY - 18 - Math.max(0, node.scale * 7)) + "px";
+        node.label.style.opacity = String(Math.max(0.45, Math.min(1, node.scale * 0.9)));
+        node.label.classList.toggle("selected", isSelected);
+        node.label.classList.toggle("hovered", isHovered && !isSelected);
+      });
+    }
+
+    function findNodeAt(x, y) {
+      let best = null;
+      let bestDist = Infinity;
+
+      nodes.forEach(node => {
+        if (!node.visible) return;
+        const radius = node.radius * node.scale * (state.selected === node.name ? 1.45 : state.hovered === node.name ? 1.22 : 1);
+        const dx = x - node.screenX;
+        const dy = y - node.screenY;
+        const d = Math.sqrt(dx * dx + dy * dy);
+
+        if (d <= Math.max(radius + 10, 14) && d < bestDist) {
+          best = node;
+          bestDist = d;
+        }
+      });
+
+      return best;
+    }
+
+    function updateSelectedInfo() {
+      if (!state.selected) {
+        selectedInfo.innerHTML = "<strong>Selected:</strong> None";
+        return;
+      }
+
+      const node = nodeMap.get(state.selected);
+      const connections = node ? Array.from(node.connections).sort() : [];
+      const description = graphData.descriptions[state.selected]?.trim() || "No description yet.";
+
+      selectedInfo.innerHTML = `
+        <strong>Selected:</strong> ${state.selected}
+        <br>
+        <strong>Description:</strong> ${escapeHtml(description)}
+        <br>
+        <strong>Connections:</strong> ${connections.length ? connections.join(", ") : "None"}
+      `;
+    }
+
+    function syncDescriptionPanel() {
+      if (!state.selected) {
+        selectedName.textContent = "No one selected";
+        descriptionInput.value = "";
+        descriptionInput.disabled = true;
+        saveDescriptionBtn.disabled = true;
+        addConnectionBtn.disabled = true;
+        addConnectionSelect.disabled = true;
+        descriptionStatus.textContent = "";
+        connectionStatus.textContent = "";
+        currentConnections.innerHTML = '<div class="muted">No one selected</div>';
+        addConnectionSelect.innerHTML = '<option value="">Select a person</option>';
+        return;
+      }
+
+      selectedName.textContent = state.selected;
+      descriptionInput.disabled = false;
+      saveDescriptionBtn.disabled = false;
+      addConnectionBtn.disabled = false;
+      addConnectionSelect.disabled = false;
+      descriptionInput.value = graphData.descriptions[state.selected] || "";
+      descriptionStatus.textContent = "";
+
+      renderAddConnectionOptions();
+      renderSelectedConnectionsPanel();
+    }
+
+    function setSelected(name) {
+      state.selected = name;
+      updateSelectedInfo();
+      syncDescriptionPanel();
+    }
+
+    function clearSelected() {
+      state.selected = null;
+      updateSelectedInfo();
+      syncDescriptionPanel();
+    }
+
+    function focusSelected() {
+      if (!state.selected) return;
+      const n = nodeMap.get(state.selected);
+      if (!n) return;
+      const p = project(n);
+      camera.panX += (window.innerWidth / 2 - p.x) * 0.75;
+      camera.panY += (window.innerHeight / 2 - p.y) * 0.75;
+    }
+
+    function refreshSearchSuggestions(filter) {
+      const q = (filter || "").trim().toLowerCase();
+      searchSuggestions.innerHTML = "";
+
+      if (!q) {
+        searchSuggestions.style.display = "none";
+        return;
+      }
+
+      const matches = graphData.people
+        .filter(name => name.toLowerCase().includes(q))
+        .sort((a, b) => a.localeCompare(b));
+
+      if (!matches.length) {
+        searchSuggestions.style.display = "none";
+        return;
+      }
+
+      matches.forEach(name => {
+        const item = document.createElement("div");
+        item.className = "suggestion";
+        item.textContent = name;
+        item.addEventListener("click", () => {
+          searchInput.value = name;
+          setSelected(name);
+          searchSuggestions.style.display = "none";
+          focusSelected();
+        });
+        searchSuggestions.appendChild(item);
+      });
+
+      searchSuggestions.style.display = "block";
+    }
+
+    function openModal() {
+      modalSelected = new Set();
+      newPersonName.value = "";
+      newPersonDescription.value = "";
+      connectionSearch.value = "";
+      renderConnectionList();
+      renderSelectedChips();
+      modalBackdrop.style.display = "flex";
+      setTimeout(() => newPersonName.focus(), 10);
+    }
+
+    function closeModal() {
+      modalBackdrop.style.display = "none";
+    }
+
+    function renderSelectedChips() {
+      selectedConnections.innerHTML = "";
+      const names = Array.from(modalSelected).sort((a, b) => a.localeCompare(b));
+
+      if (!names.length) {
+        selectedConnections.innerHTML = '<div class="chip">No connections selected</div>';
+        return;
+      }
+
+      names.forEach(name => {
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        chip.textContent = name;
+        selectedConnections.appendChild(chip);
+      });
+    }
+
+    function renderConnectionList() {
+      const q = connectionSearch.value.trim().toLowerCase();
+      const names = graphData.people
+        .filter(name => name.toLowerCase().includes(q))
+        .sort((a, b) => a.localeCompare(b));
+
+      connectionsList.innerHTML = "";
+
+      if (!names.length) {
+        connectionsList.innerHTML = '<div class="muted" style="padding:12px;">No people to connect yet.</div>';
+        return;
+      }
+
+      names.forEach(name => {
+        const row = document.createElement("label");
+        row.className = "conn-item";
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = modalSelected.has(name);
+        cb.addEventListener("change", () => {
+          if (cb.checked) modalSelected.add(name);
+          else modalSelected.delete(name);
+          renderSelectedChips();
+        });
+
+        const text = document.createElement("div");
+        text.textContent = name;
+
+        row.appendChild(cb);
+        row.appendChild(text);
+        connectionsList.appendChild(row);
+      });
+    }
+
+    function renderAddConnectionOptions() {
+      addConnectionSelect.innerHTML = "";
+
+      if (!state.selected) {
+        addConnectionSelect.innerHTML = '<option value="">Select a person</option>';
+        return;
+      }
+
+      const selectedNode = nodeMap.get(state.selected);
+      const existing = selectedNode ? selectedNode.connections : new Set();
+
+      const available = graphData.people
+        .filter(name => name !== state.selected && !existing.has(name))
+        .sort((a, b) => a.localeCompare(b));
+
+      if (!available.length) {
+        addConnectionSelect.innerHTML = '<option value="">No available people to connect</option>';
+        return;
+      }
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Choose someone to connect";
+      addConnectionSelect.appendChild(placeholder);
+
+      available.forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        addConnectionSelect.appendChild(opt);
+      });
+
+      addConnectionSelect.value = "";
+    }
+
+    function renderSelectedConnectionsPanel() {
+      currentConnections.innerHTML = "";
+
+      if (!state.selected) {
+        currentConnections.innerHTML = '<div class="muted">No one selected</div>';
+        return;
+      }
+
+      const selectedNode = nodeMap.get(state.selected);
+      const connections = selectedNode ? Array.from(selectedNode.connections).sort((a, b) => a.localeCompare(b)) : [];
+
+      if (!connections.length) {
+        currentConnections.innerHTML = '<div class="muted">No connections yet</div>';
+        return;
+      }
+
+      connections.forEach(name => {
+        const row = document.createElement("div");
+        row.className = "connection-row";
+
+        const label = document.createElement("span");
+        label.textContent = name;
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "danger";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", async () => {
+          await removeConnection(state.selected, name);
+        });
+
+        row.appendChild(label);
+        row.appendChild(removeBtn);
+        currentConnections.appendChild(row);
+      });
+    }
+
+    async function addConnection(a, b) {
+      if (!a || !b || a === b) return;
+
+      const k = edgeKey(a, b);
+      const exists = graphData.edges.some(e => edgeKey(e.a, e.b) === k);
+
+      if (exists) {
+        connectionStatus.textContent = "That connection already exists.";
+        return;
+      }
+
+      graphData.edges.push({ a, b });
+      rebuildNetwork();
+      connectionStatus.textContent = "Saving connection...";
+      await writeGraph("Saved connection to Firestore.");
+      connectionStatus.textContent = "Connection saved.";
+    }
+
+    async function removeConnection(a, b) {
+      const k = edgeKey(a, b);
+      const before = graphData.edges.length;
+      graphData.edges = graphData.edges.filter(e => edgeKey(e.a, e.b) !== k);
+
+      if (graphData.edges.length === before) {
+        connectionStatus.textContent = "Connection not found.";
+        return;
+      }
+
+      rebuildNetwork();
+      connectionStatus.textContent = "Removing connection...";
+      await writeGraph("Removed connection from Firestore.");
+      connectionStatus.textContent = "Connection removed.";
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    searchInput.addEventListener("input", e => {
+      const value = e.target.value.trim();
+      refreshSearchSuggestions(value);
+      const exact = graphData.people.find(name => name.toLowerCase() === value.toLowerCase());
+      if (exact) setSelected(exact);
+    });
+
+    searchInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        const value = searchInput.value.trim().toLowerCase();
+        const found = graphData.people.find(name => name.toLowerCase() === value);
+        if (found) {
+          setSelected(found);
+          focusSelected();
+          searchSuggestions.style.display = "none";
+        }
+      }
+    });
+
+    document.addEventListener("click", e => {
+      const wrap = document.querySelector(".search-wrap");
+      if (wrap && !wrap.contains(e.target)) {
+        searchSuggestions.style.display = "none";
+      }
+    });
+
+    saveDescriptionBtn.addEventListener("click", async () => {
+      if (!state.selected) return;
+      graphData.descriptions[state.selected] = descriptionInput.value.trim();
+      updateSelectedInfo();
+      descriptionStatus.textContent = "Saving description...";
+      await writeGraph("Saved description to Firestore.");
+      descriptionStatus.textContent = "Description saved.";
+    });
+
+    addConnectionBtn.addEventListener("click", async () => {
+      if (!state.selected) return;
+      const other = addConnectionSelect.value;
+      if (!other) {
+        connectionStatus.textContent = "Choose a person first.";
+        return;
+      }
+      await addConnection(state.selected, other);
+    });
+
+    focusBtn.addEventListener("click", focusSelected);
+
+    clearBtn.addEventListener("click", () => {
+      clearSelected();
+      searchInput.value = "";
+    });
+
+    addBtn.addEventListener("click", openModal);
+    closeModalBtn.addEventListener("click", closeModal);
+
+    modalBackdrop.addEventListener("click", e => {
+      if (e.target === modalBackdrop) closeModal();
+    });
+
+    connectionSearch.addEventListener("input", renderConnectionList);
+
+    savePersonBtn.addEventListener("click", async () => {
+      const name = newPersonName.value.trim();
+      const description = newPersonDescription.value.trim();
+
+      if (!name) {
+        alert("Enter a name first.");
+        return;
+      }
+
+      if (graphData.people.some(p => p.toLowerCase() === name.toLowerCase())) {
+        alert("That person already exists.");
+        return;
+      }
+
+      graphData.people.push(name);
+
+      if (!(name in graphData.descriptions)) {
+        graphData.descriptions[name] = description || "";
+      }
+
+      const edgeSeen = new Set(graphData.edges.map(e => edgeKey(e.a, e.b)));
+      modalSelected.forEach(other => {
+        const k = edgeKey(name, other);
+        if (!edgeSeen.has(k)) {
+          graphData.edges.push({ a: name, b: other });
+          edgeSeen.add(k);
+        }
+      });
+
+      rebuildNetwork();
+      setSelected(name);
+      searchInput.value = name;
+      closeModal();
+      focusSelected();
+      await writeGraph("Saved new person to Firestore.");
+    });
+
+    canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+    canvas.addEventListener("mousedown", e => {
+      state.dragMode = e.button === 2 ? "pan" : "rotate";
+      state.isDragging = true;
+      state.lastX = e.clientX;
+      state.lastY = e.clientY;
+      state.suppressClick = false;
+    });
+
+    window.addEventListener("mousemove", e => {
+      const hovered = findNodeAt(e.clientX, e.clientY);
+      state.hovered = hovered ? hovered.name : null;
+      canvas.style.cursor = hovered ? "pointer" : state.isDragging ? "grabbing" : "grab";
+
+      if (!state.isDragging) return;
+
+      const dx = e.clientX - state.lastX;
+      const dy = e.clientY - state.lastY;
+      state.lastX = e.clientX;
+      state.lastY = e.clientY;
+
+      if (Math.abs(dx) + Math.abs(dy) > 3) state.suppressClick = true;
+
+      if (state.dragMode === "rotate") {
+        camera.yaw += dx * 0.008;
+        camera.pitch += dy * 0.008;
+        const limit = Math.PI / 2 - 0.02;
+        camera.pitch = Math.max(-limit, Math.min(limit, camera.pitch));
+      } else if (state.dragMode === "pan") {
+        camera.panX += dx;
+        camera.panY += dy;
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      state.isDragging = false;
+      state.dragMode = null;
+    });
+
+    canvas.addEventListener("click", e => {
+      if (state.suppressClick) return;
+      const hit = findNodeAt(e.clientX, e.clientY);
+      if (hit) {
+        setSelected(hit.name);
+        searchInput.value = hit.name;
+      }
+    });
+
+    canvas.addEventListener("wheel", e => {
+      e.preventDefault();
+      camera.distance += e.deltaY * 0.55;
+      camera.distance = Math.max(180, Math.min(1200, camera.distance));
+    }, { passive: false });
+
+    window.addEventListener("resize", resize);
+
+    onSnapshot(graphRef, async (snap) => {
+      try {
+        if (!snap.exists()) {
+          fireStatus.textContent = "Creating blank Firestore graph document...";
+          graphData = normalizeData(EMPTY_GRAPH);
+          rebuildNetwork();
+          await writeGraph("Created blank Firestore graph.");
+          initializedFromFirestore = true;
+          return;
+        }
+
+        graphData = normalizeData(snap.data());
+        rebuildNetwork();
+        fireStatus.textContent = initializedFromFirestore ? "Synced with Firestore." : "Loaded from Firestore.";
+        initializedFromFirestore = true;
+      } catch (error) {
+        console.error(error);
+        fireStatus.textContent = "Failed to load Firestore data.";
+      }
+    }, (error) => {
+      console.error(error);
+      fireStatus.textContent = "Firestore listener failed. Check your rules and Firestore setup.";
+    });
+
+    rebuildNetwork();
+    resize();
+    draw();
+  </script>
+</body>
+</html>
