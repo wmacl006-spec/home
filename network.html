@@ -19,6 +19,7 @@
       --gold: #ffd166;
       --shadow: 0 24px 80px rgba(0,0,0,0.5);
       --radius: 18px;
+      --connected: #7ee0ff;
     }
 
     * { box-sizing: border-box; }
@@ -47,6 +48,7 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
+      transition: opacity 0.22s ease, visibility 0.22s ease;
     }
 
     .topbar {
@@ -96,7 +98,7 @@
       gap: 10px;
       align-items: center;
       justify-content: flex-end;
-      max-width: 760px;
+      max-width: 900px;
     }
 
     .search-wrap {
@@ -313,6 +315,7 @@
       inset: 0;
       pointer-events: none;
       overflow: hidden;
+      transition: opacity 0.22s ease, visibility 0.22s ease;
     }
 
     .node-label {
@@ -338,6 +341,42 @@
 
     .node-label.hovered {
       color: var(--gold);
+    }
+
+    .node-label.connected {
+      color: var(--connected);
+      text-shadow:
+        0 0 12px rgba(126,224,255,0.75),
+        0 0 24px rgba(126,224,255,0.30),
+        0 0 12px rgba(0,0,0,0.8);
+    }
+
+    .show-ui-fab {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 200;
+      display: none;
+      pointer-events: auto;
+      background: rgba(10, 14, 24, 0.72);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+
+    body.ui-hidden .ui {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    body.ui-hidden .label-layer {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    body.ui-hidden .show-ui-fab {
+      display: inline-flex;
     }
 
     @media (max-width: 1100px) {
@@ -397,6 +436,7 @@
 
         <button id="focusBtn" class="ghost">Focus Selected</button>
         <button id="clearBtn" class="ghost">Clear Highlight</button>
+        <button id="toggleUiBtn" class="ghost">Hide UI</button>
       </div>
     </div>
 
@@ -439,6 +479,8 @@
       </div>
     </div>
   </div>
+
+  <button id="showUiFab" class="show-ui-fab">Show UI</button>
 
   <div id="labelLayer" class="label-layer"></div>
 
@@ -486,6 +528,8 @@
     const fireStatus = document.getElementById("fireStatus");
     const focusBtn = document.getElementById("focusBtn");
     const clearBtn = document.getElementById("clearBtn");
+    const toggleUiBtn = document.getElementById("toggleUiBtn");
+    const showUiFab = document.getElementById("showUiFab");
     const peopleCount = document.getElementById("peopleCount");
     const connectionCount = document.getElementById("connectionCount");
 
@@ -498,7 +542,7 @@
     const camera = {
       yaw: 0.62,
       pitch: 0.20,
-      distance: 760,
+      distance: 840,
       panX: 0,
       panY: 0,
       focal: 760
@@ -511,7 +555,8 @@
       isDragging: false,
       lastX: 0,
       lastY: 0,
-      suppressClick: false
+      suppressClick: false,
+      uiHidden: false
     };
 
     function edgeKey(a, b) {
@@ -603,15 +648,15 @@
       const hubNames = hubs.map(h => h.name);
 
       const clusterCenters = new Map();
-      const baseHubRadius = 240;
+      const baseHubRadius = 290;
 
       hubNames.forEach((hub, i) => {
         const angle = seededAngle(i, hubNames.length);
-        const lift = ((i % 3) - 1) * 110;
+        const lift = ((i % 3) - 1) * 135;
         clusterCenters.set(hub, {
-          x: Math.cos(angle) * baseHubRadius * (1.0 + (i % 2) * 0.22),
+          x: Math.cos(angle) * baseHubRadius * (1.0 + (i % 2) * 0.25),
           y: lift,
-          z: Math.sin(angle) * baseHubRadius * (1.0 + ((i + 1) % 2) * 0.22)
+          z: Math.sin(angle) * baseHubRadius * (1.0 + ((i + 1) % 2) * 0.25)
         });
       });
 
@@ -642,7 +687,6 @@
       hubNames.forEach((hub, hubIndex) => {
         const members = clusters.get(hub);
         const center = clusterCenters.get(hub);
-        const hubDegree = adjacency.get(hub)?.size || 0;
 
         members.forEach((name, i) => {
           const deg = adjacency.get(name)?.size || 0;
@@ -654,8 +698,8 @@
           }
 
           const localAngle = seededAngle(i + 1, members.length + hubIndex * 5);
-          const band = 85 + (1 - similarityToHub) * 160 + Math.max(0, 4 - deg) * 35;
-          const yBand = ((i % 5) - 2) * 34 + (Math.random() - 0.5) * 20;
+          const band = 120 + (1 - similarityToHub) * 210 + Math.max(0, 4 - deg) * 40;
+          const yBand = ((i % 5) - 2) * 42 + (Math.random() - 0.5) * 28;
 
           positions.set(name, {
             x: center.x + Math.cos(localAngle) * band,
@@ -669,10 +713,10 @@
         if (positions.has(name)) return;
         const deg = adjacency.get(name)?.size || 0;
         const angle = seededAngle(i, names.length);
-        const far = 500 + Math.max(0, 3 - deg) * 110;
+        const far = 610 + Math.max(0, 3 - deg) * 130;
         positions.set(name, {
           x: Math.cos(angle) * far,
-          y: ((i % 7) - 3) * 70,
+          y: ((i % 7) - 3) * 84,
           z: Math.sin(angle) * far
         });
       });
@@ -697,7 +741,7 @@
 
       const maxDegree = Math.max(1, ...names.map(name => adjacency.get(name)?.size || 0));
 
-      for (let iter = 0; iter < 280; iter++) {
+      for (let iter = 0; iter < 320; iter++) {
         const forces = new Map();
         names.forEach(name => forces.set(name, { x: 0, y: 0, z: 0 }));
 
@@ -719,8 +763,8 @@
             const sim = jaccardSimilarity(adjacency.get(a), adjacency.get(b));
             const connected = adjacency.get(a).has(b);
 
-            const repulsionBase = connected ? 1800 : 9000;
-            const sparseBoost = 1 + Math.max(0, 4 - Math.min(degA, degB)) * 0.18;
+            const repulsionBase = connected ? 2200 : 13500;
+            const sparseBoost = 1 + Math.max(0, 4 - Math.min(degA, degB)) * 0.2;
             const repulsion = (repulsionBase * sparseBoost) / distSq;
 
             const fx = (dx / dist) * repulsion;
@@ -736,10 +780,10 @@
 
             if (connected || sim > 0.18) {
               const desired = connected
-                ? 95 + (1 - sim) * 70 + Math.max(0, 3 - Math.min(degA, degB)) * 24
-                : 150 + (1 - sim) * 120;
+                ? 125 + (1 - sim) * 88 + Math.max(0, 3 - Math.min(degA, degB)) * 28
+                : 190 + (1 - sim) * 140;
 
-              const spring = connected ? 0.015 : 0.007;
+              const spring = connected ? 0.014 : 0.0065;
               const pull = (dist - desired) * spring;
 
               const sfx = (dx / dist) * pull;
@@ -763,17 +807,17 @@
           const degree = adjacency.get(name)?.size || 0;
           const centrality = degree / maxDegree;
 
-          const targetRadius = 240 + (1 - centrality) * 300;
+          const targetRadius = 300 + (1 - centrality) * 380;
           const currentRadius = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z) || 1;
-          const radialPull = (currentRadius - targetRadius) * 0.006;
+          const radialPull = (currentRadius - targetRadius) * 0.0055;
 
           f.x -= (p.x / currentRadius) * radialPull;
           f.y -= (p.y / currentRadius) * radialPull;
           f.z -= (p.z / currentRadius) * radialPull;
 
-          v.x = (v.x + f.x) * 0.86;
-          v.y = (v.y + f.y) * 0.86;
-          v.z = (v.z + f.z) * 0.86;
+          v.x = (v.x + f.x) * 0.87;
+          v.y = (v.y + f.y) * 0.87;
+          v.z = (v.z + f.z) * 0.87;
 
           p.x += v.x;
           p.y += v.y;
@@ -795,7 +839,7 @@
         x: pos.x,
         y: pos.y,
         z: pos.z,
-        radius: 10.5,
+        radius: 8.25,
         screenX: 0,
         screenY: 0,
         scale: 1,
@@ -894,6 +938,12 @@
       ctx.restore();
     }
 
+    function isConnectedToSelected(nodeName) {
+      if (!state.selected || state.selected === nodeName) return false;
+      const selectedNode = nodeMap.get(state.selected);
+      return !!selectedNode && selectedNode.connections.has(nodeName);
+    }
+
     function draw() {
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
       drawBackgroundStars();
@@ -913,6 +963,7 @@
         if (!na || !nb || !na.visible || !nb.visible) return;
 
         const selectedTouch = state.selected && (na.name === state.selected || nb.name === state.selected);
+        const connectedHighlight = state.selected && (isConnectedToSelected(na.name) && state.selected === nb.name || isConnectedToSelected(nb.name) && state.selected === na.name);
         const hoveredTouch = state.hovered && (na.name === state.hovered || nb.name === state.hovered);
 
         const sim = jaccardSimilarity(na.connections, nb.connections);
@@ -924,9 +975,11 @@
         ctx.lineWidth = selectedTouch ? 3.2 : hoveredTouch ? 2.4 : 1.35 + sim * 1.4;
         ctx.strokeStyle = selectedTouch
           ? "rgba(255, 115, 182, 0.95)"
-          : hoveredTouch
-            ? "rgba(255, 209, 102, 0.88)"
-            : `rgba(255,255,255,${Math.min(0.42, alpha).toFixed(3)})`;
+          : connectedHighlight
+            ? "rgba(126, 224, 255, 0.88)"
+            : hoveredTouch
+              ? "rgba(255, 209, 102, 0.88)"
+              : `rgba(255,255,255,${Math.min(0.42, alpha).toFixed(3)})`;
         ctx.stroke();
       });
 
@@ -936,26 +989,43 @@
         if (!node.visible) return;
 
         const degree = node.connections.size;
-        const sizeBoost = 1 + Math.min(0.65, degree * 0.055);
+        const sizeBoost = 1 + Math.min(0.55, degree * 0.045);
         const isSelected = state.selected === node.name;
         const isHovered = state.hovered === node.name;
-        const radius = node.radius * scale * sizeBoost * (isSelected ? 1.35 : isHovered ? 1.16 : 1);
+        const isConnected = isConnectedToSelected(node.name);
+        const radius = node.radius * scale * sizeBoost * (isSelected ? 1.32 : isHovered ? 1.14 : isConnected ? 1.06 : 1);
 
-        const glow = ctx.createRadialGradient(node.screenX, node.screenY, 0, node.screenX, node.screenY, radius * 3.5);
-        glow.addColorStop(0, isSelected ? "rgba(176,11,85,0.45)" : isHovered ? "rgba(255,209,102,0.30)" : "rgba(255,255,255,0.12)");
+        const glow = ctx.createRadialGradient(node.screenX, node.screenY, 0, node.screenX, node.screenY, radius * 3.7);
+        glow.addColorStop(0, isSelected
+          ? "rgba(176,11,85,0.45)"
+          : isConnected
+            ? "rgba(126,224,255,0.26)"
+            : isHovered
+              ? "rgba(255,209,102,0.30)"
+              : "rgba(255,255,255,0.11)");
         glow.addColorStop(1, "rgba(0,0,0,0)");
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(node.screenX, node.screenY, radius * 3.5, 0, Math.PI * 2);
+        ctx.arc(node.screenX, node.screenY, radius * 3.7, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.beginPath();
         ctx.arc(node.screenX, node.screenY, radius, 0, Math.PI * 2);
-        ctx.fillStyle = isSelected ? "#ff4fa1" : isHovered ? "#ffd166" : "#f6d3e5";
+        ctx.fillStyle = isSelected
+          ? "#ff4fa1"
+          : isConnected
+            ? "#7ee0ff"
+            : isHovered
+              ? "#ffd166"
+              : "#f6d3e5";
         ctx.fill();
 
-        ctx.lineWidth = isSelected ? 2.2 : 1.2;
-        ctx.strokeStyle = isSelected ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.42)";
+        ctx.lineWidth = isSelected ? 2.2 : isConnected ? 1.8 : 1.1;
+        ctx.strokeStyle = isSelected
+          ? "rgba(255,255,255,0.95)"
+          : isConnected
+            ? "rgba(220,245,255,0.88)"
+            : "rgba(255,255,255,0.38)";
         ctx.stroke();
       });
 
@@ -973,6 +1043,7 @@
 
         const isSelected = state.selected === node.name;
         const isHovered = state.hovered === node.name;
+        const isConnected = isConnectedToSelected(node.name);
 
         node.label.style.display = "block";
         node.label.style.left = node.screenX + "px";
@@ -980,6 +1051,7 @@
         node.label.style.opacity = String(Math.max(0.45, Math.min(1, node.scale * 0.9)));
         node.label.classList.toggle("selected", isSelected);
         node.label.classList.toggle("hovered", isHovered && !isSelected);
+        node.label.classList.toggle("connected", isConnected && !isSelected && !isHovered);
       });
     }
 
@@ -989,8 +1061,13 @@
 
       nodes.forEach(node => {
         if (!node.visible) return;
-        const sizeBoost = 1 + Math.min(0.65, node.connections.size * 0.055);
-        const radius = node.radius * node.scale * sizeBoost * (state.selected === node.name ? 1.35 : state.hovered === node.name ? 1.16 : 1);
+        const sizeBoost = 1 + Math.min(0.55, node.connections.size * 0.045);
+        const isConnected = isConnectedToSelected(node.name);
+        const radius = node.radius * node.scale * sizeBoost * (
+          state.selected === node.name ? 1.32 :
+          state.hovered === node.name ? 1.14 :
+          isConnected ? 1.06 : 1
+        );
         const dx = x - node.screenX;
         const dy = y - node.screenY;
         const d = Math.sqrt(dx * dx + dy * dy);
@@ -1098,6 +1175,16 @@
       camera.panY += (window.innerHeight / 2 - p.y) * 0.75;
     }
 
+    function setUiHidden(hidden) {
+      state.uiHidden = hidden;
+      document.body.classList.toggle("ui-hidden", hidden);
+      toggleUiBtn.textContent = hidden ? "Show UI" : "Hide UI";
+    }
+
+    function toggleUi() {
+      setUiHidden(!state.uiHidden);
+    }
+
     function refreshSearchSuggestions(filter) {
       const q = (filter || "").trim().toLowerCase();
       searchSuggestions.innerHTML = "";
@@ -1158,12 +1245,21 @@
       }
     });
 
+    document.addEventListener("keydown", e => {
+      if (e.key.toLowerCase() === "h") {
+        toggleUi();
+      }
+    });
+
     focusBtn.addEventListener("click", focusSelected);
 
     clearBtn.addEventListener("click", () => {
       clearSelected();
       searchInput.value = "";
     });
+
+    toggleUiBtn.addEventListener("click", toggleUi);
+    showUiFab.addEventListener("click", () => setUiHidden(false));
 
     canvas.addEventListener("contextmenu", e => e.preventDefault());
 
@@ -1217,7 +1313,7 @@
     canvas.addEventListener("wheel", e => {
       e.preventDefault();
       camera.distance += e.deltaY * 0.55;
-      camera.distance = Math.max(220, Math.min(1700, camera.distance));
+      camera.distance = Math.max(220, Math.min(1900, camera.distance));
     }, { passive: false });
 
     window.addEventListener("resize", resize);
