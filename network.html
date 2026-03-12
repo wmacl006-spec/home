@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>3D Social Network — View Only</title>
   <style>
     :root {
@@ -20,9 +20,11 @@
       --shadow: 0 24px 80px rgba(0,0,0,0.5);
       --radius: 18px;
       --connected: #7ee0ff;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     html, body {
       margin: 0;
@@ -36,12 +38,14 @@
         radial-gradient(circle at 85% 25%, rgba(255, 255, 255, 0.03), transparent 20%),
         radial-gradient(circle at 50% 80%, rgba(176, 11, 85, 0.07), transparent 18%),
         linear-gradient(180deg, var(--bg-2), var(--bg-1));
+      touch-action: none;
     }
 
     canvas {
       display: block;
       width: 100vw;
       height: 100vh;
+      touch-action: none;
     }
 
     .ui {
@@ -53,11 +57,11 @@
 
     .topbar {
       position: absolute;
-      top: 16px;
-      left: 16px;
-      right: 16px;
+      top: calc(12px + var(--safe-top));
+      left: 12px;
+      right: 12px;
       display: flex;
-      gap: 14px;
+      gap: 12px;
       justify-content: space-between;
       align-items: flex-start;
       pointer-events: none;
@@ -67,20 +71,21 @@
       background: var(--panel);
       border: 1px solid var(--border);
       backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       pointer-events: auto;
     }
 
     .title-panel {
-      padding: 16px 18px;
-      min-width: 280px;
-      max-width: 560px;
+      padding: 14px 16px;
+      min-width: 260px;
+      max-width: 500px;
     }
 
     .title-panel h1 {
       margin: 0 0 6px;
-      font-size: 20px;
+      font-size: 19px;
       letter-spacing: 0.2px;
     }
 
@@ -103,7 +108,8 @@
 
     .search-wrap {
       position: relative;
-      width: 260px;
+      width: 250px;
+      min-width: 0;
     }
 
     input[type="text"] {
@@ -144,6 +150,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     button:hover,
@@ -199,21 +207,21 @@
 
     .left-info {
       position: absolute;
-      left: 16px;
-      bottom: 16px;
-      width: 365px;
+      left: 12px;
+      bottom: calc(12px + var(--safe-bottom));
+      width: 330px;
       padding: 16px 18px;
       pointer-events: auto;
     }
 
     .right-info {
       position: absolute;
-      right: 16px;
-      bottom: 16px;
-      width: 430px;
+      right: 12px;
+      bottom: calc(12px + var(--safe-bottom));
+      width: 390px;
       padding: 16px 18px;
       pointer-events: auto;
-      max-height: calc(100vh - 120px);
+      max-height: calc(100vh - 130px - var(--safe-top) - var(--safe-bottom));
       overflow: auto;
     }
 
@@ -281,7 +289,7 @@
       margin-top: 10px;
       display: grid;
       gap: 8px;
-      max-height: 280px;
+      max-height: 260px;
       overflow: auto;
     }
 
@@ -298,6 +306,7 @@
 
     .connection-row span {
       font-size: 13px;
+      word-break: break-word;
     }
 
     .badge {
@@ -329,6 +338,7 @@
         0 0 10px rgba(0,0,0,0.88),
         0 0 20px rgba(0,0,0,0.78);
       opacity: 0.96;
+      will-change: transform, opacity;
     }
 
     .node-label.selected {
@@ -353,15 +363,23 @@
 
     .show-ui-fab {
       position: fixed;
-      top: 16px;
-      right: 16px;
+      top: calc(12px + var(--safe-top));
+      right: 12px;
       z-index: 200;
       display: none;
       pointer-events: auto;
       background: rgba(10, 14, 24, 0.72);
       border: 1px solid rgba(255,255,255,0.10);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       box-shadow: var(--shadow);
+    }
+
+    .mobile-hint {
+      display: none;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
     }
 
     body.ui-hidden .ui {
@@ -395,19 +413,75 @@
     }
 
     @media (max-width: 900px) {
+      .title-panel {
+        max-width: none;
+      }
+
+      .title-panel p .desktop-only {
+        display: none;
+      }
+
+      .mobile-hint {
+        display: block;
+      }
+
+      .topbar {
+        gap: 10px;
+      }
+
+      .controls {
+        padding: 10px;
+        gap: 8px;
+      }
+
+      .controls > * {
+        flex: 1 1 auto;
+      }
+
+      .home-btn,
+      #focusBtn,
+      #clearBtn,
+      #toggleUiBtn {
+        min-width: 0;
+      }
+
       .left-info,
       .right-info {
-        width: calc(100% - 32px);
-        position: static;
-        margin: 16px;
+        width: calc(100% - 24px);
       }
 
-      .ui {
+      .left-info {
+        left: 12px;
+        right: 12px;
+        bottom: calc(12px + var(--safe-bottom));
+        width: auto;
+        max-height: 30vh;
         overflow: auto;
       }
 
-      html, body {
-        overflow: auto;
+      .right-info {
+        left: 12px;
+        right: 12px;
+        bottom: calc(12px + var(--safe-bottom));
+        width: auto;
+        max-height: 36vh;
+        display: none;
+      }
+
+      body.show-details .right-info {
+        display: block;
+      }
+
+      body.show-details .left-info {
+        display: none;
+      }
+
+      .connection-row {
+        gap: 8px;
+      }
+
+      .node-label {
+        font-size: 11px;
       }
     }
   </style>
@@ -420,10 +494,10 @@
       <div class="panel title-panel">
         <h1>3D Social Network</h1>
         <p>
-          View-only mode. <br>
-          Drag to rotate, right drag to pan, scroll to zoom, and click a node to select it.
-          Layout is such that related people tend to cluster, while weaker-linked people drift further out.
+          View-only mode. Drag to move around, tap a node to select it, and use search to jump to someone.
+          <span class="desktop-only">Mouse: left drag rotates, right drag pans, scroll zooms.</span>
         </p>
+        <div class="mobile-hint">Phone: 1 finger = rotate, 2 fingers = pan, pinch = zoom.</div>
       </div>
 
       <div class="panel controls">
@@ -434,8 +508,8 @@
           <div id="searchSuggestions" class="suggestions"></div>
         </div>
 
-        <button id="focusBtn" class="ghost">Focus Selected</button>
-        <button id="clearBtn" class="ghost">Clear Highlight</button>
+        <button id="focusBtn" class="ghost">Focus</button>
+        <button id="clearBtn" class="ghost">Clear</button>
         <button id="toggleUiBtn" class="ghost">Hide UI</button>
       </div>
     </div>
@@ -443,7 +517,7 @@
     <div class="panel left-info">
       <h3>Overview</h3>
       <div class="muted">
-        Left drag rotates. Right drag pans. Scroll zooms.
+        Rotate, pan, zoom, and tap a node to inspect it.
       </div>
 
       <div class="stats-grid">
@@ -538,24 +612,33 @@
     const nodeMap = new Map();
 
     const camera = {
-      yaw: 0.62,
-      pitch: 0.20,
-      distance: 840,
+      yaw: 0.58,
+      pitch: 0.16,
+      distance: 980,
       panX: 0,
       panY: 0,
-      focal: 760
+      focal: 820
     };
 
     const state = {
       hovered: null,
       selected: null,
-      dragMode: null,
+      pointerMode: null,
       isDragging: false,
       lastX: 0,
       lastY: 0,
       suppressClick: false,
-      uiHidden: false
+      uiHidden: false,
+      activePointers: new Map(),
+      pinchStartDistance: 0,
+      pinchStartCameraDistance: 0,
+      pinchStartCenter: null,
+      pinchLastCenter: null
     };
+
+    function isMobileLayout() {
+      return window.innerWidth <= 900;
+    }
 
     function edgeKey(a, b) {
       return [a, b].sort().join("||");
@@ -600,8 +683,8 @@
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
+      canvas.width = Math.round(window.innerWidth * dpr);
+      canvas.height = Math.round(window.innerHeight * dpr);
       canvas.style.width = window.innerWidth + "px";
       canvas.style.height = window.innerHeight + "px";
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -625,8 +708,7 @@
       let inter = 0;
       for (const v of setA) if (setB.has(v)) inter++;
       const union = setA.size + setB.size - inter;
-      if (union <= 0) return 0;
-      return inter / union;
+      return union <= 0 ? 0 : inter / union;
     }
 
     function seededAngle(i, n) {
@@ -642,25 +724,25 @@
         .map(name => ({ name, degree: adjacency.get(name)?.size || 0 }))
         .sort((a, b) => b.degree - a.degree || a.name.localeCompare(b.name));
 
-      const hubs = degreeList.slice(0, Math.min(6, Math.max(1, Math.ceil(Math.sqrt(names.length || 1)))));
+      const hubs = degreeList.slice(0, Math.min(8, Math.max(1, Math.ceil(Math.sqrt(names.length || 1)))));
       const hubNames = hubs.map(h => h.name);
 
       const clusterCenters = new Map();
-      const baseHubRadius = 290;
+      const baseHubRadius = 420;
 
       hubNames.forEach((hub, i) => {
         const angle = seededAngle(i, hubNames.length);
-        const lift = ((i % 3) - 1) * 135;
+        const ring = 1 + ((i % 3) * 0.12);
+        const lift = ((i % 4) - 1.5) * 120;
         clusterCenters.set(hub, {
-          x: Math.cos(angle) * baseHubRadius * (1.0 + (i % 2) * 0.25),
+          x: Math.cos(angle) * baseHubRadius * ring,
           y: lift,
-          z: Math.sin(angle) * baseHubRadius * (1.0 + ((i + 1) % 2) * 0.25)
+          z: Math.sin(angle) * baseHubRadius * ring
         });
       });
 
       const positions = new Map();
       const clusters = new Map();
-
       hubNames.forEach(h => clusters.set(h, [h]));
 
       names.forEach(name => {
@@ -672,7 +754,7 @@
         hubNames.forEach(hub => {
           const isDirect = adjacency.get(name).has(hub) ? 1 : 0;
           const sim = jaccardSimilarity(adjacency.get(name), adjacency.get(hub));
-          const score = isDirect * 2.0 + sim * 3.5 + Math.random() * 0.01;
+          const score = isDirect * 2.2 + sim * 4.0;
           if (score > bestScore) {
             bestScore = score;
             bestHub = hub;
@@ -695,9 +777,9 @@
             return;
           }
 
-          const localAngle = seededAngle(i + 1, members.length + hubIndex * 5);
-          const band = 120 + (1 - similarityToHub) * 210 + Math.max(0, 4 - deg) * 40;
-          const yBand = ((i % 5) - 2) * 42 + (Math.random() - 0.5) * 28;
+          const localAngle = seededAngle(i + 1, members.length + hubIndex * 7);
+          const band = 190 + (1 - similarityToHub) * 230 + Math.max(0, 4 - deg) * 55;
+          const yBand = ((i % 6) - 2.5) * 55;
 
           positions.set(name, {
             x: center.x + Math.cos(localAngle) * band,
@@ -711,10 +793,10 @@
         if (positions.has(name)) return;
         const deg = adjacency.get(name)?.size || 0;
         const angle = seededAngle(i, names.length);
-        const far = 610 + Math.max(0, 3 - deg) * 130;
+        const far = 780 + Math.max(0, 3 - deg) * 160;
         positions.set(name, {
           x: Math.cos(angle) * far,
-          y: ((i % 7) - 3) * 84,
+          y: ((i % 7) - 3) * 92,
           z: Math.sin(angle) * far
         });
       });
@@ -739,7 +821,7 @@
 
       const maxDegree = Math.max(1, ...names.map(name => adjacency.get(name)?.size || 0));
 
-      for (let iter = 0; iter < 320; iter++) {
+      for (let iter = 0; iter < 360; iter++) {
         const forces = new Map();
         names.forEach(name => forces.set(name, { x: 0, y: 0, z: 0 }));
 
@@ -761,8 +843,8 @@
             const sim = jaccardSimilarity(adjacency.get(a), adjacency.get(b));
             const connected = adjacency.get(a).has(b);
 
-            const repulsionBase = connected ? 2200 : 13500;
-            const sparseBoost = 1 + Math.max(0, 4 - Math.min(degA, degB)) * 0.2;
+            const repulsionBase = connected ? 2400 : 18500;
+            const sparseBoost = 1 + Math.max(0, 4 - Math.min(degA, degB)) * 0.22;
             const repulsion = (repulsionBase * sparseBoost) / distSq;
 
             const fx = (dx / dist) * repulsion;
@@ -776,12 +858,12 @@
             forces.get(b).y -= fy;
             forces.get(b).z -= fz;
 
-            if (connected || sim > 0.18) {
+            if (connected || sim > 0.16) {
               const desired = connected
-                ? 125 + (1 - sim) * 88 + Math.max(0, 3 - Math.min(degA, degB)) * 28
-                : 190 + (1 - sim) * 140;
+                ? 170 + (1 - sim) * 95 + Math.max(0, 3 - Math.min(degA, degB)) * 34
+                : 250 + (1 - sim) * 160;
 
-              const spring = connected ? 0.014 : 0.0065;
+              const spring = connected ? 0.0135 : 0.0058;
               const pull = (dist - desired) * spring;
 
               const sfx = (dx / dist) * pull;
@@ -805,17 +887,17 @@
           const degree = adjacency.get(name)?.size || 0;
           const centrality = degree / maxDegree;
 
-          const targetRadius = 300 + (1 - centrality) * 380;
+          const targetRadius = 430 + (1 - centrality) * 460;
           const currentRadius = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z) || 1;
-          const radialPull = (currentRadius - targetRadius) * 0.0055;
+          const radialPull = (currentRadius - targetRadius) * 0.0048;
 
           f.x -= (p.x / currentRadius) * radialPull;
           f.y -= (p.y / currentRadius) * radialPull;
           f.z -= (p.z / currentRadius) * radialPull;
 
-          v.x = (v.x + f.x) * 0.87;
-          v.y = (v.y + f.y) * 0.87;
-          v.z = (v.z + f.z) * 0.87;
+          v.x = (v.x + f.x) * 0.885;
+          v.y = (v.y + f.y) * 0.885;
+          v.z = (v.z + f.z) * 0.885;
 
           p.x += v.x;
           p.y += v.y;
@@ -837,7 +919,7 @@
         x: pos.x,
         y: pos.y,
         z: pos.z,
-        radius: 8.25,
+        radius: 8.5,
         screenX: 0,
         screenY: 0,
         scale: 1,
@@ -861,8 +943,7 @@
 
       graphData.people.forEach(name => {
         const node = nodeMap.get(name);
-        const links = adjacency.get(name) || new Set();
-        node.connections = new Set(links);
+        node.connections = new Set(adjacency.get(name) || []);
       });
 
       if (state.selected && !graphData.people.includes(state.selected)) {
@@ -897,7 +978,7 @@
     function project(node) {
       const r = rotatePoint(node.x, node.y, node.z);
       const z = r.z + camera.distance;
-      const scale = camera.focal / Math.max(100, z);
+      const scale = camera.focal / Math.max(120, z);
       const x = window.innerWidth / 2 + camera.panX + r.x * scale;
       const y = window.innerHeight / 2 + camera.panY + r.y * scale;
       return { x, y, z, scale };
@@ -951,7 +1032,7 @@
         node.screenX = p.x;
         node.screenY = p.y;
         node.scale = p.scale;
-        node.visible = p.z > -40;
+        node.visible = p.z > -60;
         return { node, ...p };
       });
 
@@ -961,23 +1042,19 @@
         if (!na || !nb || !na.visible || !nb.visible) return;
 
         const selectedTouch = state.selected && (na.name === state.selected || nb.name === state.selected);
-        const connectedHighlight = state.selected && (isConnectedToSelected(na.name) && state.selected === nb.name || isConnectedToSelected(nb.name) && state.selected === na.name);
         const hoveredTouch = state.hovered && (na.name === state.hovered || nb.name === state.hovered);
-
         const sim = jaccardSimilarity(na.connections, nb.connections);
-        const alpha = 0.10 + sim * 0.26 + (selectedTouch ? 0.35 : 0) + (hoveredTouch ? 0.15 : 0);
+        const alpha = 0.08 + sim * 0.22 + (selectedTouch ? 0.36 : 0) + (hoveredTouch ? 0.14 : 0);
 
         ctx.beginPath();
         ctx.moveTo(na.screenX, na.screenY);
         ctx.lineTo(nb.screenX, nb.screenY);
-        ctx.lineWidth = selectedTouch ? 3.2 : hoveredTouch ? 2.4 : 1.35 + sim * 1.4;
+        ctx.lineWidth = selectedTouch ? 3.2 : hoveredTouch ? 2.3 : 1.15 + sim * 1.3;
         ctx.strokeStyle = selectedTouch
           ? "rgba(255, 115, 182, 0.95)"
-          : connectedHighlight
-            ? "rgba(126, 224, 255, 0.88)"
-            : hoveredTouch
-              ? "rgba(255, 209, 102, 0.88)"
-              : `rgba(255,255,255,${Math.min(0.42, alpha).toFixed(3)})`;
+          : hoveredTouch
+            ? "rgba(255, 209, 102, 0.88)"
+            : `rgba(255,255,255,${Math.min(0.36, alpha).toFixed(3)})`;
         ctx.stroke();
       });
 
@@ -991,9 +1068,10 @@
         const isSelected = state.selected === node.name;
         const isHovered = state.hovered === node.name;
         const isConnected = isConnectedToSelected(node.name);
-        const radius = node.radius * scale * sizeBoost * (isSelected ? 1.32 : isHovered ? 1.14 : isConnected ? 1.06 : 1);
+        const touchBoost = isMobileLayout() ? 1.18 : 1;
+        const radius = node.radius * scale * sizeBoost * touchBoost * (isSelected ? 1.34 : isHovered ? 1.16 : isConnected ? 1.08 : 1);
 
-        const glow = ctx.createRadialGradient(node.screenX, node.screenY, 0, node.screenX, node.screenY, radius * 3.7);
+        const glow = ctx.createRadialGradient(node.screenX, node.screenY, 0, node.screenX, node.screenY, radius * 3.8);
         glow.addColorStop(0, isSelected
           ? "rgba(176,11,85,0.45)"
           : isConnected
@@ -1004,7 +1082,7 @@
         glow.addColorStop(1, "rgba(0,0,0,0)");
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(node.screenX, node.screenY, radius * 3.7, 0, Math.PI * 2);
+        ctx.arc(node.screenX, node.screenY, radius * 3.8, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.beginPath();
@@ -1018,7 +1096,7 @@
               : "#f6d3e5";
         ctx.fill();
 
-        ctx.lineWidth = isSelected ? 2.2 : isConnected ? 1.8 : 1.1;
+        ctx.lineWidth = isSelected ? 2.3 : isConnected ? 1.8 : 1.1;
         ctx.strokeStyle = isSelected
           ? "rgba(255,255,255,0.95)"
           : isConnected
@@ -1032,9 +1110,19 @@
       requestAnimationFrame(draw);
     }
 
+    function shouldShowLabel(node) {
+      if (!node.visible) return false;
+      if (state.selected === node.name || state.hovered === node.name || isConnectedToSelected(node.name)) return true;
+
+      if (isMobileLayout()) {
+        return node.scale > 0.95 && node.connections.size >= 2;
+      }
+      return node.scale > 0.72;
+    }
+
     function updateLabels() {
       nodes.forEach(node => {
-        if (!node.visible) {
+        if (!shouldShowLabel(node)) {
           node.label.style.display = "none";
           return;
         }
@@ -1053,24 +1141,29 @@
       });
     }
 
+    function getHitRadius(node) {
+      const sizeBoost = 1 + Math.min(0.55, node.connections.size * 0.045);
+      const isConnected = isConnectedToSelected(node.name);
+      const base = node.radius * node.scale * sizeBoost * (
+        state.selected === node.name ? 1.34 :
+        state.hovered === node.name ? 1.16 :
+        isConnected ? 1.08 : 1
+      );
+      return Math.max(base + (isMobileLayout() ? 18 : 10), isMobileLayout() ? 22 : 14);
+    }
+
     function findNodeAt(x, y) {
       let best = null;
       let bestDist = Infinity;
 
       nodes.forEach(node => {
         if (!node.visible) return;
-        const sizeBoost = 1 + Math.min(0.55, node.connections.size * 0.045);
-        const isConnected = isConnectedToSelected(node.name);
-        const radius = node.radius * node.scale * sizeBoost * (
-          state.selected === node.name ? 1.32 :
-          state.hovered === node.name ? 1.14 :
-          isConnected ? 1.06 : 1
-        );
+        const radius = getHitRadius(node);
         const dx = x - node.screenX;
         const dy = y - node.screenY;
         const d = Math.sqrt(dx * dx + dy * dy);
 
-        if (d <= Math.max(radius + 10, 14) && d < bestDist) {
+        if (d <= radius && d < bestDist) {
           best = node;
           bestDist = d;
         }
@@ -1113,6 +1206,7 @@
         selectedDescription.textContent = "No description";
         degreeBadge.textContent = "0 links";
         currentConnections.innerHTML = '<div class="muted">No one selected</div>';
+        document.body.classList.remove("show-details");
         return;
       }
 
@@ -1127,29 +1221,32 @@
       currentConnections.innerHTML = "";
       if (!connections.length) {
         currentConnections.innerHTML = '<div class="muted">No connections</div>';
-        return;
+      } else {
+        connections.forEach(name => {
+          const row = document.createElement("div");
+          row.className = "connection-row";
+
+          const label = document.createElement("span");
+          label.textContent = name;
+
+          const btn = document.createElement("button");
+          btn.className = "ghost";
+          btn.textContent = "View";
+          btn.addEventListener("click", () => {
+            setSelected(name);
+            searchInput.value = name;
+            focusSelected();
+          });
+
+          row.appendChild(label);
+          row.appendChild(btn);
+          currentConnections.appendChild(row);
+        });
       }
 
-      connections.forEach(name => {
-        const row = document.createElement("div");
-        row.className = "connection-row";
-
-        const label = document.createElement("span");
-        label.textContent = name;
-
-        const btn = document.createElement("button");
-        btn.className = "ghost";
-        btn.textContent = "View";
-        btn.addEventListener("click", () => {
-          setSelected(name);
-          searchInput.value = name;
-          focusSelected();
-        });
-
-        row.appendChild(label);
-        row.appendChild(btn);
-        currentConnections.appendChild(row);
-      });
+      if (isMobileLayout()) {
+        document.body.classList.add("show-details");
+      }
     }
 
     function setSelected(name) {
@@ -1169,8 +1266,8 @@
       const n = nodeMap.get(state.selected);
       if (!n) return;
       const p = project(n);
-      camera.panX += (window.innerWidth / 2 - p.x) * 0.75;
-      camera.panY += (window.innerHeight / 2 - p.y) * 0.75;
+      camera.panX += (window.innerWidth / 2 - p.x) * 0.78;
+      camera.panY += (window.innerHeight / 2 - p.y) * 0.78;
     }
 
     function setUiHidden(hidden) {
@@ -1244,8 +1341,10 @@
     });
 
     document.addEventListener("keydown", e => {
-      if (e.key.toLowerCase() === "h") {
-        toggleUi();
+      if (e.key.toLowerCase() === "h") toggleUi();
+      if (e.key === "Escape") {
+        searchSuggestions.style.display = "none";
+        if (state.selected) clearSelected();
       }
     });
 
@@ -1254,6 +1353,7 @@
     clearBtn.addEventListener("click", () => {
       clearSelected();
       searchInput.value = "";
+      searchSuggestions.style.display = "none";
     });
 
     toggleUiBtn.addEventListener("click", toggleUi);
@@ -1262,7 +1362,7 @@
     canvas.addEventListener("contextmenu", e => e.preventDefault());
 
     canvas.addEventListener("mousedown", e => {
-      state.dragMode = e.button === 2 ? "pan" : "rotate";
+      state.pointerMode = e.button === 2 ? "pan" : "rotate";
       state.isDragging = true;
       state.lastX = e.clientX;
       state.lastY = e.clientY;
@@ -1283,12 +1383,12 @@
 
       if (Math.abs(dx) + Math.abs(dy) > 3) state.suppressClick = true;
 
-      if (state.dragMode === "rotate") {
+      if (state.pointerMode === "rotate") {
         camera.yaw += dx * 0.008;
         camera.pitch += dy * 0.008;
-        const limit = Math.PI / 2 - 0.02;
+        const limit = Math.PI / 2 - 0.04;
         camera.pitch = Math.max(-limit, Math.min(limit, camera.pitch));
-      } else if (state.dragMode === "pan") {
+      } else if (state.pointerMode === "pan") {
         camera.panX += dx;
         camera.panY += dy;
       }
@@ -1296,7 +1396,7 @@
 
     window.addEventListener("mouseup", () => {
       state.isDragging = false;
-      state.dragMode = null;
+      state.pointerMode = null;
     });
 
     canvas.addEventListener("click", e => {
@@ -1310,9 +1410,128 @@
 
     canvas.addEventListener("wheel", e => {
       e.preventDefault();
-      camera.distance += e.deltaY * 0.55;
-      camera.distance = Math.max(220, Math.min(1900, camera.distance));
+      camera.distance += e.deltaY * 0.6;
+      camera.distance = Math.max(260, Math.min(2400, camera.distance));
     }, { passive: false });
+
+    function getPointerPos(e) {
+      return { x: e.clientX, y: e.clientY };
+    }
+
+    function getTwoPointers() {
+      return [...state.activePointers.values()].slice(0, 2);
+    }
+
+    function dist(a, b) {
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function midpoint(a, b) {
+      return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    }
+
+    canvas.addEventListener("pointerdown", e => {
+      if (e.pointerType === "mouse") return;
+      canvas.setPointerCapture(e.pointerId);
+      state.activePointers.set(e.pointerId, getPointerPos(e));
+      state.suppressClick = false;
+
+      if (state.activePointers.size === 1) {
+        state.pointerMode = "rotate";
+        state.lastX = e.clientX;
+        state.lastY = e.clientY;
+      } else if (state.activePointers.size >= 2) {
+        const [p1, p2] = getTwoPointers();
+        state.pointerMode = "pinchpan";
+        state.pinchStartDistance = dist(p1, p2);
+        state.pinchStartCameraDistance = camera.distance;
+        state.pinchStartCenter = midpoint(p1, p2);
+        state.pinchLastCenter = midpoint(p1, p2);
+      }
+    });
+
+    canvas.addEventListener("pointermove", e => {
+      if (e.pointerType === "mouse") return;
+      if (!state.activePointers.has(e.pointerId)) return;
+
+      state.activePointers.set(e.pointerId, getPointerPos(e));
+
+      const pointers = [...state.activePointers.values()];
+      if (pointers.length === 1) {
+        const p = pointers[0];
+        const dx = p.x - state.lastX;
+        const dy = p.y - state.lastY;
+
+        if (Math.abs(dx) + Math.abs(dy) > 4) state.suppressClick = true;
+
+        camera.yaw += dx * 0.009;
+        camera.pitch += dy * 0.009;
+        const limit = Math.PI / 2 - 0.04;
+        camera.pitch = Math.max(-limit, Math.min(limit, camera.pitch));
+
+        state.lastX = p.x;
+        state.lastY = p.y;
+
+        const hovered = findNodeAt(p.x, p.y);
+        state.hovered = hovered ? hovered.name : null;
+      } else if (pointers.length >= 2) {
+        const [p1, p2] = pointers;
+        const currentDistance = dist(p1, p2);
+        const currentCenter = midpoint(p1, p2);
+
+        if (Math.abs(currentDistance - state.pinchStartDistance) > 4 ||
+            Math.abs(currentCenter.x - state.pinchLastCenter.x) > 2 ||
+            Math.abs(currentCenter.y - state.pinchLastCenter.y) > 2) {
+          state.suppressClick = true;
+        }
+
+        const scale = currentDistance / Math.max(1, state.pinchStartDistance);
+        camera.distance = state.pinchStartCameraDistance / scale;
+        camera.distance = Math.max(260, Math.min(2400, camera.distance));
+
+        camera.panX += currentCenter.x - state.pinchLastCenter.x;
+        camera.panY += currentCenter.y - state.pinchLastCenter.y;
+
+        state.pinchLastCenter = currentCenter;
+      }
+    });
+
+    function handlePointerEnd(e) {
+      if (e.pointerType === "mouse") return;
+      const pos = state.activePointers.get(e.pointerId);
+      state.activePointers.delete(e.pointerId);
+
+      if (state.activePointers.size === 0) {
+        if (!state.suppressClick && pos) {
+          const hit = findNodeAt(pos.x, pos.y);
+          if (hit) {
+            setSelected(hit.name);
+            searchInput.value = hit.name;
+          }
+        }
+        state.pointerMode = null;
+      } else if (state.activePointers.size === 1) {
+        const remaining = [...state.activePointers.values()][0];
+        state.pointerMode = "rotate";
+        state.lastX = remaining.x;
+        state.lastY = remaining.y;
+      } else {
+        const [p1, p2] = getTwoPointers();
+        state.pinchStartDistance = dist(p1, p2);
+        state.pinchStartCameraDistance = camera.distance;
+        state.pinchStartCenter = midpoint(p1, p2);
+        state.pinchLastCenter = midpoint(p1, p2);
+      }
+    }
+
+    canvas.addEventListener("pointerup", handlePointerEnd);
+    canvas.addEventListener("pointercancel", handlePointerEnd);
+    canvas.addEventListener("pointerleave", e => {
+      if (e.pointerType !== "mouse") return;
+      state.hovered = null;
+    });
 
     window.addEventListener("resize", resize);
 
