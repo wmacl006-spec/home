@@ -131,7 +131,7 @@
     }
 
     .chart-wrap {
-      height: 520px;
+      height: 640px;
       border-radius: 20px;
       background: rgba(255,255,255,0.02);
       border: 1px solid var(--border);
@@ -184,18 +184,19 @@
 
     .toggle-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 10px;
       margin-top: 18px;
-      max-height: 420px;
+      max-height: 460px;
       overflow: auto;
       padding-right: 4px;
     }
 
     .toggle {
-      display: flex;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       padding: 12px 14px;
       background: var(--panel-2);
       border: 1px solid var(--border);
@@ -203,11 +204,42 @@
       user-select: none;
     }
 
-    .toggle input {
+    .toggle-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .toggle input[type="checkbox"] {
       width: 18px;
       height: 18px;
       accent-color: var(--accent);
       margin: 0;
+    }
+
+    .line-color-input {
+      width: 42px;
+      height: 32px;
+      padding: 2px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #101017;
+      cursor: pointer;
+    }
+
+    .line-color-input::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .line-color-input::-webkit-color-swatch {
+      border: none;
+      border-radius: 8px;
+    }
+
+    .line-color-input::-moz-color-swatch {
+      border: none;
+      border-radius: 8px;
     }
 
     .muted-box {
@@ -299,9 +331,15 @@
       .panel { padding: 16px; }
       .stats { grid-template-columns: 1fr; }
       .toggle-grid { grid-template-columns: 1fr; }
-      .chart-wrap { height: 400px; }
+      .chart-wrap { height: 480px; }
       .form-row { grid-template-columns: 1fr; }
       table { min-width: 0; }
+      .toggle {
+        grid-template-columns: 1fr auto;
+      }
+      .toggle-left {
+        grid-column: 1 / 2;
+      }
     }
   </style>
 </head>
@@ -322,7 +360,7 @@
       <section class="panel">
         <h2>Average $/day over time</h2>
         <div class="sub">
-          Day 1 is always the earliest recorded date in your database. Add an older entry and the whole graph recalculates automatically.
+          The x-axis now uses real dates. Add an older entry and the whole graph recalculates automatically.
         </div>
 
         <div class="stats">
@@ -380,7 +418,7 @@
         <div class="status" id="statusText"></div>
 
         <h2 style="margin-top:24px;">Line toggles</h2>
-        <div class="sub">Each metric has a trend line and a matching flat line at today’s average value.</div>
+        <div class="sub">Each metric has a trend line, a matching flat line at today’s average value, and its own color picker.</div>
         <div class="toggle-grid" id="toggleGrid"></div>
 
         <div class="muted-box">
@@ -396,7 +434,7 @@
 
     <section class="panel" style="margin-top:20px;">
       <h2>Recent entries</h2>
-      <div class="sub">Newest first, straight from Firestore. Edit or remove any transaction here.</div>
+      <div class="sub">All transactions, with the most recent dates at the top.</div>
       <div style="overflow:auto;">
         <table>
           <thead>
@@ -535,6 +573,15 @@
       }).format(value || 0);
     }
 
+    function formatDisplayDate(dateString) {
+      const date = parseDateAsLocal(dateString);
+      return new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }).format(date);
+    }
+
     function showStatus(message, isError = false) {
       statusText.textContent = message;
       statusText.style.color = isError ? 'var(--danger)' : 'var(--muted)';
@@ -561,11 +608,15 @@
 
     function resetForm({ keepDate = true } = {}) {
       const currentDate = dateInput.value;
+      const currentCategory = categoryInput.value;
       entryForm.reset();
       if (keepDate && currentDate) {
         dateInput.value = currentDate;
       } else if (!dateInput.value) {
         dateInput.value = formatDateInputValue(new Date());
+      }
+      if (currentCategory) {
+        categoryInput.value = currentCategory;
       }
       editingId = null;
       formHeading.textContent = 'Add transaction';
@@ -622,6 +673,9 @@
         const label = document.createElement('label');
         label.className = 'toggle';
 
+        const left = document.createElement('div');
+        left.className = 'toggle-left';
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = visibleMetricState[metric];
@@ -630,19 +684,24 @@
           refreshChart(lastTransactions);
         });
 
-        const swatch = document.createElement('span');
-        swatch.style.width = '12px';
-        swatch.style.height = '12px';
-        swatch.style.borderRadius = '999px';
-        swatch.style.background = colors[metric];
-        swatch.style.display = 'inline-block';
-
         const text = document.createElement('span');
         text.textContent = metric;
 
-        label.appendChild(checkbox);
-        label.appendChild(swatch);
-        label.appendChild(text);
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.value = colors[metric];
+        colorInput.className = 'line-color-input';
+        colorInput.title = `Choose color for ${metric}`;
+        colorInput.addEventListener('input', () => {
+          colors[metric] = colorInput.value;
+          refreshChart(lastTransactions);
+        });
+
+        left.appendChild(checkbox);
+        left.appendChild(text);
+
+        label.appendChild(left);
+        label.appendChild(colorInput);
         toggleGrid.appendChild(label);
       });
     }
@@ -694,7 +753,7 @@
         cumulative['Total Income'] = totalIncome;
         cumulative['Total Spending'] = totalSpending;
 
-        labels.push(`Day ${dayNumber}`);
+        labels.push(dateKey);
         DISPLAY_METRICS.forEach(metric => {
           seriesMap[metric].push(Number((cumulative[metric] / dayNumber).toFixed(2)));
         });
@@ -725,9 +784,11 @@
           borderColor: color,
           backgroundColor: color,
           tension: 0.28,
-          pointRadius: 1.5,
-          pointHoverRadius: 4,
-          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHitRadius: 14,
+          pointHoverBorderWidth: 2,
+          borderWidth: 2.5,
           fill: false
         });
 
@@ -738,6 +799,8 @@
           backgroundColor: color,
           borderDash: [7, 7],
           pointRadius: 0,
+          pointHoverRadius: 0,
+          pointHitRadius: 0,
           borderWidth: 1.5,
           tension: 0,
           fill: false
@@ -782,13 +845,28 @@
               },
               tooltip: {
                 callbacks: {
+                  title: (items) => items.length ? formatDisplayDate(items[0].label) : '',
                   label: (ctx) => `${ctx.dataset.label}: ${formatMoney(ctx.parsed.y)}`
                 }
               }
             },
+            elements: {
+              point: {
+                radius: 0,
+                hoverRadius: 5,
+                hitRadius: 14
+              }
+            },
             scales: {
               x: {
-                ticks: { color: '#a7a2aa', maxTicksLimit: 12 },
+                ticks: {
+                  color: '#a7a2aa',
+                  maxTicksLimit: 10,
+                  callback: function(value) {
+                    const label = this.getLabelForValue(value);
+                    return formatDisplayDate(label);
+                  }
+                },
                 grid: { color: 'rgba(255,255,255,0.05)' }
               },
               y: {
@@ -810,8 +888,13 @@
         return;
       }
 
-      const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
-      entriesTableBody.innerHTML = sorted.slice(0, 50).map(tx => `
+      const sorted = [...transactions].sort((a, b) => {
+        const byDate = b.date.localeCompare(a.date);
+        if (byDate !== 0) return byDate;
+        return b.id.localeCompare(a.id);
+      });
+
+      entriesTableBody.innerHTML = sorted.map(tx => `
         <tr>
           <td>${tx.date}</td>
           <td><span class="pill">${tx.category}</span></td>
