@@ -34,7 +34,7 @@
     }
 
     .wrap {
-      width: min(1400px, calc(100% - 32px));
+      width: min(1500px, calc(100% - 32px));
       margin: 24px auto 48px;
     }
 
@@ -143,6 +143,12 @@
       gap: 12px;
     }
 
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
     label {
       display: grid;
       gap: 8px;
@@ -170,13 +176,11 @@
       font-weight: 700;
       background: linear-gradient(135deg, var(--accent), #8f0a47);
       border: none;
-      transition: transform 0.15s ease, filter 0.15s ease;
+      transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
     }
 
-    button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.08);
-    }
+    button:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    button:disabled { opacity: 0.7; cursor: not-allowed; }
 
     .toggle-grid {
       display: grid;
@@ -217,17 +221,48 @@
       line-height: 1.45;
     }
 
+    .hint-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .entry-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .small-btn {
+      width: auto;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      line-height: 1;
+    }
+
+    .ghost-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+    }
+
+    .danger-btn {
+      background: linear-gradient(135deg, #8f1837, #6f1029);
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 16px;
       font-size: 0.95rem;
+      min-width: 780px;
     }
 
     th, td {
       padding: 12px 10px;
       text-align: left;
       border-bottom: 1px solid var(--border);
+      vertical-align: middle;
     }
 
     th {
@@ -259,12 +294,14 @@
     }
 
     @media (max-width: 640px) {
-      .wrap { width: min(100% - 20px, 1400px); }
+      .wrap { width: min(100% - 20px, 1500px); }
       .hero { padding: 18px; }
       .panel { padding: 16px; }
       .stats { grid-template-columns: 1fr; }
       .toggle-grid { grid-template-columns: 1fr; }
       .chart-wrap { height: 400px; }
+      .form-row { grid-template-columns: 1fr; }
+      table { min-width: 0; }
     }
   </style>
 </head>
@@ -313,26 +350,31 @@
       </section>
 
       <section class="panel">
-        <h2>Add transaction</h2>
-        <div class="sub">Choose a date, category, and amount. All values should be entered as positive dollars.</div>
+        <h2 id="formHeading">Add transaction</h2>
+        <div class="sub">Choose a date, category, and amount. Enter positive dollars to save. If amount is 0 and you press Enter, the date jumps to the next day.</div>
 
         <form id="entryForm">
-          <label>
-            Date
-            <input type="date" id="dateInput" required />
-          </label>
+          <div class="form-row">
+            <label>
+              Date
+              <input type="date" id="dateInput" required />
+            </label>
 
-          <label>
-            Category
-            <select id="categoryInput" required></select>
-          </label>
+            <label>
+              Category
+              <select id="categoryInput" required></select>
+            </label>
+          </div>
 
           <label>
             Amount
             <input type="number" id="amountInput" required min="0" step="0.01" placeholder="25.00" />
           </label>
 
-          <button type="submit">Add entry</button>
+          <div class="form-row">
+            <button type="submit" id="submitButton">Add entry</button>
+            <button type="button" id="cancelEditButton" class="ghost-btn" style="display:none;">Cancel edit</button>
+          </div>
         </form>
 
         <div class="status" id="statusText"></div>
@@ -342,14 +384,19 @@
         <div class="toggle-grid" id="toggleGrid"></div>
 
         <div class="muted-box">
-          Categories: Misc Income, Misc Spending, Groceries, Fast Food, Work income, Housing costs, Transport costs, Gambling, School costs.
+          <strong>Fast input:</strong>
+          <ul class="hint-list">
+            <li>Press <strong>Enter</strong> with amount <strong>0</strong> to move the date forward by 1 day.</li>
+            <li>Press <strong>Enter</strong> with a positive amount to save the transaction.</li>
+            <li>Use <strong>Edit</strong> or <strong>Delete</strong> in the table below to fix entries.</li>
+          </ul>
         </div>
       </section>
     </div>
 
     <section class="panel" style="margin-top:20px;">
       <h2>Recent entries</h2>
-      <div class="sub">Newest first, straight from Firestore.</div>
+      <div class="sub">Newest first, straight from Firestore. Edit or remove any transaction here.</div>
       <div style="overflow:auto;">
         <table>
           <thead>
@@ -358,10 +405,11 @@
               <th>Category</th>
               <th>Type</th>
               <th>Amount</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="entriesTableBody">
-            <tr><td colspan="4" style="color: var(--muted);">No data yet.</td></tr>
+            <tr><td colspan="5" style="color: var(--muted);">No data yet.</td></tr>
           </tbody>
         </table>
       </div>
@@ -378,7 +426,10 @@
       getDocs,
       query,
       orderBy,
-      serverTimestamp
+      serverTimestamp,
+      doc,
+      updateDoc,
+      deleteDoc
     } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
 
     const firebaseConfig = {
@@ -449,11 +500,18 @@
     const statusText = document.getElementById('statusText');
     const toggleGrid = document.getElementById('toggleGrid');
     const entriesTableBody = document.getElementById('entriesTableBody');
+    const formHeading = document.getElementById('formHeading');
+    const submitButton = document.getElementById('submitButton');
+    const cancelEditButton = document.getElementById('cancelEditButton');
 
     const daysValue = document.getElementById('daysValue');
     const entriesValue = document.getElementById('entriesValue');
     const incomeValue = document.getElementById('incomeValue');
     const spendingValue = document.getElementById('spendingValue');
+
+    let chart;
+    let lastTransactions = [];
+    let editingId = null;
 
     dateInput.value = new Date().toISOString().slice(0, 10);
 
@@ -485,6 +543,71 @@
     function parseDateAsLocal(dateString) {
       const [y, m, d] = dateString.split('-').map(Number);
       return new Date(y, m - 1, d);
+    }
+
+    function formatDateInputValue(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function advanceDateByOneDay() {
+      if (!dateInput.value) return;
+      const nextDate = parseDateAsLocal(dateInput.value);
+      nextDate.setDate(nextDate.getDate() + 1);
+      dateInput.value = formatDateInputValue(nextDate);
+    }
+
+    function resetForm({ keepDate = true } = {}) {
+      const currentDate = dateInput.value;
+      entryForm.reset();
+      if (keepDate && currentDate) {
+        dateInput.value = currentDate;
+      } else if (!dateInput.value) {
+        dateInput.value = formatDateInputValue(new Date());
+      }
+      editingId = null;
+      formHeading.textContent = 'Add transaction';
+      submitButton.textContent = 'Add entry';
+      cancelEditButton.style.display = 'none';
+      amountInput.value = '';
+      amountInput.focus();
+    }
+
+    function startEditTransaction(id) {
+      const tx = lastTransactions.find(item => item.id === id);
+      if (!tx) return;
+      editingId = id;
+      formHeading.textContent = 'Edit transaction';
+      submitButton.textContent = 'Save changes';
+      cancelEditButton.style.display = 'block';
+      dateInput.value = tx.date;
+      categoryInput.value = tx.category;
+      amountInput.value = tx.amount;
+      amountInput.focus();
+      amountInput.select();
+      showStatus(`Editing ${tx.category} on ${tx.date}.`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteTransaction(id) {
+      const tx = lastTransactions.find(item => item.id === id);
+      if (!tx) return;
+      const confirmed = window.confirm(`Delete ${tx.category} on ${tx.date} for ${formatMoney(tx.amount)}?`);
+      if (!confirmed) return;
+
+      try {
+        showStatus('Deleting entry...');
+        await deleteDoc(doc(db, TRANSACTIONS_COLLECTION, id));
+        if (editingId === id) {
+          resetForm();
+        }
+        await loadTransactions('Entry deleted.');
+      } catch (error) {
+        console.error(error);
+        showStatus('Could not delete entry.', true);
+      }
     }
 
     function dayDiffInclusive(start, end) {
@@ -524,9 +647,6 @@
       });
     }
 
-    let chart;
-    let lastTransactions = [];
-
     function computeMetricSeries(transactions) {
       if (!transactions.length) {
         return { labels: [], seriesMap: {}, trackedDays: 0, totalIncome: 0, totalSpending: 0 };
@@ -557,7 +677,7 @@
       for (let dayNumber = 1; dayNumber <= trackedDays; dayNumber++) {
         const currentDate = new Date(earliest);
         currentDate.setDate(earliest.getDate() + (dayNumber - 1));
-        const dateKey = currentDate.toISOString().slice(0, 10);
+        const dateKey = formatDateInputValue(currentDate);
         const dayData = dailySums[dateKey] || {};
 
         for (const category of CATEGORIES) {
@@ -686,29 +806,35 @@
 
     function renderEntriesTable(transactions) {
       if (!transactions.length) {
-        entriesTableBody.innerHTML = '<tr><td colspan="4" style="color: var(--muted);">No data yet.</td></tr>';
+        entriesTableBody.innerHTML = '<tr><td colspan="5" style="color: var(--muted);">No data yet.</td></tr>';
         return;
       }
 
       const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
-      entriesTableBody.innerHTML = sorted.slice(0, 20).map(tx => `
+      entriesTableBody.innerHTML = sorted.slice(0, 50).map(tx => `
         <tr>
           <td>${tx.date}</td>
           <td><span class="pill">${tx.category}</span></td>
           <td>${tx.type}</td>
           <td>${formatMoney(tx.amount)}</td>
+          <td>
+            <div class="entry-actions">
+              <button type="button" class="small-btn ghost-btn" data-action="edit" data-id="${tx.id}">Edit</button>
+              <button type="button" class="small-btn danger-btn" data-action="delete" data-id="${tx.id}">Delete</button>
+            </div>
+          </td>
         </tr>
       `).join('');
     }
 
-    async function loadTransactions() {
+    async function loadTransactions(successMessage = null) {
       showStatus('Loading data...');
       const q = query(collection(db, TRANSACTIONS_COLLECTION), orderBy('date', 'asc'));
       const snapshot = await getDocs(q);
-      const transactions = snapshot.docs.map(doc => {
-        const data = doc.data();
+      const transactions = snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
         return {
-          id: doc.id,
+          id: docSnap.id,
           date: data.date,
           category: data.category,
           amount: Number(data.amount || 0),
@@ -719,8 +845,25 @@
       lastTransactions = transactions;
       refreshChart(transactions);
       renderEntriesTable(transactions);
-      showStatus(`Loaded ${transactions.length} entr${transactions.length === 1 ? 'y' : 'ies'}.`);
+      showStatus(successMessage || `Loaded ${transactions.length} entr${transactions.length === 1 ? 'y' : 'ies'}.`);
     }
+
+    amountInput.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return;
+      const amount = Number(amountInput.value);
+      if (Number.isFinite(amount) && amount === 0) {
+        event.preventDefault();
+        advanceDateByOneDay();
+        amountInput.value = '';
+        amountInput.focus();
+        showStatus(`Moved to ${dateInput.value}.`);
+      }
+    });
+
+    cancelEditButton.addEventListener('click', () => {
+      resetForm();
+      showStatus('Edit cancelled.');
+    });
 
     entryForm.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -737,25 +880,50 @@
       const type = INCOME_CATEGORIES.has(category) ? 'income' : 'spending';
 
       try {
-        showStatus('Saving entry...');
-        await addDoc(collection(db, TRANSACTIONS_COLLECTION), {
-          date,
-          category,
-          amount,
-          type,
-          createdAt: serverTimestamp()
-        });
-
-        amountInput.value = '';
-        showStatus('Entry saved. Refreshing dashboard...');
-        await loadTransactions();
+        if (editingId) {
+          showStatus('Saving changes...');
+          await updateDoc(doc(db, TRANSACTIONS_COLLECTION, editingId), {
+            date,
+            category,
+            amount,
+            type,
+            updatedAt: serverTimestamp()
+          });
+          resetForm({ keepDate: false });
+          await loadTransactions('Entry updated.');
+        } else {
+          showStatus('Saving entry...');
+          await addDoc(collection(db, TRANSACTIONS_COLLECTION), {
+            date,
+            category,
+            amount,
+            type,
+            createdAt: serverTimestamp()
+          });
+          amountInput.value = '';
+          amountInput.focus();
+          await loadTransactions('Entry saved.');
+        }
       } catch (error) {
         console.error(error);
-        showStatus('Could not save entry. Check Firestore rules and that your database is created.', true);
+        showStatus('Could not save changes. Check Firestore rules and that your database is created.', true);
+      }
+    });
+
+    entriesTableBody.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const action = button.dataset.action;
+      const id = button.dataset.id;
+      if (action === 'edit') {
+        startEditTransaction(id);
+      } else if (action === 'delete') {
+        deleteTransaction(id);
       }
     });
 
     buildToggleControls();
+    resetForm({ keepDate: false });
 
     try {
       await loadTransactions();
