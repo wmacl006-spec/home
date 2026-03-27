@@ -5,137 +5,158 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Money Tracker Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
   <style>
     :root {
-      --bg: #0c0c10;
-      --panel: #15151d;
-      --panel-2: #1c1c26;
-      --text: #f4f0f4;
-      --muted: #a7a2aa;
+      --bg: #090a0f;
+      --bg-2: #0f1118;
+      --panel: rgba(18, 20, 31, 0.92);
+      --panel-2: rgba(24, 27, 40, 0.95);
+      --panel-3: rgba(29, 33, 48, 0.95);
+      --text: #f4f1f5;
+      --muted: #9ca3b5;
       --accent: #b00b55;
-      --accent-soft: rgba(176, 11, 85, 0.18);
+      --accent-2: #cf2d7a;
       --border: rgba(255,255,255,0.08);
-      --ok: #57d38c;
-      --warn: #ff9e57;
+      --border-strong: rgba(255,255,255,0.14);
       --danger: #ff6b81;
-      --shadow: 0 18px 40px rgba(0,0,0,0.35);
+      --success: #57d38c;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
     }
 
     * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+
     body {
       margin: 0;
+      color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(176, 11, 85, 0.20), transparent 22%),
-        radial-gradient(circle at bottom left, rgba(176, 11, 85, 0.14), transparent 28%),
-        var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+        radial-gradient(circle at top right, rgba(176, 11, 85, 0.23), transparent 23%),
+        radial-gradient(circle at bottom left, rgba(176, 11, 85, 0.12), transparent 28%),
+        linear-gradient(180deg, #090a0f 0%, #0b0d14 100%);
     }
 
     .wrap {
-      width: min(1500px, calc(100% - 32px));
-      margin: 24px auto 48px;
+      width: min(1680px, calc(100% - 28px));
+      margin: 20px auto 32px;
     }
 
-    .hero {
+    .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
-      margin-bottom: 20px;
-      padding: 24px;
-      background: linear-gradient(135deg, rgba(176, 11, 85, 0.18), rgba(255,255,255,0.02));
+      padding: 24px 28px;
       border: 1px solid var(--border);
-      border-radius: 24px;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(145deg, rgba(176, 11, 85, 0.16), rgba(255,255,255,0.03));
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 3vw, 2.7rem);
+      letter-spacing: -0.04em;
+      font-weight: 800;
+    }
+
+    .topbar .tag {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .card,
+    .panel {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
       box-shadow: var(--shadow);
     }
 
-    .hero h1 {
-      margin: 0 0 6px;
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      letter-spacing: -0.03em;
+    .card {
+      border-radius: var(--radius-lg);
+      padding: 18px 18px 16px;
     }
 
-    .hero p {
-      margin: 0;
+    .label {
       color: var(--muted);
-      max-width: 820px;
-      line-height: 1.5;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      font-weight: 700;
     }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border);
-      color: var(--text);
-      white-space: nowrap;
-      font-weight: 600;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 20px;
-      align-items: start;
+    .value {
+      font-size: clamp(1.35rem, 2vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
     }
 
     .panel {
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 20px;
-      box-shadow: var(--shadow);
+      border-radius: var(--radius-xl);
+      padding: 18px;
     }
 
-    .panel h2 {
-      margin: 0 0 8px;
-      font-size: 1.2rem;
-    }
-
-    .sub {
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin-bottom: 14px;
-      line-height: 1.45;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       gap: 12px;
-      margin: 0 0 16px;
+      margin-bottom: 14px;
     }
 
-    .stat {
-      padding: 16px;
-      border-radius: 18px;
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-    }
-
-    .stat .label {
-      color: var(--muted);
-      font-size: 0.85rem;
-      margin-bottom: 6px;
-    }
-
-    .stat .value {
-      font-size: 1.4rem;
-      font-weight: 700;
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1.06rem;
       letter-spacing: -0.02em;
     }
 
-    .chart-wrap {
-      height: 640px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.02);
+    .panel-subtle {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.75fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .left-stack,
+    .right-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .chart-shell {
+      height: 700px;
+      border-radius: var(--radius-lg);
       border: 1px solid var(--border);
-      padding: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+      padding: 14px;
     }
 
     form {
@@ -143,75 +164,91 @@
       gap: 12px;
     }
 
-    .form-row {
+    .form-row,
+    .range-row,
+    .button-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
 
-    label {
+    .button-row.three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    label.input-label {
       display: grid;
       gap: 8px;
-      font-size: 0.95rem;
-      color: var(--text);
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 600;
     }
 
     input, select, button {
       width: 100%;
-      border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 12px 14px;
-      background: #101017;
+      border: 1px solid var(--border);
+      background: #0d1018;
       color: var(--text);
+      padding: 12px 14px;
       font: inherit;
     }
 
     input:focus, select:focus {
-      outline: 2px solid rgba(176, 11, 85, 0.45);
-      border-color: rgba(176, 11, 85, 0.5);
+      outline: 2px solid rgba(176, 11, 85, 0.38);
+      border-color: rgba(176, 11, 85, 0.55);
     }
 
     button {
-      cursor: pointer;
       font-weight: 700;
-      background: linear-gradient(135deg, var(--accent), #8f0a47);
-      border: none;
-      transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
+      cursor: pointer;
+      transition: transform 0.14s ease, filter 0.14s ease, opacity 0.14s ease;
     }
 
-    button:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    button:hover { transform: translateY(-1px); filter: brightness(1.05); }
     button:disabled { opacity: 0.7; cursor: not-allowed; }
 
-    .toggle-grid {
+    .primary-btn {
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+
+    .ghost-btn {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .danger-btn {
+      border: none;
+      background: linear-gradient(135deg, #8e1938, #6c1029);
+    }
+
+    .status {
+      min-height: 1.2em;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .controls-wrap {
       display: grid;
-      grid-template-columns: 1fr;
       gap: 10px;
-      margin-top: 18px;
-      max-height: 460px;
+      max-height: 360px;
       overflow: auto;
       padding-right: 4px;
     }
 
-    .toggle {
+    .check-row {
       display: grid;
       grid-template-columns: auto 1fr auto;
-      align-items: center;
       gap: 12px;
-      padding: 12px 14px;
+      align-items: center;
+      padding: 12px 13px;
+      border-radius: 14px;
       background: var(--panel-2);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      user-select: none;
     }
 
-    .toggle-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .toggle input[type="checkbox"] {
+    .check-row input[type="checkbox"] {
       width: 18px;
       height: 18px;
       accent-color: var(--accent);
@@ -223,219 +260,376 @@
       height: 32px;
       padding: 2px;
       border-radius: 10px;
-      border: 1px solid var(--border);
-      background: #101017;
       cursor: pointer;
+      background: #0d1018;
     }
 
-    .line-color-input::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-
-    .line-color-input::-webkit-color-swatch {
-      border: none;
-      border-radius: 8px;
-    }
-
+    .line-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+    .line-color-input::-webkit-color-swatch,
     .line-color-input::-moz-color-swatch {
       border: none;
       border-radius: 8px;
     }
 
-    .muted-box {
-      margin-top: 16px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.03);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      font-size: 0.92rem;
-      line-height: 1.45;
-    }
-
-    .hint-list {
-      margin: 0;
-      padding-left: 18px;
-    }
-
-    .entry-actions {
-      display: flex;
-      gap: 8px;
+    .range-pill {
+      display: inline-flex;
       align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .small-btn {
-      width: auto;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 0.88rem;
-      line-height: 1;
-    }
-
-    .ghost-btn {
-      background: rgba(255,255,255,0.06);
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
       border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
     }
 
-    .danger-btn {
-      background: linear-gradient(135deg, #8f1837, #6f1029);
+    .quick-table-wrap,
+    .avg-table-wrap,
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,0.015);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 16px;
+      min-width: 760px;
       font-size: 0.95rem;
-      min-width: 780px;
+    }
+
+    .quick-table,
+    .avg-table {
+      min-width: 1080px;
     }
 
     th, td {
-      padding: 12px 10px;
+      padding: 14px 14px;
       text-align: left;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       vertical-align: middle;
     }
 
     th {
       color: var(--muted);
-      font-weight: 600;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      background: rgba(255,255,255,0.02);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .quick-table td:first-child,
+    .avg-table td:first-child {
+      font-weight: 700;
+    }
+
+    .avg-table th:first-child,
+    .avg-table td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: rgba(18,20,31,0.98);
+    }
+
+    .quick-table th:first-child,
+    .quick-table td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: rgba(18,20,31,0.98);
     }
 
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 5px 10px;
+      padding: 6px 10px;
       border-radius: 999px;
-      background: var(--accent-soft);
-      border: 1px solid rgba(176, 11, 85, 0.35);
-      font-size: 0.85rem;
+      background: rgba(176, 11, 85, 0.16);
+      border: 1px solid rgba(176, 11, 85, 0.34);
+      font-size: 0.84rem;
+      white-space: nowrap;
     }
 
-    .status {
-      margin-top: 12px;
-      min-height: 1.2em;
+    .entry-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .small-btn {
+      width: auto;
+      padding: 8px 11px;
+      border-radius: 10px;
+      font-size: 0.87rem;
+      line-height: 1;
+    }
+
+    .row-label-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .row-move-controls {
+      display: inline-flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .move-btn {
+      width: auto;
+      min-width: 30px;
+      padding: 6px 9px;
+      border-radius: 9px;
+      font-size: 0.84rem;
+      line-height: 1;
+    }
+
+    .mini-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .mini-stat {
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .mini-stat .mini-label {
       color: var(--muted);
-      font-size: 0.92rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
-    @media (max-width: 1100px) {
-      .grid { grid-template-columns: 1fr; }
-      .stats { grid-template-columns: repeat(2, 1fr); }
+    .mini-stat .mini-value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
     }
 
-    @media (max-width: 640px) {
-      .wrap { width: min(100% - 20px, 1500px); }
-      .hero { padding: 18px; }
-      .panel { padding: 16px; }
-      .stats { grid-template-columns: 1fr; }
-      .toggle-grid { grid-template-columns: 1fr; }
-      .chart-wrap { height: 480px; }
-      .form-row { grid-template-columns: 1fr; }
-      table { min-width: 0; }
-      .toggle {
-        grid-template-columns: 1fr auto;
-      }
-      .toggle-left {
-        grid-column: 1 / 2;
-      }
+    .footer-space { height: 6px; }
+
+    @media (max-width: 1280px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      .main-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .chart-shell { height: 540px; }
+    }
+
+    @media (max-width: 980px) {
+      .mini-stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { width: min(100% - 16px, 1680px); }
+      .topbar { padding: 20px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-row,
+      .range-row,
+      .button-row,
+      .button-row.three { grid-template-columns: 1fr; }
+      .chart-shell { height: 420px; }
+      .mini-stats-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <section class="hero">
-      <div>
-        <h1>Money Tracker Dashboard</h1>
-        <p>
-          Dark mode dashboard with Firebase + Firestore storage, average-per-day trend lines,
-          total income/spending tracking, and horizontal comparison lines for today’s values.
-        </p>
-      </div>
-      <div class="badge">Accent: #b00b55</div>
+    <section class="topbar">
+      <h1>Money Tracker</h1>
     </section>
 
-    <div class="grid">
-      <section class="panel">
-        <h2>Average $/day over time</h2>
-        <div class="sub">
-          The x-axis now uses real dates. Add an older entry and the whole graph recalculates automatically.
-        </div>
+    <section class="stats-grid">
+      <div class="card">
+        <div class="label">Tracked Days</div>
+        <div class="value" id="daysValue">0</div>
+      </div>
+      <div class="card">
+        <div class="label">Entries</div>
+        <div class="value" id="entriesValue">0</div>
+      </div>
+      <div class="card">
+        <div class="label">Total Income</div>
+        <div class="value" id="incomeValue">$0.00</div>
+      </div>
+      <div class="card">
+        <div class="label">Total Spending</div>
+        <div class="value" id="spendingValue">$0.00</div>
+      </div>
+      <div class="card">
+        <div class="label">Food Total</div>
+        <div class="value" id="foodValue">$0.00</div>
+      </div>
+    </section>
 
-        <div class="stats">
-          <div class="stat">
-            <div class="label">Tracked days</div>
-            <div class="value" id="daysValue">0</div>
-          </div>
-          <div class="stat">
-            <div class="label">Entries</div>
-            <div class="value" id="entriesValue">0</div>
-          </div>
-          <div class="stat">
-            <div class="label">Total income</div>
-            <div class="value" id="incomeValue">$0.00</div>
-          </div>
-          <div class="stat">
-            <div class="label">Total spending</div>
-            <div class="value" id="spendingValue">$0.00</div>
-          </div>
-        </div>
+    <section class="panel" style="margin-bottom: 18px;">
+      <div class="panel-head">
+        <h2>Quick Stats</h2>
+        <div class="panel-subtle">Selected range plus rolling averages</div>
+      </div>
+      <div class="quick-table-wrap">
+        <table class="quick-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Selected Range</th>
+              <th>Last Month</th>
+              <th>Last 3 Months</th>
+              <th>Last 6 Months</th>
+              <th>Last Year</th>
+            </tr>
+          </thead>
+          <tbody id="quickStatsBody">
+            <tr><td colspan="6" style="color: var(--muted);">No data yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-        <div class="chart-wrap">
-          <canvas id="moneyChart"></canvas>
-        </div>
-      </section>
+    <section class="main-layout">
+      <div class="left-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Average Per Day</h2>
+            <div class="range-pill" id="activeRangeLabel">Full Range</div>
+          </div>
+          <div class="chart-shell">
+            <canvas id="moneyChart"></canvas>
+          </div>
+        </section>
 
-      <section class="panel">
-        <h2 id="formHeading">Add transaction</h2>
-        <div class="sub">Choose a date, category, and amount. Enter positive dollars to save. If amount is 0 and you press Enter, the date jumps to the next day.</div>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Range</h2>
+            <div class="panel-subtle">Controls moved under the graph</div>
+          </div>
 
-        <form id="entryForm">
-          <div class="form-row">
-            <label>
-              Date
-              <input type="date" id="dateInput" required />
+          <div class="range-row">
+            <label class="input-label">
+              Start Date
+              <input type="date" id="rangeStartInput" />
             </label>
-
-            <label>
-              Category
-              <select id="categoryInput" required></select>
+            <label class="input-label">
+              End Date
+              <input type="date" id="rangeEndInput" />
             </label>
           </div>
 
-          <label>
-            Amount
-            <input type="number" id="amountInput" required min="0" step="0.01" placeholder="25.00" />
+          <div class="button-row three" style="margin-top:12px;">
+            <button type="button" class="primary-btn" id="applyRangeButton">Apply Range</button>
+            <button type="button" class="ghost-btn" id="clearRangeButton">Clear Range</button>
+            <button type="button" class="ghost-btn" id="downloadPdfButton">Download PDF</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="right-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Line Visibility</h2>
+          </div>
+          <div class="controls-wrap" id="toggleGrid"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Total Spending Includes</h2>
+          </div>
+          <div class="controls-wrap" id="spendingIncludeGrid"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <div class="panel-head">
+        <h2>Averages By Category</h2>
+        <div class="panel-subtle">Daily averages across multiple lookback windows</div>
+      </div>
+      <div class="avg-table-wrap">
+        <table class="avg-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Selected Range</th>
+              <th>Last Month</th>
+              <th>Last 3 Months</th>
+              <th>Last 6 Months</th>
+              <th>Last Year</th>
+            </tr>
+          </thead>
+          <tbody id="averagesBody">
+            <tr><td colspan="6" style="color: var(--muted);">No data yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <div class="panel-head">
+        <h2>Extra Stats</h2>
+        <div class="panel-subtle">Average bills and yearly projections</div>
+      </div>
+      <div class="mini-stats-grid" id="extraStatsGrid">
+        <div class="mini-stat"><div class="mini-label">Average Grocery Bill</div><div class="mini-value">$0.00</div></div>
+        <div class="mini-stat"><div class="mini-label">Average Fast Food Bill</div><div class="mini-value">$0.00</div></div>
+        <div class="mini-stat"><div class="mini-label">Projected Food / Year</div><div class="mini-value">$0.00</div></div>
+        <div class="mini-stat"><div class="mini-label">Projected Non-Food / Year</div><div class="mini-value">$0.00</div></div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <div class="panel-head">
+        <h2 id="formHeading">Add Transaction</h2>
+        <div class="panel-subtle">Edit and delete are password protected</div>
+      </div>
+
+      <form id="entryForm">
+        <div class="form-row">
+          <label class="input-label">
+            Date
+            <input type="date" id="dateInput" required />
           </label>
-
-          <div class="form-row">
-            <button type="submit" id="submitButton">Add entry</button>
-            <button type="button" id="cancelEditButton" class="ghost-btn" style="display:none;">Cancel edit</button>
-          </div>
-        </form>
-
-        <div class="status" id="statusText"></div>
-
-        <h2 style="margin-top:24px;">Line toggles</h2>
-        <div class="sub">Each metric has a trend line, a matching flat line at today’s average value, and its own color picker.</div>
-        <div class="toggle-grid" id="toggleGrid"></div>
-
-        <div class="muted-box">
-          <strong>Fast input:</strong>
-          <ul class="hint-list">
-            <li>Press <strong>Enter</strong> with amount <strong>0</strong> to move the date forward by 1 day.</li>
-            <li>Press <strong>Enter</strong> with a positive amount to save the transaction.</li>
-            <li>Use <strong>Edit</strong> or <strong>Delete</strong> in the table below to fix entries.</li>
-          </ul>
+          <label class="input-label">
+            Category
+            <select id="categoryInput" required></select>
+          </label>
         </div>
-      </section>
-    </div>
 
-    <section class="panel" style="margin-top:20px;">
-      <h2>Recent entries</h2>
-      <div class="sub">All transactions, with the most recent dates at the top.</div>
-      <div style="overflow:auto;">
+        <label class="input-label">
+          Amount
+          <input type="number" id="amountInput" required min="0" step="0.01" placeholder="25.00" />
+        </label>
+
+        <div class="form-row">
+          <button type="submit" class="primary-btn" id="submitButton">Add Entry</button>
+          <button type="button" class="ghost-btn" id="cancelEditButton" style="display:none;">Cancel Edit</button>
+        </div>
+      </form>
+
+      <div class="status" id="statusText"></div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <div class="panel-head">
+        <h2 id="entriesTitle">Transactions</h2>
+      </div>
+      <div class="table-wrap">
         <table>
           <thead>
             <tr>
@@ -452,6 +646,8 @@
         </table>
       </div>
     </section>
+
+    <div class="footer-space"></div>
   </div>
 
   <script type="module">
@@ -487,6 +683,7 @@
     const db = getFirestore(app);
 
     const TRANSACTIONS_COLLECTION = 'transactions';
+    const EDIT_PASSWORD = 'mmed2025';
     const CATEGORIES = [
       'Misc Income',
       'Misc Spending',
@@ -500,6 +697,7 @@
     ];
 
     const INCOME_CATEGORIES = new Set(['Misc Income', 'Work income']);
+    const SPENDING_CATEGORIES = CATEGORIES.filter(category => !INCOME_CATEGORIES.has(category));
 
     const DISPLAY_METRICS = [
       'Misc Income',
@@ -507,6 +705,7 @@
       'Misc Spending',
       'Groceries',
       'Fast Food',
+      'Food',
       'Housing costs',
       'Transport costs',
       'Gambling',
@@ -521,15 +720,38 @@
       'Misc Spending': '#ffd166',
       'Groceries': '#7bdff2',
       'Fast Food': '#ff9f68',
+      'Food': '#f6c945',
       'Housing costs': '#c9a0ff',
       'Transport costs': '#68d391',
       'Gambling': '#ff6b81',
       'School costs': '#8ec5ff',
-      'Total Income': '#f0f66e',
+      'Total Income': '#8affc1',
       'Total Spending': '#ff8fab'
     };
 
-    const defaultVisible = new Set(['Groceries', 'Fast Food', 'Total Income', 'Total Spending']);
+    const defaultVisible = new Set(['Groceries', 'Fast Food', 'Food', 'Total Income', 'Total Spending']);
+    const WINDOW_DEFS = [
+      { key: 'selected', label: 'Selected Range' },
+      { key: 'last30', label: 'Last Month', days: 30 },
+      { key: 'last90', label: 'Last 3 Months', days: 90 },
+      { key: 'last180', label: 'Last 6 Months', days: 180 },
+      { key: 'last365', label: 'Last Year', days: 365 }
+    ];
+
+    let averagesRowOrder = [
+      'Misc Income',
+      'Work income',
+      'Total Income',
+      'Misc Spending',
+      'Groceries',
+      'Fast Food',
+      'Food',
+      'Housing costs',
+      'Transport costs',
+      'Gambling',
+      'School costs',
+      'Total Spending'
+    ];
 
     const dateInput = document.getElementById('dateInput');
     const categoryInput = document.getElementById('categoryInput');
@@ -537,19 +759,35 @@
     const entryForm = document.getElementById('entryForm');
     const statusText = document.getElementById('statusText');
     const toggleGrid = document.getElementById('toggleGrid');
+    const spendingIncludeGrid = document.getElementById('spendingIncludeGrid');
     const entriesTableBody = document.getElementById('entriesTableBody');
     const formHeading = document.getElementById('formHeading');
     const submitButton = document.getElementById('submitButton');
     const cancelEditButton = document.getElementById('cancelEditButton');
+    const averagesBody = document.getElementById('averagesBody');
+    const quickStatsBody = document.getElementById('quickStatsBody');
+    const rangeStartInput = document.getElementById('rangeStartInput');
+    const rangeEndInput = document.getElementById('rangeEndInput');
+    const applyRangeButton = document.getElementById('applyRangeButton');
+    const clearRangeButton = document.getElementById('clearRangeButton');
+    const downloadPdfButton = document.getElementById('downloadPdfButton');
+    const activeRangeLabel = document.getElementById('activeRangeLabel');
+    const entriesTitle = document.getElementById('entriesTitle');
+    const extraStatsGrid = document.getElementById('extraStatsGrid');
 
     const daysValue = document.getElementById('daysValue');
     const entriesValue = document.getElementById('entriesValue');
     const incomeValue = document.getElementById('incomeValue');
     const spendingValue = document.getElementById('spendingValue');
+    const foodValue = document.getElementById('foodValue');
 
     let chart;
     let lastTransactions = [];
+    let filteredTransactions = [];
     let editingId = null;
+    let activeRange = { start: '', end: '' };
+    let currentComputed = null;
+    let editSessionUnlocked = false;
 
     dateInput.value = new Date().toISOString().slice(0, 10);
 
@@ -565,12 +803,29 @@
       visibleMetricState[metric] = defaultVisible.has(metric);
     });
 
+    const spendingIncludedState = {};
+    SPENDING_CATEGORIES.forEach(category => {
+      spendingIncludedState[category] = true;
+    });
+
     function formatMoney(value) {
       return new Intl.NumberFormat('en-CA', {
         style: 'currency',
         currency: 'CAD',
         maximumFractionDigits: 2
       }).format(value || 0);
+    }
+
+    function parseDateAsLocal(dateString) {
+      const [y, m, d] = dateString.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function formatDateInputValue(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
 
     function formatDisplayDate(dateString) {
@@ -587,23 +842,16 @@
       statusText.style.color = isError ? 'var(--danger)' : 'var(--muted)';
     }
 
-    function parseDateAsLocal(dateString) {
-      const [y, m, d] = dateString.split('-').map(Number);
-      return new Date(y, m - 1, d);
-    }
-
-    function formatDateInputValue(date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-
     function advanceDateByOneDay() {
       if (!dateInput.value) return;
       const nextDate = parseDateAsLocal(dateInput.value);
       nextDate.setDate(nextDate.getDate() + 1);
       dateInput.value = formatDateInputValue(nextDate);
+    }
+
+    function dayDiffInclusive(start, end) {
+      const ms = 24 * 60 * 60 * 1000;
+      return Math.floor((end - start) / ms) + 1;
     }
 
     function resetForm({ keepDate = true } = {}) {
@@ -619,30 +867,48 @@
         categoryInput.value = currentCategory;
       }
       editingId = null;
-      formHeading.textContent = 'Add transaction';
-      submitButton.textContent = 'Add entry';
+      formHeading.textContent = 'Add Transaction';
+      submitButton.textContent = 'Add Entry';
       cancelEditButton.style.display = 'none';
       amountInput.value = '';
       amountInput.focus();
     }
 
+    function requireEditPassword() {
+      if (editSessionUnlocked) return true;
+      const entered = window.prompt('Enter edit password');
+      if (entered === null) {
+        showStatus('Password prompt cancelled.', true);
+        return false;
+      }
+      if (entered !== EDIT_PASSWORD) {
+        showStatus('Wrong password.', true);
+        return false;
+      }
+      editSessionUnlocked = true;
+      showStatus('Edit controls unlocked for this session.');
+      return true;
+    }
+
     function startEditTransaction(id) {
+      if (!requireEditPassword()) return;
       const tx = lastTransactions.find(item => item.id === id);
       if (!tx) return;
       editingId = id;
-      formHeading.textContent = 'Edit transaction';
-      submitButton.textContent = 'Save changes';
+      formHeading.textContent = 'Edit Transaction';
+      submitButton.textContent = 'Save Changes';
       cancelEditButton.style.display = 'block';
       dateInput.value = tx.date;
       categoryInput.value = tx.category;
       amountInput.value = tx.amount;
       amountInput.focus();
       amountInput.select();
-      showStatus(`Editing ${tx.category} on ${tx.date}.`);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showStatus(`Editing ${tx.category} on ${tx.date}`);
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
     async function deleteTransaction(id) {
+      if (!requireEditPassword()) return;
       const tx = lastTransactions.find(item => item.id === id);
       if (!tx) return;
       const confirmed = window.confirm(`Delete ${tx.category} on ${tx.date} for ${formatMoney(tx.amount)}?`);
@@ -651,9 +917,7 @@
       try {
         showStatus('Deleting entry...');
         await deleteDoc(doc(db, TRANSACTIONS_COLLECTION, id));
-        if (editingId === id) {
-          resetForm();
-        }
+        if (editingId === id) resetForm();
         await loadTransactions('Entry deleted.');
       } catch (error) {
         console.error(error);
@@ -661,27 +925,19 @@
       }
     }
 
-    function dayDiffInclusive(start, end) {
-      const ms = 24 * 60 * 60 * 1000;
-      return Math.floor((end - start) / ms) + 1;
-    }
-
-    function buildToggleControls() {
+    function buildLineToggleControls() {
       toggleGrid.innerHTML = '';
 
       DISPLAY_METRICS.forEach(metric => {
-        const label = document.createElement('label');
-        label.className = 'toggle';
-
-        const left = document.createElement('div');
-        left.className = 'toggle-left';
+        const row = document.createElement('label');
+        row.className = 'check-row';
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = visibleMetricState[metric];
         checkbox.addEventListener('change', () => {
           visibleMetricState[metric] = checkbox.checked;
-          refreshChart(lastTransactions);
+          refreshActiveView();
         });
 
         const text = document.createElement('span');
@@ -694,31 +950,192 @@
         colorInput.title = `Choose color for ${metric}`;
         colorInput.addEventListener('input', () => {
           colors[metric] = colorInput.value;
-          refreshChart(lastTransactions);
+          refreshActiveView();
         });
 
-        left.appendChild(checkbox);
-        left.appendChild(text);
-
-        label.appendChild(left);
-        label.appendChild(colorInput);
-        toggleGrid.appendChild(label);
+        row.appendChild(checkbox);
+        row.appendChild(text);
+        row.appendChild(colorInput);
+        toggleGrid.appendChild(row);
       });
     }
 
-    function computeMetricSeries(transactions) {
-      if (!transactions.length) {
-        return { labels: [], seriesMap: {}, trackedDays: 0, totalIncome: 0, totalSpending: 0 };
+    function buildSpendingIncludeControls() {
+      spendingIncludeGrid.innerHTML = '';
+      SPENDING_CATEGORIES.forEach(category => {
+        const row = document.createElement('label');
+        row.className = 'check-row';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = spendingIncludedState[category];
+        checkbox.addEventListener('change', () => {
+          spendingIncludedState[category] = checkbox.checked;
+          refreshActiveView();
+        });
+
+        const text = document.createElement('span');
+        text.textContent = category;
+
+        const amount = document.createElement('span');
+        amount.style.color = 'var(--muted)';
+        amount.style.fontSize = '0.88rem';
+        amount.textContent = '';
+
+        row.appendChild(checkbox);
+        row.appendChild(text);
+        row.appendChild(amount);
+        spendingIncludeGrid.appendChild(row);
+      });
+    }
+
+    function getFilteredTransactions(allTransactions) {
+      const { start, end } = activeRange;
+      return allTransactions.filter(tx => {
+        if (start && tx.date < start) return false;
+        if (end && tx.date > end) return false;
+        return true;
+      });
+    }
+
+    function getRangeBounds(transactions) {
+      if (activeRange.start && activeRange.end) {
+        return {
+          start: parseDateAsLocal(activeRange.start),
+          end: parseDateAsLocal(activeRange.end),
+          rangeLabel: `${formatDisplayDate(activeRange.start)} → ${formatDisplayDate(activeRange.end)}`,
+          startValue: activeRange.start,
+          endValue: activeRange.end
+        };
       }
 
-      const sorted = [...transactions].sort((a, b) => a.date.localeCompare(b.date));
-      const earliest = parseDateAsLocal(sorted[0].date);
-      const today = new Date();
-      const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const trackedDays = Math.max(1, dayDiffInclusive(earliest, todayLocal));
+      if (!transactions.length) return null;
 
+      const sorted = [...transactions].sort((a, b) => a.date.localeCompare(b.date));
+      const start = parseDateAsLocal(sorted[0].date);
+      const today = new Date();
+      const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+      return {
+        start,
+        end,
+        rangeLabel: `${formatDisplayDate(formatDateInputValue(start))} → ${formatDisplayDate(formatDateInputValue(end))}`,
+        startValue: formatDateInputValue(start),
+        endValue: formatDateInputValue(end)
+      };
+    }
+
+    function getEndReferenceDate(allTransactions) {
+      if (activeRange.end) return parseDateAsLocal(activeRange.end);
+      const today = new Date();
+      return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    }
+
+    function buildMetricTotals(transactions) {
+      const totals = {};
+      DISPLAY_METRICS.forEach(metric => totals[metric] = 0);
+
+      for (const tx of transactions) {
+        totals[tx.category] = (totals[tx.category] || 0) + tx.amount;
+        if (INCOME_CATEGORIES.has(tx.category)) {
+          totals['Total Income'] += tx.amount;
+        } else if (spendingIncludedState[tx.category]) {
+          totals['Total Spending'] += tx.amount;
+        }
+      }
+
+      totals['Food'] = (totals['Groceries'] || 0) + (totals['Fast Food'] || 0);
+      return totals;
+    }
+
+
+    function getNonFoodTotalFromTotals(totals) {
+      return (totals['Total Spending'] || 0) - (totals['Food'] || 0);
+    }
+
+    function getAverageTransactionAmount(transactions, category) {
+      const matching = transactions.filter(tx => tx.category === category);
+      if (!matching.length) return 0;
+      const total = matching.reduce((sum, tx) => sum + tx.amount, 0);
+      return total / matching.length;
+    }
+
+    function moveAverageRow(metric, direction) {
+      const index = averagesRowOrder.indexOf(metric);
+      if (index === -1) return;
+      const swapIndex = direction === 'up' ? index - 1 : index + 1;
+      if (swapIndex < 0 || swapIndex >= averagesRowOrder.length) return;
+      [averagesRowOrder[index], averagesRowOrder[swapIndex]] = [averagesRowOrder[swapIndex], averagesRowOrder[index]];
+      if (currentComputed) {
+        renderAverages(buildWindowSet(lastTransactions, currentComputed));
+      }
+    }
+
+    function getWindowStats(allTransactions, endDate, windowDays) {
+      const end = new Date(endDate);
+      const start = new Date(end);
+      start.setDate(end.getDate() - (windowDays - 1));
+      const startKey = formatDateInputValue(start);
+      const endKey = formatDateInputValue(end);
+      const txs = allTransactions.filter(tx => tx.date >= startKey && tx.date <= endKey);
+      const totals = buildMetricTotals(txs);
+      const averages = {};
+      Object.entries(totals).forEach(([metric, total]) => {
+        averages[metric] = windowDays ? total / windowDays : 0;
+      });
+      return {
+        start,
+        end,
+        startKey,
+        endKey,
+        label: `${formatDisplayDate(startKey)} → ${formatDisplayDate(endKey)}`,
+        days: windowDays,
+        transactions: txs,
+        totals,
+        averages
+      };
+    }
+
+    function buildWindowSet(allTransactions, computed) {
+      const endReference = getEndReferenceDate(allTransactions);
+      return {
+        selected: {
+          label: computed.rangeLabel,
+          days: computed.trackedDays,
+          transactions: filteredTransactions,
+          totals: computed.totalsByMetric,
+          averages: computed.averagesByMetric
+        },
+        last30: getWindowStats(allTransactions, endReference, 30),
+        last90: getWindowStats(allTransactions, endReference, 90),
+        last180: getWindowStats(allTransactions, endReference, 180),
+        last365: getWindowStats(allTransactions, endReference, 365)
+      };
+    }
+
+    function computeMetricSeries(transactions) {
+      const bounds = getRangeBounds(transactions);
+      if (!bounds) {
+        return {
+          labels: [],
+          seriesMap: {},
+          trackedDays: 0,
+          totalIncome: 0,
+          totalSpending: 0,
+          foodTotal: 0,
+          totalsByMetric: {},
+          averagesByMetric: {},
+          rangeLabel: 'No Data',
+          rangeStart: '',
+          rangeEnd: ''
+        };
+      }
+
+      const { start, end, rangeLabel, startValue, endValue } = bounds;
+      const trackedDays = Math.max(1, dayDiffInclusive(start, end));
       const dailySums = {};
-      for (const tx of sorted) {
+
+      for (const tx of transactions) {
         if (!dailySums[tx.date]) dailySums[tx.date] = {};
         dailySums[tx.date][tx.category] = (dailySums[tx.date][tx.category] || 0) + tx.amount;
       }
@@ -732,10 +1149,11 @@
 
       let totalIncome = 0;
       let totalSpending = 0;
+      let foodTotal = 0;
 
       for (let dayNumber = 1; dayNumber <= trackedDays; dayNumber++) {
-        const currentDate = new Date(earliest);
-        currentDate.setDate(earliest.getDate() + (dayNumber - 1));
+        const currentDate = new Date(start);
+        currentDate.setDate(start.getDate() + (dayNumber - 1));
         const dateKey = formatDateInputValue(currentDate);
         const dayData = dailySums[dateKey] || {};
 
@@ -745,11 +1163,15 @@
 
           if (INCOME_CATEGORIES.has(category)) {
             totalIncome += amount;
-          } else {
+          } else if (spendingIncludedState[category]) {
             totalSpending += amount;
           }
         }
 
+        const groceriesToday = dayData['Groceries'] || 0;
+        const fastFoodToday = dayData['Fast Food'] || 0;
+        foodTotal += groceriesToday + fastFoodToday;
+        cumulative['Food'] = foodTotal;
         cumulative['Total Income'] = totalIncome;
         cumulative['Total Spending'] = totalSpending;
 
@@ -759,49 +1181,74 @@
         });
       }
 
+      const totalsByMetric = {
+        'Misc Income': cumulative['Misc Income'],
+        'Work income': cumulative['Work income'],
+        'Misc Spending': cumulative['Misc Spending'],
+        'Groceries': cumulative['Groceries'],
+        'Fast Food': cumulative['Fast Food'],
+        'Food': cumulative['Food'],
+        'Housing costs': cumulative['Housing costs'],
+        'Transport costs': cumulative['Transport costs'],
+        'Gambling': cumulative['Gambling'],
+        'School costs': cumulative['School costs'],
+        'Total Income': totalIncome,
+        'Total Spending': totalSpending
+      };
+
+      const averagesByMetric = {};
+      Object.entries(totalsByMetric).forEach(([metric, total]) => {
+        averagesByMetric[metric] = trackedDays ? total / trackedDays : 0;
+      });
+
       return {
         labels,
         seriesMap,
         trackedDays,
         totalIncome,
-        totalSpending
+        totalSpending,
+        foodTotal,
+        totalsByMetric,
+        averagesByMetric,
+        rangeLabel,
+        rangeStart: startValue,
+        rangeEnd: endValue
       };
     }
 
-    function buildDatasets(seriesMap, labels) {
+    function buildDatasets(seriesMap) {
       const datasets = [];
 
       DISPLAY_METRICS.forEach(metric => {
         if (!visibleMetricState[metric]) return;
-
         const color = colors[metric] || '#ffffff';
         const values = seriesMap[metric] || [];
-        const todayValue = values.length ? values[values.length - 1] : 0;
+        if (!values.length) return;
 
         datasets.push({
-          label: `${metric} avg/day`,
+          label: metric,
           data: values,
           borderColor: color,
           backgroundColor: color,
-          tension: 0.28,
+          tension: 0.26,
           pointRadius: 0,
           pointHoverRadius: 5,
           pointHitRadius: 14,
           pointHoverBorderWidth: 2,
-          borderWidth: 2.5,
+          borderWidth: metric === 'Total Spending' || metric === 'Total Income' || metric === 'Food' ? 3.2 : 2.2,
           fill: false
         });
 
+        const finalValue = values[values.length - 1];
         datasets.push({
-          label: `${metric} today line`,
-          data: labels.map(() => todayValue),
+          label: `${metric} Today Avg`,
+          data: new Array(values.length).fill(finalValue),
           borderColor: color,
           backgroundColor: color,
-          borderDash: [7, 7],
+          borderDash: [8, 8],
+          borderWidth: 1.2,
           pointRadius: 0,
           pointHoverRadius: 0,
-          pointHitRadius: 0,
-          borderWidth: 1.5,
           tension: 0,
           fill: false
         });
@@ -810,81 +1257,87 @@
       return datasets;
     }
 
-    function refreshChart(transactions) {
-      const { labels, seriesMap, trackedDays, totalIncome, totalSpending } = computeMetricSeries(transactions);
+    function renderQuickStats(windowSet) {
+      const metricRows = [
+        { label: 'Income / Day', valueFor: (w) => w.averages['Total Income'] || 0 },
+        { label: 'Spending / Day', valueFor: (w) => w.averages['Total Spending'] || 0 },
+        { label: 'Food / Day', valueFor: (w) => w.averages['Food'] || 0 },
+        { label: 'Non-Food Spending / Day', valueFor: (w) => getNonFoodTotalFromTotals(w.totals || {}) / (w.days || 1) },
+        { label: 'Net / Day', valueFor: (w) => (w.averages['Total Income'] || 0) - (w.averages['Total Spending'] || 0) }
+      ];
 
-      daysValue.textContent = String(trackedDays || 0);
-      entriesValue.textContent = String(transactions.length || 0);
-      incomeValue.textContent = formatMoney(totalIncome);
-      spendingValue.textContent = formatMoney(totalSpending);
+      quickStatsBody.innerHTML = metricRows.map(row => `
+        <tr>
+          <td>${row.label}</td>
+          <td>${formatMoney(row.valueFor(windowSet.selected))}</td>
+          <td>${formatMoney(row.valueFor(windowSet.last30))}</td>
+          <td>${formatMoney(row.valueFor(windowSet.last90))}</td>
+          <td>${formatMoney(row.valueFor(windowSet.last180))}</td>
+          <td>${formatMoney(row.valueFor(windowSet.last365))}</td>
+        </tr>
+      `).join('');
+    }
 
-      const data = {
-        labels,
-        datasets: buildDatasets(seriesMap, labels)
-      };
+    function renderAverages(windowSet) {
+      averagesBody.innerHTML = averagesRowOrder.map((metric, index) => `
+        <tr>
+          <td>
+            <div class="row-label-wrap">
+              <span>${metric}</span>
+              <span class="row-move-controls">
+                <button type="button" class="small-btn ghost-btn move-btn" data-move="up" data-metric="${metric}" ${index === 0 ? 'disabled' : ''}>↑</button>
+                <button type="button" class="small-btn ghost-btn move-btn" data-move="down" data-metric="${metric}" ${index === averagesRowOrder.length - 1 ? 'disabled' : ''}>↓</button>
+              </span>
+            </div>
+          </td>
+          <td>${formatMoney(windowSet.selected.averages[metric] || 0)}</td>
+          <td>${formatMoney(windowSet.last30.averages[metric] || 0)}</td>
+          <td>${formatMoney(windowSet.last90.averages[metric] || 0)}</td>
+          <td>${formatMoney(windowSet.last180.averages[metric] || 0)}</td>
+          <td>${formatMoney(windowSet.last365.averages[metric] || 0)}</td>
+        </tr>
+      `).join('');
+    }
 
-      if (chart) {
-        chart.data = data;
-        chart.update();
-      } else {
-        chart = new Chart(document.getElementById('moneyChart'), {
-          type: 'line',
-          data,
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'nearest', intersect: false },
-            plugins: {
-              legend: {
-                labels: {
-                  color: '#f4f0f4',
-                  boxWidth: 16,
-                  boxHeight: 3,
-                  usePointStyle: false
-                }
-              },
-              tooltip: {
-                callbacks: {
-                  title: (items) => items.length ? formatDisplayDate(items[0].label) : '',
-                  label: (ctx) => `${ctx.dataset.label}: ${formatMoney(ctx.parsed.y)}`
-                }
-              }
-            },
-            elements: {
-              point: {
-                radius: 0,
-                hoverRadius: 5,
-                hitRadius: 14
-              }
-            },
-            scales: {
-              x: {
-                ticks: {
-                  color: '#a7a2aa',
-                  maxTicksLimit: 10,
-                  callback: function(value) {
-                    const label = this.getLabelForValue(value);
-                    return formatDisplayDate(label);
-                  }
-                },
-                grid: { color: 'rgba(255,255,255,0.05)' }
-              },
-              y: {
-                ticks: {
-                  color: '#a7a2aa',
-                  callback: (value) => formatMoney(value)
-                },
-                grid: { color: 'rgba(255,255,255,0.05)' }
-              }
-            }
-          }
-        });
-      }
+
+    function renderExtraStats(windowSet) {
+      const selectedTransactions = windowSet.selected.transactions || [];
+      const foodTransactions = selectedTransactions.filter(tx => tx.category === 'Groceries' || tx.category === 'Fast Food');
+      const avgGroceryBill = getAverageTransactionAmount(selectedTransactions, 'Groceries');
+      const avgFastFoodBill = getAverageTransactionAmount(selectedTransactions, 'Fast Food');
+      const foodPerYear = (windowSet.selected.averages['Food'] || 0) * 365;
+      const nonFoodPerYear = (getNonFoodTotalFromTotals(windowSet.selected.totals || {}) / (windowSet.selected.days || 1)) * 365;
+      const overallPerYear = (windowSet.selected.averages['Total Spending'] || 0) * 365;
+      const housingPerMonth = (windowSet.selected.averages['Housing costs'] || 0) * 30.4375;
+      const fastFoodShare = (windowSet.selected.totals['Food'] || 0) > 0
+        ? ((windowSet.selected.totals['Fast Food'] || 0) / windowSet.selected.totals['Food']) * 100
+        : 0;
+      const avgFoodBill = foodTransactions.length
+        ? (foodTransactions.reduce((sum, tx) => sum + tx.amount, 0) / foodTransactions.length)
+        : 0;
+
+      const stats = [
+        { label: 'Average Grocery Bill', value: formatMoney(avgGroceryBill) },
+        { label: 'Average Fast Food Bill', value: formatMoney(avgFastFoodBill) },
+        { label: 'Average Food Bill', value: formatMoney(avgFoodBill) },
+        { label: 'Projected Food / Year', value: formatMoney(foodPerYear) },
+        { label: 'Projected Non-Food / Year', value: formatMoney(nonFoodPerYear) },
+        { label: 'Projected Total Spending / Year', value: formatMoney(overallPerYear) },
+        { label: 'Housing Cost / Month', value: formatMoney(housingPerMonth) },
+        { label: 'Fast Food Share Of Food', value: `${fastFoodShare.toFixed(1)}%` }
+      ];
+
+      extraStatsGrid.innerHTML = stats.map(stat => `
+        <div class="mini-stat">
+          <div class="mini-label">${stat.label}</div>
+          <div class="mini-value">${stat.value}</div>
+        </div>
+      `).join('');
     }
 
     function renderEntriesTable(transactions) {
       if (!transactions.length) {
-        entriesTableBody.innerHTML = '<tr><td colspan="5" style="color: var(--muted);">No data yet.</td></tr>';
+        entriesTableBody.innerHTML = '<tr><td colspan="5" style="color: var(--muted);">No transactions in this range.</td></tr>';
         return;
       }
 
@@ -910,6 +1363,253 @@
       `).join('');
     }
 
+    function updateRangeDisplays(rangeLabel) {
+      activeRangeLabel.textContent = rangeLabel || 'Full Range';
+      entriesTitle.textContent = activeRange.start || activeRange.end ? 'Transactions in Range' : 'Transactions';
+    }
+
+    function refreshActiveView() {
+      filteredTransactions = getFilteredTransactions(lastTransactions);
+      const computed = computeMetricSeries(filteredTransactions);
+      currentComputed = computed;
+
+      daysValue.textContent = String(computed.trackedDays || 0);
+      entriesValue.textContent = String(filteredTransactions.length || 0);
+      incomeValue.textContent = formatMoney(computed.totalIncome);
+      spendingValue.textContent = formatMoney(computed.totalSpending);
+      foodValue.textContent = formatMoney(computed.foodTotal);
+
+      const windowSet = buildWindowSet(lastTransactions, computed);
+      renderQuickStats(windowSet);
+      renderAverages(windowSet);
+      renderExtraStats(windowSet);
+      renderEntriesTable(filteredTransactions);
+      updateRangeDisplays(computed.rangeLabel || 'Full Range');
+
+      const data = {
+        labels: computed.labels,
+        datasets: buildDatasets(computed.seriesMap)
+      };
+
+      if (chart) {
+        chart.data = data;
+        chart.update();
+      } else {
+        chart = new Chart(document.getElementById('moneyChart'), {
+          type: 'line',
+          data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'nearest', intersect: false },
+            plugins: {
+              legend: {
+                labels: {
+                  color: '#f4f1f5',
+                  boxWidth: 18,
+                  boxHeight: 3,
+                  padding: 16,
+                  font: { size: 11, weight: 600 },
+                  filter: (legendItem) => !legendItem.text.endsWith('Today Avg')
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(13,16,24,0.96)',
+                borderColor: 'rgba(255,255,255,0.08)',
+                borderWidth: 1,
+                callbacks: {
+                  title: (items) => items.length ? formatDisplayDate(items[0].label) : '',
+                  label: (ctx) => `${ctx.dataset.label}: ${formatMoney(ctx.parsed.y)}`
+                }
+              }
+            },
+            elements: {
+              point: {
+                radius: 0,
+                hoverRadius: 5,
+                hitRadius: 14
+              }
+            },
+            scales: {
+              x: {
+                ticks: {
+                  color: '#9ca3b5',
+                  maxTicksLimit: 10,
+                  callback: function(value) {
+                    const label = this.getLabelForValue(value);
+                    return formatDisplayDate(label);
+                  }
+                },
+                grid: { color: 'rgba(255,255,255,0.05)' }
+              },
+              y: {
+                ticks: {
+                  color: '#9ca3b5',
+                  callback: (value) => formatMoney(value)
+                },
+                grid: { color: 'rgba(255,255,255,0.05)' }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function validateRangeInputs() {
+      const start = rangeStartInput.value;
+      const end = rangeEndInput.value;
+      if (!start && !end) return { valid: true, start: '', end: '' };
+      if (!start || !end) {
+        return { valid: false, message: 'Choose both a start date and an end date.' };
+      }
+      if (start > end) {
+        return { valid: false, message: 'Start date must be on or before end date.' };
+      }
+      return { valid: true, start, end };
+    }
+
+    function applyRangeFilter() {
+      const result = validateRangeInputs();
+      if (!result.valid) {
+        showStatus(result.message, true);
+        return;
+      }
+      activeRange = { start: result.start, end: result.end };
+      refreshActiveView();
+      if (activeRange.start && activeRange.end) {
+        showStatus(`Showing ${activeRange.start} to ${activeRange.end}.`);
+      } else {
+        showStatus('Showing full range.');
+      }
+    }
+
+    function clearRangeFilter() {
+      rangeStartInput.value = '';
+      rangeEndInput.value = '';
+      activeRange = { start: '', end: '' };
+      refreshActiveView();
+      showStatus('Range cleared.');
+    }
+
+    function buildAverageRowsForPdf(windowSet) {
+      const order = [
+        'Misc Income',
+        'Work income',
+        'Total Income',
+        'Misc Spending',
+        'Groceries',
+        'Fast Food',
+        'Food',
+        'Housing costs',
+        'Transport costs',
+        'Gambling',
+        'School costs',
+        'Total Spending'
+      ];
+
+      return order.map(metric => [
+        metric,
+        `${formatMoney(windowSet.selected.averages[metric] || 0)}`,
+        `${formatMoney(windowSet.last30.averages[metric] || 0)}`,
+        `${formatMoney(windowSet.last90.averages[metric] || 0)}`,
+        `${formatMoney(windowSet.last180.averages[metric] || 0)}`,
+        `${formatMoney(windowSet.last365.averages[metric] || 0)}`
+      ]);
+    }
+
+    function downloadPdfStatement() {
+      if (!currentComputed || !window.jspdf?.jsPDF) {
+        showStatus('PDF export is not available right now.', true);
+        return;
+      }
+
+      const windowSet = buildWindowSet(lastTransactions, currentComputed);
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const rangeText = currentComputed.rangeLabel || 'No Data';
+      const marginX = 40;
+      let y = 42;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text('Money Tracker Statement', marginX, y);
+      y += 22;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`Range: ${rangeText}`, marginX, y);
+      y += 14;
+      doc.text(`Generated: ${new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date())}`, marginX, y);
+      y += 24;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Summary', marginX, y);
+      y += 10;
+
+      doc.autoTable({
+        startY: y,
+        margin: { left: marginX, right: marginX },
+        head: [['Metric', 'Value']],
+        body: [
+          ['Tracked Days', String(currentComputed.trackedDays || 0)],
+          ['Entries', String(filteredTransactions.length || 0)],
+          ['Total Income', formatMoney(currentComputed.totalIncome)],
+          ['Total Spending', formatMoney(currentComputed.totalSpending)],
+          ['Food Total', formatMoney(currentComputed.foodTotal)],
+          ['Net', formatMoney((currentComputed.totalIncome || 0) - (currentComputed.totalSpending || 0))]
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [176, 11, 85] },
+        styles: { font: 'helvetica', fontSize: 10, textColor: [20, 20, 20] }
+      });
+
+      y = doc.lastAutoTable.finalY + 22;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Averages', marginX, y);
+
+      doc.autoTable({
+        startY: y + 10,
+        margin: { left: marginX, right: marginX },
+        head: [['Category', 'Selected Range', 'Last Month', 'Last 3 Months', 'Last 6 Months', 'Last Year']],
+        body: buildAverageRowsForPdf(windowSet),
+        theme: 'grid',
+        headStyles: { fillColor: [176, 11, 85] },
+        styles: { font: 'helvetica', fontSize: 8.5, textColor: [20, 20, 20] }
+      });
+
+      y = doc.lastAutoTable.finalY + 22;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Transactions', marginX, y);
+
+      const transactionRows = [...filteredTransactions]
+        .sort((a, b) => a.date.localeCompare(b.date) || a.category.localeCompare(b.category))
+        .map(tx => [tx.date, tx.category, tx.type, formatMoney(tx.amount)]);
+
+      doc.autoTable({
+        startY: y + 10,
+        margin: { left: marginX, right: marginX },
+        head: [['Date', 'Category', 'Type', 'Amount']],
+        body: transactionRows.length ? transactionRows : [['-', 'No transactions in this range', '-', '-']],
+        theme: 'grid',
+        headStyles: { fillColor: [176, 11, 85] },
+        styles: { font: 'helvetica', fontSize: 9, textColor: [20, 20, 20] },
+        columnStyles: {
+          0: { cellWidth: 80 },
+          1: { cellWidth: 180 },
+          2: { cellWidth: 80 },
+          3: { cellWidth: 100, halign: 'right' }
+        }
+      });
+
+      const safeStart = currentComputed.rangeStart || 'full';
+      const safeEnd = currentComputed.rangeEnd || 'range';
+      doc.save(`money-statement-${safeStart}-to-${safeEnd}.pdf`);
+      showStatus('PDF downloaded.');
+    }
+
     async function loadTransactions(successMessage = null) {
       showStatus('Loading data...');
       const q = query(collection(db, TRANSACTIONS_COLLECTION), orderBy('date', 'asc'));
@@ -926,8 +1626,17 @@
       });
 
       lastTransactions = transactions;
-      refreshChart(transactions);
-      renderEntriesTable(transactions);
+
+      if (transactions.length && !rangeStartInput.value && !rangeEndInput.value) {
+        const firstDate = transactions[0].date;
+        const lastDate = transactions[transactions.length - 1].date;
+        rangeStartInput.min = firstDate;
+        rangeStartInput.max = lastDate;
+        rangeEndInput.min = firstDate;
+        rangeEndInput.max = formatDateInputValue(new Date());
+      }
+
+      refreshActiveView();
       showStatus(successMessage || `Loaded ${transactions.length} entr${transactions.length === 1 ? 'y' : 'ies'}.`);
     }
 
@@ -948,6 +1657,10 @@
       showStatus('Edit cancelled.');
     });
 
+    applyRangeButton.addEventListener('click', applyRangeFilter);
+    clearRangeButton.addEventListener('click', clearRangeFilter);
+    downloadPdfButton.addEventListener('click', downloadPdfStatement);
+
     entryForm.addEventListener('submit', async (event) => {
       event.preventDefault();
 
@@ -956,7 +1669,7 @@
       const amount = Number(amountInput.value);
 
       if (!date || !category || !Number.isFinite(amount) || amount <= 0) {
-        showStatus('Please enter a valid date, category, and positive amount.', true);
+        showStatus('Enter a valid date, category, and positive amount.', true);
         return;
       }
 
@@ -989,8 +1702,14 @@
         }
       } catch (error) {
         console.error(error);
-        showStatus('Could not save changes. Check Firestore rules and that your database is created.', true);
+        showStatus('Could not save changes. Check Firestore rules and that your database exists.', true);
       }
+    });
+
+    averagesBody.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-move]');
+      if (!button) return;
+      moveAverageRow(button.dataset.metric, button.dataset.move);
     });
 
     entriesTableBody.addEventListener('click', (event) => {
@@ -1005,7 +1724,8 @@
       }
     });
 
-    buildToggleControls();
+    buildLineToggleControls();
+    buildSpendingIncludeControls();
     resetForm({ keepDate: false });
 
     try {
@@ -1013,7 +1733,7 @@
     } catch (error) {
       console.error(error);
       showStatus('Could not load data. Make sure Firestore exists and your rules allow reads.', true);
-      refreshChart([]);
+      refreshActiveView();
       renderEntriesTable([]);
     }
   </script>
