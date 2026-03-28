@@ -3,65 +3,1674 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Money Tracker Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Money Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
   <style>
-    :root {
-      --bg: #090a0f;
-      --bg-2: #0f1118;
-      --panel: rgba(18, 20, 31, 0.94);
-      --panel-2: rgba(24, 27, 40, 0.96);
-      --panel-3: rgba(29, 33, 48, 0.98);
-      --text: #f4f1f5;
-      --muted: #9ca3b5;
-      --accent: #b00b55;
-      --accent-2: #cf2d7a;
-      --border: rgba(255,255,255,0.08);
-      --border-strong: rgba(255,255,255,0.14);
-      --danger: #ff6b81;
-      --success: #57d38c;
-      --shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
-      --radius-xl: 26px;
-      --radius-lg: 20px;
-      --radius-md: 16px;
-      --radius-sm: 12px;
+    :root{
+      --bg:#0c0c12;
+      --bg2:#14141d;
+      --bg3:#1b1b26;
+      --panel:#11111a;
+      --panel2:#171723;
+      --border:#2a2a39;
+      --text:#f4f1f5;
+      --muted:#a8a0ad;
+      --accent:#b00b55;
+      --accent-2:#ff3f97;
+      --good:#22c55e;
+      --bad:#ef4444;
+      --warn:#f59e0b;
+      --shadow:0 12px 40px rgba(0,0,0,.28);
+      --radius:20px;
     }
 
-    * { box-sizing: border-box; }
-    html, body { min-height: 100%; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,#09090f 0%,#0f0f18 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    body{min-height:100vh}
+    .wrap{max-width:1600px;margin:0 auto;padding:18px}
+    .topbar{
+      display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+      margin-bottom:18px
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px
+    }
+    .brand-badge{
+      width:44px;height:44px;border-radius:14px;
+      background:linear-gradient(135deg,var(--accent),#61072f);
+      display:grid;place-items:center;font-weight:800;box-shadow:var(--shadow)
+    }
+    h1{font-size:1.4rem;margin:0}
+    .sub{color:var(--muted);font-size:.93rem}
+    .btn{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg,var(--bg3),#11111a);
+      color:var(--text);
+      padding:10px 14px;border-radius:14px;cursor:pointer;
+      transition:.18s ease; font-weight:600;
+    }
+    .btn:hover{transform:translateY(-1px);border-color:#4a3b49}
+    .btn-accent{
+      background:linear-gradient(180deg,var(--accent),#8a0b45);
+      border-color:#d52c7b;
+    }
+    .btn-danger{
+      background:linear-gradient(180deg,#45111c,#2c0b13);
+      border-color:#6d1a2f;
+    }
+    .btn-ghost{
+      background:transparent;
+    }
+    .grid{
+      display:grid;gap:18px
+    }
+    .grid-main{
+      grid-template-columns:1.2fr .8fr;
+      align-items:start;
+    }
+    .panel{
+      background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panel-head{
+      padding:16px 16px 10px 16px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap
+    }
+    .panel-title{
+      font-size:1rem;font-weight:800;letter-spacing:.2px
+    }
+    .panel-body{padding:16px}
+    .panel-body.tight{padding-top:0}
+    .kpi-grid{
+      display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px
+    }
+    .kpi{
+      background:linear-gradient(180deg,var(--panel2),#0e0e16);
+      border:1px solid var(--border);
+      border-radius:18px;padding:14px
+    }
+    .kpi-label{color:var(--muted);font-size:.85rem;margin-bottom:8px}
+    .kpi-value{font-weight:800;font-size:1.32rem}
+    .kpi-sub{color:var(--muted);font-size:.83rem;margin-top:6px}
+    .good{color:#7ef2a5}
+    .bad{color:#ff7a7a}
+    .warn{color:#ffd27d}
 
-    body {
-      margin: 0;
-      color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at top right, rgba(176, 11, 85, 0.22), transparent 23%),
-        radial-gradient(circle at bottom left, rgba(176, 11, 85, 0.12), transparent 28%),
-        linear-gradient(180deg, #090a0f 0%, #0b0d14 100%);
+    .form-grid{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px
+    }
+    .form-grid-3{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px
+    }
+    .field{display:flex;flex-direction:column;gap:6px}
+    .field label{font-size:.84rem;color:var(--muted);font-weight:700}
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--border);
+      background:#0d0d15;
+      color:var(--text);
+      border-radius:14px;
+      padding:12px 12px;
+      outline:none;
+    }
+    textarea{min-height:92px;resize:vertical}
+    input:focus,select:focus,textarea:focus{
+      border-color:#b64a7b;
+      box-shadow:0 0 0 3px rgba(176,11,85,.18);
     }
 
-    .wrap {
-      width: min(1680px, calc(100% - 24px));
-      margin: 12px auto 28px;
+    .toolbar{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center
+    }
+    .inline{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap
+    }
+    .muted{color:var(--muted)}
+    .small{font-size:.84rem}
+    .tiny{font-size:.76rem}
+
+    .toggle-box{
+      border:1px solid var(--border);
+      border-radius:16px;padding:12px;background:#10101a
+    }
+    .toggle-grid{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px
+    }
+    .check-pill{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:#0d0d15
+    }
+    .check-pill input[type="checkbox"]{width:auto}
+    .color-row{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)
+    }
+    .color-row:last-child{border-bottom:none}
+    input[type="color"]{
+      width:46px;height:36px;padding:4px;border-radius:12px;background:#0d0d15
     }
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding: 22px 24px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      background: linear-gradient(145deg, rgba(176, 11, 85, 0.16), rgba(255,255,255,0.03));
-      box-shadow: var(--shadow);
-      margin-bottom: 16px;
+    .chart-wrap{
+      position:relative;
+      width:100%;
+      min-height:360px;
+    }
+    .chart-wrap canvas{
+      width:100% !important;
+      height:360px !important;
+      display:block;
+    }
+    .chart-wrap.small canvas{
+      height:300px !important;
     }
 
-    .topbar h1 {
-      margin: 0;
+    .stats-table{
+      width:100%;border-collapse:collapse;overflow:hidden
+    }
+    .stats-table th,.stats-table td{
+      text-align:left;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top
+    }
+    .stats-table th{color:#f8cadd;font-size:.84rem}
+    .stats-table td{font-size:.93rem}
+    .stats-table tbody tr:hover{background:rgba(255,255,255,.025)}
+
+    .trans-table-wrap{overflow:auto}
+    .trans-table{
+      width:100%;border-collapse:collapse;min-width:1200px
+    }
+    .trans-table th,.trans-table td{
+      text-align:left;padding:11px 10px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top;font-size:.9rem
+    }
+    .trans-table th{
+      position:sticky;top:0;background:#11111a;z-index:2
+    }
+    .tag{
+      display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(176,11,85,.16);border:1px solid rgba(255,87,159,.24);font-size:.77rem;margin:2px 4px 2px 0
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:.78rem
+    }
+    .pill.income{color:#86efac;border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.08)}
+    .pill.spending{color:#fca5a5;border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.08)}
+
+    .cards{display:none;gap:12px}
+    .card{
+      border:1px solid var(--border);border-radius:18px;padding:14px;background:#10101a
+    }
+    .card-row{display:grid;grid-template-columns:110px 1fr;gap:8px;margin-bottom:7px}
+    .card-key{color:var(--muted);font-size:.82rem}
+    .card-value{font-size:.92rem;word-break:break-word}
+
+    .split{
+      display:grid;grid-template-columns:1fr 1fr;gap:18px
+    }
+    .window-grid{
+      display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px
+    }
+    .window-card{
+      border:1px solid var(--border);border-radius:18px;background:#10101a;padding:14px
+    }
+    .window-title{font-weight:800;margin-bottom:8px}
+    .window-line{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
+    .window-line span:first-child{color:var(--muted)}
+
+    .footer-actions{
+      display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap
+    }
+
+    .sticky-note{
+      padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)
+    }
+
+    .hide{display:none !important}
+
+    @media (max-width:1200px){
+      .grid-main{grid-template-columns:1fr}
+      .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .split{grid-template-columns:1fr}
+      .window-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    @media (max-width:760px){
+      .wrap{padding:12px}
+      .form-grid,.form-grid-3,.toggle-grid,.window-grid,.kpi-grid{grid-template-columns:1fr}
+      .trans-table-wrap{display:none}
+      .cards{display:grid}
+      .chart-wrap canvas{height:320px !important}
+      .panel-head{padding:14px 14px 8px 14px}
+      .panel-body{padding:14px}
+      h1{font-size:1.15rem}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-badge">$</div>
+        <div>
+          <h1>Money Tracker</h1>
+          <div class="sub">Live Firestore data · average per day · charts · stats · PDF export</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="resetFiltersBtn">Reset Filters</button>
+        <button class="btn btn-accent" id="downloadPdfBtn">Download PDF Summary</button>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:18px;">
+      <div class="panel-head">
+        <div class="panel-title">Quick Stats</div>
+        <div class="inline small muted">
+          <span id="liveStatus">Loading live data...</span>
+        </div>
+      </div>
+      <div class="panel-body tight">
+        <div class="kpi-grid" id="topKpis"></div>
+      </div>
+    </div>
+
+    <div class="grid grid-main">
+      <div class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Main Chart</div>
+            <div class="inline small muted">
+              <span>Average/day from first transaction to each date</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-wrap">
+              <canvas id="mainChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Date Range + Pie Chart</div>
+          </div>
+          <div class="panel-body">
+            <div class="form-grid-3" style="margin-bottom:12px;">
+              <div class="field">
+                <label for="rangeStart">Range Start</label>
+                <input type="date" id="rangeStart">
+              </div>
+              <div class="field">
+                <label for="rangeEnd">Range End</label>
+                <input type="date" id="rangeEnd">
+              </div>
+              <div class="field">
+                <label for="pieDay">Pie Chart Selected Day (optional)</label>
+                <input type="date" id="pieDay">
+              </div>
+            </div>
+
+            <div class="inline" style="margin-bottom:14px;">
+              <button class="btn btn-accent" id="applyRangeBtn">Apply Range</button>
+              <button class="btn" id="useAllTimeBtn">Use All Time</button>
+              <div class="sticky-note small muted" id="rangeSummary">Using all transactions</div>
+            </div>
+
+            <div class="split">
+              <div class="toggle-box">
+                <div class="panel-title" style="margin-bottom:10px;">Line Visibility</div>
+                <div class="toggle-grid" id="lineToggles"></div>
+              </div>
+              <div class="toggle-box">
+                <div class="panel-title" style="margin-bottom:10px;">Categories Counted In Total Spending</div>
+                <div class="toggle-grid" id="spendingTotalToggles"></div>
+              </div>
+            </div>
+
+            <div class="split" style="margin-top:16px;">
+              <div class="toggle-box">
+                <div class="panel-title" style="margin-bottom:10px;">Line Colors</div>
+                <div id="colorControls"></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head">
+                  <div class="panel-title">Spending Pie</div>
+                  <div class="small muted" id="pieTitle">Selected range spending by category</div>
+                </div>
+                <div class="panel-body">
+                  <div class="chart-wrap small">
+                    <canvas id="pieChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title" id="formTitle">Add Transaction</div>
+            <div class="small muted" id="formModeHint">New entry</div>
+          </div>
+          <div class="panel-body">
+            <form id="transactionForm" autocomplete="off">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="date">Date</label>
+                  <input type="date" id="date" required />
+                </div>
+                <div class="field">
+                  <label for="category">Category</label>
+                  <select id="category" required></select>
+                </div>
+              </div>
+
+              <div class="form-grid" style="margin-top:12px;">
+                <div class="field">
+                  <label for="amount">Amount</label>
+                  <input type="number" id="amount" min="0" step="0.01" required />
+                </div>
+                <div class="field">
+                  <label for="paymentMethod">Payment Method</label>
+                  <input type="text" id="paymentMethod" placeholder="Cash, Debit, Credit, E-transfer..." />
+                </div>
+              </div>
+
+              <div class="form-grid" style="margin-top:12px;">
+                <div class="field">
+                  <label for="merchant">Merchant</label>
+                  <input type="text" id="merchant" placeholder="Store, employer, landlord..." />
+                </div>
+                <div class="field">
+                  <label for="tags">Tags (comma separated)</label>
+                  <input type="text" id="tags" placeholder="food, weekly, refund" />
+                </div>
+              </div>
+
+              <div class="field" style="margin-top:12px;">
+                <label for="note">Note</label>
+                <textarea id="note" placeholder="Anything useful to remember..."></textarea>
+              </div>
+
+              <input type="hidden" id="editingId" />
+
+              <div class="footer-actions" style="margin-top:14px;">
+                <button type="button" class="btn btn-ghost hide" id="cancelEditBtn">Cancel Edit</button>
+                <button type="submit" class="btn btn-accent" id="saveBtn">Save Transaction</button>
+              </div>
+            </form>
+
+            <div class="sticky-note small muted" style="margin-top:14px;">
+              Press Enter while amount is 0 to advance the date by one day.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Window Stats</div>
+            <div class="small muted">All values shown as average/day unless labeled otherwise</div>
+          </div>
+          <div class="panel-body">
+            <div class="window-grid" id="windowStats"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Averages by Category</div>
+          </div>
+          <div class="panel-body">
+            <div class="trans-table-wrap">
+              <table class="stats-table" id="categoryAveragesTable"></table>
+            </div>
+            <div class="cards" id="categoryAveragesCards"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Extra Stats</div>
+          </div>
+          <div class="panel-body">
+            <div class="trans-table-wrap">
+              <table class="stats-table" id="extraStatsTable"></table>
+            </div>
+            <div class="cards" id="extraStatsCards"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:18px;">
+      <div class="panel-head">
+        <div class="panel-title">Transactions</div>
+        <div class="small muted" id="transactionCountLabel">0 entries</div>
+      </div>
+      <div class="panel-body">
+        <div class="trans-table-wrap">
+          <table class="trans-table" id="transactionsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Note</th>
+                <th>Merchant</th>
+                <th>Payment Method</th>
+                <th>Tags</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsTableBody"></tbody>
+          </table>
+        </div>
+        <div class="cards" id="transactionsCards"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      setDoc,
+      updateDoc,
+      deleteDoc,
+      onSnapshot,
+      query,
+      orderBy,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBH4LeGmjVEg61b-59Tp9nWo8iw7hfwivM",
+      authDomain: "money-4a3cf.firebaseapp.com",
+      projectId: "money-4a3cf",
+      storageBucket: "money-4a3cf.firebasestorage.app",
+      messagingSenderId: "849812707825",
+      appId: "1:849812707825:web:6c12e7b0d564bbef1a8c50",
+      measurementId: "G-32WL5PEEFY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+    const transactionsRef = collection(db, "transactions");
+
+    const PASSWORD = "mmed2025";
+    const CATEGORIES = [
+      "Misc Income",
+      "Work income",
+      "Misc Spending",
+      "Groceries",
+      "Fast Food",
+      "Housing costs",
+      "Transport costs",
+      "Gambling",
+      "School costs"
+    ];
+    const INCOME_CATEGORIES = new Set(["Misc Income", "Work income"]);
+    const SPENDING_CATEGORIES = CATEGORIES.filter(c => !INCOME_CATEGORIES.has(c));
+
+    const DEFAULT_COLORS = {
+      totalSpending: "#ff4d8d",
+      totalIncome: "#4ade80",
+      spendingTodayLine: "#ff9fbd",
+      incomeTodayLine: "#86efac",
+      "Misc Income": "#7dd3fc",
+      "Work income": "#22c55e",
+      "Misc Spending": "#f87171",
+      "Groceries": "#34d399",
+      "Fast Food": "#f59e0b",
+      "Housing costs": "#818cf8",
+      "Transport costs": "#06b6d4",
+      "Gambling": "#ec4899",
+      "School costs": "#a78bfa"
+    };
+
+    const state = {
+      transactions: [],
+      filteredTransactions: [],
+      currentRange: { start: null, end: null },
+      pieDay: null,
+      lineVisibility: {
+        totalSpending: true,
+        totalIncome: true,
+        spendingTodayLine: true,
+        incomeTodayLine: true,
+        "Misc Income": true,
+        "Work income": true,
+        "Misc Spending": true,
+        "Groceries": true,
+        "Fast Food": true,
+        "Housing costs": true,
+        "Transport costs": true,
+        "Gambling": true,
+        "School costs": true
+      },
+      spendingTotalIncluded: {
+        "Misc Spending": true,
+        "Groceries": true,
+        "Fast Food": true,
+        "Housing costs": true,
+        "Transport costs": true,
+        "Gambling": true,
+        "School costs": true
+      },
+      colors: loadColors(),
+      mainChart: null,
+      pieChart: null
+    };
+
+    const els = {
+      liveStatus: document.getElementById("liveStatus"),
+      topKpis: document.getElementById("topKpis"),
+      transactionForm: document.getElementById("transactionForm"),
+      date: document.getElementById("date"),
+      category: document.getElementById("category"),
+      amount: document.getElementById("amount"),
+      note: document.getElementById("note"),
+      merchant: document.getElementById("merchant"),
+      paymentMethod: document.getElementById("paymentMethod"),
+      tags: document.getElementById("tags"),
+      editingId: document.getElementById("editingId"),
+      formTitle: document.getElementById("formTitle"),
+      formModeHint: document.getElementById("formModeHint"),
+      saveBtn: document.getElementById("saveBtn"),
+      cancelEditBtn: document.getElementById("cancelEditBtn"),
+      transactionsTableBody: document.getElementById("transactionsTableBody"),
+      transactionsCards: document.getElementById("transactionsCards"),
+      transactionCountLabel: document.getElementById("transactionCountLabel"),
+      lineToggles: document.getElementById("lineToggles"),
+      spendingTotalToggles: document.getElementById("spendingTotalToggles"),
+      colorControls: document.getElementById("colorControls"),
+      mainChartCanvas: document.getElementById("mainChart"),
+      pieChartCanvas: document.getElementById("pieChart"),
+      rangeStart: document.getElementById("rangeStart"),
+      rangeEnd: document.getElementById("rangeEnd"),
+      pieDay: document.getElementById("pieDay"),
+      applyRangeBtn: document.getElementById("applyRangeBtn"),
+      useAllTimeBtn: document.getElementById("useAllTimeBtn"),
+      resetFiltersBtn: document.getElementById("resetFiltersBtn"),
+      rangeSummary: document.getElementById("rangeSummary"),
+      pieTitle: document.getElementById("pieTitle"),
+      windowStats: document.getElementById("windowStats"),
+      categoryAveragesTable: document.getElementById("categoryAveragesTable"),
+      categoryAveragesCards: document.getElementById("categoryAveragesCards"),
+      extraStatsTable: document.getElementById("extraStatsTable"),
+      extraStatsCards: document.getElementById("extraStatsCards"),
+      downloadPdfBtn: document.getElementById("downloadPdfBtn")
+    };
+
+    init();
+
+    function init() {
+      populateCategories();
+      setDefaultDate();
+      buildLineToggles();
+      buildSpendingTotalToggles();
+      buildColorControls();
+      attachEvents();
+      subscribeToTransactions();
+    }
+
+    function populateCategories() {
+      els.category.innerHTML = CATEGORIES.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+    }
+
+    function setDefaultDate() {
+      if (!els.date.value) els.date.value = formatDateInput(new Date());
+    }
+
+    function loadColors() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("moneyTrackerLineColors") || "{}");
+        return { ...DEFAULT_COLORS, ...saved };
+      } catch {
+        return { ...DEFAULT_COLORS };
+      }
+    }
+
+    function saveColors() {
+      localStorage.setItem("moneyTrackerLineColors", JSON.stringify(state.colors));
+    }
+
+    function attachEvents() {
+      els.transactionForm.addEventListener("submit", handleFormSubmit);
+      els.cancelEditBtn.addEventListener("click", cancelEditMode);
+
+      els.amount.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const amount = Number(els.amount.value || 0);
+          if (amount === 0) {
+            e.preventDefault();
+            const next = addDays(parseDateFromInput(els.date.value), 1);
+            els.date.value = formatDateInput(next);
+          }
+        }
+      });
+
+      els.applyRangeBtn.addEventListener("click", () => {
+        state.currentRange.start = els.rangeStart.value || null;
+        state.currentRange.end = els.rangeEnd.value || null;
+        state.pieDay = els.pieDay.value || null;
+        applyFiltersAndRender();
+      });
+
+      els.useAllTimeBtn.addEventListener("click", () => {
+        els.rangeStart.value = "";
+        els.rangeEnd.value = "";
+        state.currentRange.start = null;
+        state.currentRange.end = null;
+        applyFiltersAndRender();
+      });
+
+      els.resetFiltersBtn.addEventListener("click", () => {
+        els.rangeStart.value = "";
+        els.rangeEnd.value = "";
+        els.pieDay.value = "";
+        state.currentRange.start = null;
+        state.currentRange.end = null;
+        state.pieDay = null;
+        Object.keys(state.lineVisibility).forEach(k => state.lineVisibility[k] = true);
+        Object.keys(state.spendingTotalIncluded).forEach(k => state.spendingTotalIncluded[k] = true);
+        state.colors = { ...DEFAULT_COLORS };
+        saveColors();
+        buildLineToggles();
+        buildSpendingTotalToggles();
+        buildColorControls();
+        applyFiltersAndRender();
+      });
+
+      els.pieDay.addEventListener("change", () => {
+        state.pieDay = els.pieDay.value || null;
+        renderPieChart();
+      });
+
+      els.downloadPdfBtn.addEventListener("click", exportPdf);
+    }
+
+    function subscribeToTransactions() {
+      const qRef = query(transactionsRef, orderBy("date", "asc"));
+      onSnapshot(qRef, (snapshot) => {
+        state.transactions = snapshot.docs.map(d => {
+          const data = d.data() || {};
+          return {
+            id: d.id,
+            date: data.date || "",
+            category: data.category || "",
+            type: data.type || inferType(data.category || ""),
+            amount: Number(data.amount || 0),
+            note: data.note || "",
+            merchant: data.merchant || "",
+            paymentMethod: data.paymentMethod || "",
+            tags: Array.isArray(data.tags) ? data.tags : [],
+            createdAt: data.createdAt || null,
+            updatedAt: data.updatedAt || null
+          };
+        }).sort((a,b) => a.date.localeCompare(b.date));
+
+        els.liveStatus.textContent = `Live sync active · ${state.transactions.length} transaction${state.transactions.length === 1 ? "" : "s"}`;
+        syncRangeDefaults();
+        applyFiltersAndRender();
+      }, (err) => {
+        console.error(err);
+        els.liveStatus.textContent = "Live sync failed";
+        alert("Failed to load Firestore data. Check your Firebase rules and setup.");
+      });
+    }
+
+    function syncRangeDefaults() {
+      if (!els.pieDay.value && state.transactions.length) {
+        els.pieDay.value = state.transactions[state.transactions.length - 1].date;
+        state.pieDay = els.pieDay.value;
+      }
+    }
+
+    function inferType(category) {
+      return INCOME_CATEGORIES.has(category) ? "income" : "spending";
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const scrollY = window.scrollY;
+      const editingId = els.editingId.value.trim();
+      const selectedCategory = els.category.value;
+
+      const payload = {
+        date: els.date.value,
+        category: els.category.value,
+        type: inferType(els.category.value),
+        amount: Number(els.amount.value),
+        note: els.note.value.trim(),
+        merchant: els.merchant.value.trim(),
+        paymentMethod: els.paymentMethod.value.trim(),
+        tags: parseTags(els.tags.value)
+      };
+
+      if (!payload.date || !payload.category) {
+        alert("Date and category are required.");
+        return;
+      }
+      if (!(payload.amount > 0)) {
+        alert("Amount must be greater than 0.");
+        return;
+      }
+
+      try {
+        if (editingId) {
+          await updateDoc(doc(db, "transactions", editingId), {
+            ...payload,
+            updatedAt: serverTimestamp()
+          });
+          cancelEditMode(false);
+        } else {
+          const newRef = doc(transactionsRef);
+          await setDoc(newRef, {
+            id: newRef.id,
+            ...payload,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+
+          const keepCategory = selectedCategory;
+          const keepDate = els.date.value;
+          els.transactionForm.reset();
+          els.category.value = keepCategory;
+          els.date.value = keepDate;
+        }
+
+        requestAnimationFrame(() => window.scrollTo({ top: scrollY, behavior: "instant" }));
+      } catch (err) {
+        console.error(err);
+        alert("Failed to save transaction.");
+      }
+    }
+
+    function parseTags(text) {
+      return String(text || "")
+        .split(",")
+        .map(t => t.trim())
+        .filter(Boolean);
+    }
+
+    function applyFiltersAndRender() {
+      state.filteredTransactions = filterTransactionsByRange(state.transactions, state.currentRange.start, state.currentRange.end);
+      updateRangeSummary();
+      renderTopKpis();
+      renderWindowStats();
+      renderCategoryAverages();
+      renderExtraStats();
+      renderTransactions();
+      renderMainChart();
+      renderPieChart();
+    }
+
+    function updateRangeSummary() {
+      const { start, end } = state.currentRange;
+      const label = start || end
+        ? `Using ${start || "beginning"} → ${end || "today"}`
+        : "Using all transactions";
+      els.rangeSummary.textContent = label;
+      els.transactionCountLabel.textContent = `${state.filteredTransactions.length} entr${state.filteredTransactions.length === 1 ? "y" : "ies"}`;
+    }
+
+    function filterTransactionsByRange(list, start, end) {
+      return list.filter(t => {
+        if (start && t.date < start) return false;
+        if (end && t.date > end) return false;
+        return true;
+      });
+    }
+
+    function getDaysInclusive(startDateStr, endDateStr) {
+      if (!startDateStr || !endDateStr) return 0;
+      const start = new Date(startDateStr + "T00:00:00");
+      const end = new Date(endDateStr + "T00:00:00");
+      const diff = Math.floor((end - start) / 86400000);
+      return Math.max(1, diff + 1);
+    }
+
+    function averagePerDayFromFirstToEnd(transactions, amountSelector) {
+      if (!transactions.length) return 0;
+      const first = transactions[0].date;
+      const today = formatDateInput(new Date());
+      const days = getDaysInclusive(first, today);
+      if (!days) return 0;
+      const total = transactions.reduce((sum, t) => sum + amountSelector(t), 0);
+      return total / days;
+    }
+
+    function averagePerDayInWindow(transactions, daysBack, selector) {
+      const end = new Date();
+      const start = addDays(end, -(daysBack - 1));
+      const s = formatDateInput(start);
+      const e = formatDateInput(end);
+      const list = filterTransactionsByRange(transactions, s, e);
+      const total = list.reduce((sum, t) => sum + selector(t), 0);
+      return total / daysBack;
+    }
+
+    function totalAmount(transactions, predicate = () => true) {
+      return transactions.reduce((sum, t) => sum + (predicate(t) ? Number(t.amount || 0) : 0), 0);
+    }
+
+    function money(n) {
+      return new Intl.NumberFormat("en-CA", {
+        style: "currency",
+        currency: "CAD",
+        maximumFractionDigits: 2
+      }).format(Number(n || 0));
+    }
+
+    function num(n) {
+      return Number(n || 0).toFixed(2);
+    }
+
+    function renderTopKpis() {
+      const list = state.filteredTransactions;
+      const totalIncome = totalAmount(list, t => t.type === "income");
+      const totalSpending = totalAmount(list, t => t.type === "spending");
+      const net = totalIncome - totalSpending;
+      const avgIncomeDay = averagePerDayFromFirstToEnd(list.filter(t => t.type === "income"), t => t.amount);
+      const avgSpendingDay = averagePerDayFromFirstToEnd(list.filter(t => t.type === "spending"), t => t.amount);
+      const avgNetDay = avgIncomeDay - avgSpendingDay;
+      const txnCount = list.length;
+      const firstDate = list[0]?.date || "—";
+      const lastDate = list[list.length - 1]?.date || "—";
+      const daysTracked = list.length ? getDaysInclusive(list[0].date, formatDateInput(new Date())) : 0;
+
+      const foodSpend = totalAmount(list, t => t.category === "Groceries" || t.category === "Fast Food");
+      const nonFoodSpend = totalAmount(list, t => t.type === "spending" && !["Groceries","Fast Food"].includes(t.category));
+
+      const items = [
+        { label: "Total Income", value: money(totalIncome), sub: `${money(avgIncomeDay)}/day`, cls: "good" },
+        { label: "Total Spending", value: money(totalSpending), sub: `${money(avgSpendingDay)}/day`, cls: "bad" },
+        { label: "Net", value: money(net), sub: `${money(avgNetDay)}/day`, cls: net >= 0 ? "good" : "bad" },
+        { label: "Transactions", value: String(txnCount), sub: `${daysTracked} day${daysTracked===1?"":"s"} tracked`, cls: "" },
+        { label: "Food Spending", value: money(foodSpend), sub: `${money(daysTracked ? foodSpend / daysTracked : 0)}/day`, cls: "warn" },
+        { label: "Non-Food Spending", value: money(nonFoodSpend), sub: `${money(daysTracked ? nonFoodSpend / daysTracked : 0)}/day`, cls: "" },
+        { label: "First Transaction", value: firstDate, sub: `Latest: ${lastDate}`, cls: "" },
+        { label: "Selected Range", value: state.currentRange.start || state.currentRange.end ? "Custom" : "All Time", sub: state.currentRange.start || state.currentRange.end ? `${state.currentRange.start || "beginning"} → ${state.currentRange.end || "today"}` : "Using all data", cls: "" }
+      ];
+
+      els.topKpis.innerHTML = items.map(item => `
+        <div class="kpi">
+          <div class="kpi-label">${escapeHtml(item.label)}</div>
+          <div class="kpi-value ${item.cls}">${escapeHtml(item.value)}</div>
+          <div class="kpi-sub">${escapeHtml(item.sub)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderWindowStats() {
+      const windows = [
+        { label: "Last Month", days: 30 },
+        { label: "Last 3 Months", days: 90 },
+        { label: "Last 6 Months", days: 180 },
+        { label: "Last Year", days: 365 }
+      ];
+
+      const html = windows.map(w => {
+        const incomeAvg = averagePerDayInWindow(state.transactions, w.days, t => t.type === "income" ? t.amount : 0);
+        const spendAvg = averagePerDayInWindow(state.transactions, w.days, t => t.type === "spending" ? t.amount : 0);
+        const groceryAvg = averagePerDayInWindow(state.transactions, w.days, t => t.category === "Groceries" ? t.amount : 0);
+        const fastFoodAvg = averagePerDayInWindow(state.transactions, w.days, t => t.category === "Fast Food" ? t.amount : 0);
+        const netAvg = incomeAvg - spendAvg;
+
+        return `
+          <div class="window-card">
+            <div class="window-title">${escapeHtml(w.label)}</div>
+            <div class="window-line"><span>Income/day</span><strong class="good">${money(incomeAvg)}</strong></div>
+            <div class="window-line"><span>Spending/day</span><strong class="bad">${money(spendAvg)}</strong></div>
+            <div class="window-line"><span>Net/day</span><strong class="${netAvg >= 0 ? "good" : "bad"}">${money(netAvg)}</strong></div>
+            <div class="window-line"><span>Groceries/day</span><strong>${money(groceryAvg)}</strong></div>
+            <div class="window-line"><span>Fast Food/day</span><strong>${money(fastFoodAvg)}</strong></div>
+          </div>
+        `;
+      }).join("");
+
+      els.windowStats.innerHTML = html;
+    }
+
+    function renderCategoryAverages() {
+      const windows = [
+        { label: "Last Month", days: 30 },
+        { label: "Last 3 Months", days: 90 },
+        { label: "Last 6 Months", days: 180 },
+        { label: "Last Year", days: 365 }
+      ];
+
+      const header = `
+        <thead>
+          <tr>
+            <th>Category</th>
+            ${windows.map(w => `<th>${escapeHtml(w.label)}</th>`).join("")}
+          </tr>
+        </thead>
+      `;
+
+      const body = CATEGORIES.map(cat => {
+        const cells = windows.map(w => {
+          const avg = averagePerDayInWindow(state.transactions, w.days, t => t.category === cat ? t.amount : 0);
+          return `<td>${money(avg)}/day</td>`;
+        }).join("");
+        return `<tr><td>${escapeHtml(cat)}</td>${cells}</tr>`;
+      }).join("");
+
+      els.categoryAveragesTable.innerHTML = `${header}<tbody>${body}</tbody>`;
+
+      els.categoryAveragesCards.innerHTML = CATEGORIES.map(cat => `
+        <div class="card">
+          <div style="font-weight:800;margin-bottom:8px;">${escapeHtml(cat)}</div>
+          ${windows.map(w => `
+            <div class="card-row">
+              <div class="card-key">${escapeHtml(w.label)}</div>
+              <div class="card-value">${money(averagePerDayInWindow(state.transactions, w.days, t => t.category === cat ? t.amount : 0))}/day</div>
+            </div>
+          `).join("")}
+        </div>
+      `).join("");
+    }
+
+    function renderExtraStats() {
+      const list = state.filteredTransactions;
+      const spendingList = list.filter(t => t.type === "spending");
+      const incomeList = list.filter(t => t.type === "income");
+      const groceryTx = spendingList.filter(t => t.category === "Groceries");
+      const fastFoodTx = spendingList.filter(t => t.category === "Fast Food");
+      const foodSpend = totalAmount(spendingList, t => ["Groceries","Fast Food"].includes(t.category));
+      const nonFoodSpend = totalAmount(spendingList, t => !["Groceries","Fast Food"].includes(t.category));
+      const totalSpend = totalAmount(spendingList, () => true);
+      const totalIncomeVal = totalAmount(incomeList, () => true);
+      const periodDays = list.length ? getDaysInclusive(list[0].date, list[list.length - 1].date) : 0;
+      const avgSpendDay = periodDays ? totalSpend / periodDays : 0;
+      const avgIncomeDay = periodDays ? totalIncomeVal / periodDays : 0;
+      const avgFoodDay = periodDays ? foodSpend / periodDays : 0;
+      const avgNonFoodDay = periodDays ? nonFoodSpend / periodDays : 0;
+      const avgGroceryBill = groceryTx.length ? totalAmount(groceryTx) / groceryTx.length : 0;
+      const avgFastFoodBill = fastFoodTx.length ? totalAmount(fastFoodTx) / fastFoodTx.length : 0;
+      const projectedFoodYear = avgFoodDay * 365;
+      const projectedNonFoodYear = avgNonFoodDay * 365;
+      const projectedSpendYear = avgSpendDay * 365;
+      const projectedIncomeYear = avgIncomeDay * 365;
+      const foodShare = totalSpend ? (foodSpend / totalSpend) * 100 : 0;
+      const savingsRate = totalIncomeVal ? ((totalIncomeVal - totalSpend) / totalIncomeVal) * 100 : 0;
+      const avgTransaction = list.length ? (totalIncomeVal + totalSpend) / list.length : 0;
+      const maxSpend = spendingList.reduce((m, t) => Math.max(m, t.amount), 0);
+      const maxIncome = incomeList.reduce((m, t) => Math.max(m, t.amount), 0);
+
+      const rows = [
+        ["Average Grocery Bill", money(avgGroceryBill)],
+        ["Average Fast Food Bill", money(avgFastFoodBill)],
+        ["Projected Food Per Year", money(projectedFoodYear)],
+        ["Projected Non-Food Per Year", money(projectedNonFoodYear)],
+        ["Projected Total Spending Per Year", money(projectedSpendYear)],
+        ["Projected Total Income Per Year", money(projectedIncomeYear)],
+        ["Food Share of Spending", `${num(foodShare)}%`],
+        ["Savings Rate", `${num(savingsRate)}%`],
+        ["Average Transaction Size", money(avgTransaction)],
+        ["Largest Spending Transaction", money(maxSpend)],
+        ["Largest Income Transaction", money(maxIncome)],
+        ["Average Food Spending Per Day", `${money(avgFoodDay)}/day`],
+        ["Average Non-Food Spending Per Day", `${money(avgNonFoodDay)}/day`],
+        ["Average Income Per Day", `${money(avgIncomeDay)}/day`],
+        ["Average Spending Per Day", `${money(avgSpendDay)}/day`]
+      ];
+
+      els.extraStatsTable.innerHTML = `
+        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+        <tbody>${rows.map(r => `<tr><td>${escapeHtml(r[0])}</td><td>${escapeHtml(r[1])}</td></tr>`).join("")}</tbody>
+      `;
+
+      els.extraStatsCards.innerHTML = rows.map(r => `
+        <div class="card">
+          <div class="card-row">
+            <div class="card-key">${escapeHtml(r[0])}</div>
+            <div class="card-value">${escapeHtml(r[1])}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderTransactions() {
+      const list = [...state.filteredTransactions].sort((a,b) => b.date.localeCompare(a.date));
+      els.transactionsTableBody.innerHTML = list.map(t => `
+        <tr>
+          <td>${escapeHtml(t.date)}</td>
+          <td>${escapeHtml(t.category)}</td>
+          <td><span class="pill ${t.type}">${escapeHtml(t.type)}</span></td>
+          <td>${money(t.amount)}</td>
+          <td>${escapeHtml(t.note || "—")}</td>
+          <td>${escapeHtml(t.merchant || "—")}</td>
+          <td>${escapeHtml(t.paymentMethod || "—")}</td>
+          <td>${t.tags?.length ? t.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("") : "—"}</td>
+          <td>${escapeHtml(formatTimestamp(t.createdAt))}</td>
+          <td>${escapeHtml(formatTimestamp(t.updatedAt))}</td>
+          <td>
+            <div class="inline">
+              <button class="btn" data-action="edit" data-id="${escapeHtml(t.id)}">Edit</button>
+              <button class="btn btn-danger" data-action="delete" data-id="${escapeHtml(t.id)}">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+
+      els.transactionsCards.innerHTML = list.map(t => `
+        <div class="card">
+          <div class="card-row"><div class="card-key">Date</div><div class="card-value">${escapeHtml(t.date)}</div></div>
+          <div class="card-row"><div class="card-key">Category</div><div class="card-value">${escapeHtml(t.category)}</div></div>
+          <div class="card-row"><div class="card-key">Type</div><div class="card-value"><span class="pill ${t.type}">${escapeHtml(t.type)}</span></div></div>
+          <div class="card-row"><div class="card-key">Amount</div><div class="card-value">${money(t.amount)}</div></div>
+          <div class="card-row"><div class="card-key">Note</div><div class="card-value">${escapeHtml(t.note || "—")}</div></div>
+          <div class="card-row"><div class="card-key">Merchant</div><div class="card-value">${escapeHtml(t.merchant || "—")}</div></div>
+          <div class="card-row"><div class="card-key">Payment Method</div><div class="card-value">${escapeHtml(t.paymentMethod || "—")}</div></div>
+          <div class="card-row"><div class="card-key">Tags</div><div class="card-value">${t.tags?.length ? t.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("") : "—"}</div></div>
+          <div class="card-row"><div class="card-key">Created At</div><div class="card-value">${escapeHtml(formatTimestamp(t.createdAt))}</div></div>
+          <div class="card-row"><div class="card-key">Updated At</div><div class="card-value">${escapeHtml(formatTimestamp(t.updatedAt))}</div></div>
+          <div class="inline" style="margin-top:10px;">
+            <button class="btn" data-action="edit" data-id="${escapeHtml(t.id)}">Edit</button>
+            <button class="btn btn-danger" data-action="delete" data-id="${escapeHtml(t.id)}">Delete</button>
+          </div>
+        </div>
+      `).join("");
+
+      document.querySelectorAll('[data-action="edit"]').forEach(btn => {
+        btn.addEventListener("click", () => handleEdit(btn.dataset.id));
+      });
+      document.querySelectorAll('[data-action="delete"]').forEach(btn => {
+        btn.addEventListener("click", () => handleDelete(btn.dataset.id));
+      });
+    }
+
+    function handleEdit(id) {
+      const pass = prompt("Enter password to edit:");
+      if (pass !== PASSWORD) {
+        alert("Wrong password.");
+        return;
+      }
+
+      const t = state.transactions.find(x => x.id === id);
+      if (!t) return;
+
+      const scrollY = window.scrollY;
+      els.editingId.value = t.id;
+      els.date.value = t.date || "";
+      els.category.value = t.category || CATEGORIES[0];
+      els.amount.value = String(t.amount ?? "");
+      els.note.value = t.note || "";
+      els.merchant.value = t.merchant || "";
+      els.paymentMethod.value = t.paymentMethod || "";
+      els.tags.value = (t.tags || []).join(", ");
+      els.formTitle.textContent = "Edit Transaction";
+      els.formModeHint.textContent = `Editing ${t.id}`;
+      els.saveBtn.textContent = "Save Changes";
+      els.cancelEditBtn.classList.remove("hide");
+
+      requestAnimationFrame(() => window.scrollTo({ top: scrollY, behavior: "instant" }));
+    }
+
+    function cancelEditMode(clearForm = true) {
+      const keepCategory = els.category.value;
+      const keepDate = els.date.value;
+      els.editingId.value = "";
+      els.formTitle.textContent = "Add Transaction";
+      els.formModeHint.textContent = "New entry";
+      els.saveBtn.textContent = "Save Transaction";
+      els.cancelEditBtn.classList.add("hide");
+      if (clearForm) {
+        els.transactionForm.reset();
+        els.category.value = keepCategory || CATEGORIES[0];
+        els.date.value = keepDate || formatDateInput(new Date());
+      }
+    }
+
+    async function handleDelete(id) {
+      const pass = prompt("Enter password to delete:");
+      if (pass !== PASSWORD) {
+        alert("Wrong password.");
+        return;
+      }
+      if (!confirm("Delete this transaction?")) return;
+
+      try {
+        await deleteDoc(doc(db, "transactions", id));
+      } catch (err) {
+        console.error(err);
+        alert("Failed to delete transaction.");
+      }
+    }
+
+    function buildLineToggles() {
+      const items = [
+        "totalSpending",
+        "totalIncome",
+        ...CATEGORIES,
+        "spendingTodayLine",
+        "incomeTodayLine"
+      ];
+
+      const labels = {
+        totalSpending: "Total Spending",
+        totalIncome: "Total Income",
+        spendingTodayLine: "Today's Spending Avg Line",
+        incomeTodayLine: "Today's Income Avg Line"
+      };
+
+      els.lineToggles.innerHTML = items.map(key => `
+        <label class="check-pill">
+          <span>${escapeHtml(labels[key] || key)}</span>
+          <input type="checkbox" ${state.lineVisibility[key] ? "checked" : ""} data-line-toggle="${escapeHtml(key)}" />
+        </label>
+      `).join("");
+
+      els.lineToggles.querySelectorAll("[data-line-toggle]").forEach(input => {
+        input.addEventListener("change", () => {
+          state.lineVisibility[input.dataset.lineToggle] = input.checked;
+          renderMainChart();
+        });
+      });
+    }
+
+    function buildSpendingTotalToggles() {
+      els.spendingTotalToggles.innerHTML = SPENDING_CATEGORIES.map(key => `
+        <label class="check-pill">
+          <span>${escapeHtml(key)}</span>
+          <input type="checkbox" ${state.spendingTotalIncluded[key] ? "checked" : ""} data-total-toggle="${escapeHtml(key)}" />
+        </label>
+      `).join("");
+
+      els.spendingTotalToggles.querySelectorAll("[data-total-toggle]").forEach(input => {
+        input.addEventListener("change", () => {
+          state.spendingTotalIncluded[input.dataset.totalToggle] = input.checked;
+          renderMainChart();
+        });
+      });
+    }
+
+    function buildColorControls() {
+      const items = [
+        "totalSpending",
+        "totalIncome",
+        "Misc Income",
+        "Work income",
+        "Misc Spending",
+        "Groceries",
+        "Fast Food",
+        "Housing costs",
+        "Transport costs",
+        "Gambling",
+        "School costs",
+        "spendingTodayLine",
+        "incomeTodayLine"
+      ];
+
+      const labels = {
+        totalSpending: "Total Spending",
+        totalIncome: "Total Income",
+        spendingTodayLine: "Today's Spending Avg",
+        incomeTodayLine: "Today's Income Avg"
+      };
+
+      els.colorControls.innerHTML = items.map(key => `
+        <div class="color-row">
+          <div class="small">${escapeHtml(labels[key] || key)}</div>
+          <input type="color" value="${escapeHtml(state.colors[key] || "#ffffff")}" data-color-key="${escapeHtml(key)}" />
+        </div>
+      `).join("");
+
+      els.colorControls.querySelectorAll("[data-color-key]").forEach(input => {
+        input.addEventListener("input", () => {
+          state.colors[input.dataset.colorKey] = input.value;
+          saveColors();
+          renderMainChart();
+          renderPieChart();
+        });
+      });
+    }
+
+    function renderMainChart() {
+      const all = state.filteredTransactions;
+      const labels = buildDateLabels(all);
+      const cumulative = buildCumulativeAverageSeries(all, labels);
+
+      const spendingCategoryDatasets = SPENDING_CATEGORIES.map(cat => ({
+        label: cat,
+        data: cumulative.spendingByCategory[cat],
+        borderColor: state.colors[cat],
+        backgroundColor: hexToRgba(state.colors[cat], 0.22),
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHitRadius: 12,
+        borderWidth: 2,
+        tension: 0.22,
+        fill: true,
+        stack: "spending",
+        hidden: !state.lineVisibility[cat]
+      }));
+
+      const incomeCategoryDatasets = ["Misc Income","Work income"].map(cat => ({
+        label: cat,
+        data: cumulative.incomeByCategory[cat],
+        borderColor: state.colors[cat],
+        backgroundColor: hexToRgba(state.colors[cat], 0.18),
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHitRadius: 12,
+        borderWidth: 2,
+        tension: 0.22,
+        fill: true,
+        stack: "income",
+        hidden: !state.lineVisibility[cat]
+      }));
+
+      const totalSpendingValue = cumulative.totalSpendingAvg[cumulative.totalSpendingAvg.length - 1] || 0;
+      const totalIncomeValue = cumulative.totalIncomeAvg[cumulative.totalIncomeAvg.length - 1] || 0;
+
+      const overlayDatasets = [
+        {
+          label: "Total Spending",
+          data: cumulative.totalSpendingAvg,
+          borderColor: state.colors.totalSpending,
+          backgroundColor: "transparent",
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHitRadius: 12,
+          borderWidth: 3,
+          tension: 0.22,
+          fill: false,
+          hidden: !state.lineVisibility.totalSpending
+        },
+        {
+          label: "Total Income",
+          data: cumulative.totalIncomeAvg,
+          borderColor: state.colors.totalIncome,
+          backgroundColor: "transparent",
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHitRadius: 12,
+          borderWidth: 3,
+          tension: 0.22,
+          fill: false,
+          hidden: !state.lineVisibility.totalIncome
+        },
+        {
+          label: "Today's Spending Avg",
+          data: labels.map(() => totalSpendingValue),
+          borderColor: state.colors.spendingTodayLine,
+          borderDash: [8, 6],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          borderWidth: 2,
+          tension: 0,
+          fill: false,
+          hidden: !state.lineVisibility.spendingTodayLine
+        },
+        {
+          label: "Today's Income Avg",
+          data: labels.map(() => totalIncomeValue),
+          borderColor: state.colors.incomeTodayLine,
+          borderDash: [8, 6],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          borderWidth: 2,
+          tension: 0,
+          fill: false,
+          hidden: !state.lineVisibility.incomeTodayLine
+        }
+      ];
+
+      const datasets = [...spendingCategoryDatasets, ...incomeCategoryDatasets, ...overlayDatasets];
+
+      if (state.mainChart) state.mainChart.destroy();
+      state.mainChart = new Chart(els.mainChartCanvas, {
+        type: "line",
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.dataset.label}: ${money(ctx.parsed.y)} / day`
+              }
+            }
+          },
+          elements: {
+            line: { capBezierPoints: true }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#cfc8d2", maxRotation: 0, autoSkip: true },
+              grid: { color: "rgba(255,255,255,.04)" }
+            },
+            y: {
+              ticks: {
+                color: "#cfc8d2",
+                callback: (v) => money(v)
+              },
+              grid: { color: "rgba(255,255,255,.05)" }
+            }
+          }
+        }
+      });
+    }
+
+    function buildDateLabels(list) {
+      if (!list.length) return [];
+      const start = list[0].date;
+      const end = list[list.length - 1].date;
+      const out = [];
+      let cursor = parseDateFromInput(start);
+      const last = parseDateFromInput(end);
+      while (cursor <= last) {
+        out.push(formatDateInput(cursor));
+        cursor = addDays(cursor, 1);
+      }
+      return out;
+    }
+
+    function buildCumulativeAverageSeries(list, labels) {
+      const txByDate = new Map();
+      for (const t of list) {
+        if (!txByDate.has(t.date)) txByDate.set(t.date, []);
+        txByDate.get(t.date).push(t);
+      }
+
+      const runningSpendByCat = Object.fromEntries(SPENDING_CATEGORIES.map(c => [c, 0]));
+      const runningIncomeByCat = Object.fromEntries(["Misc Income","Work income"].map(c => [c, 0]));
+
+      const spendingByCategory = Object.fromEntries(SPENDING_CATEGORIES.map(c => [c, []]));
+      const incomeByCategory = Object.fromEntries(["Misc Income","Work income"].map(c => [c, []]));
+      const totalSpendingAvg = [];
+      const totalIncomeAvg = [];
+      const firstDate = labels[0];
+
+      labels.forEach((dateStr) => {
+        const txns = txByDate.get(dateStr) || [];
+        for (const t of txns) {
+          if (t.type === "spending" && runningSpendByCat[t.category] !== undefined) {
+            runningSpendByCat[t.category] += t.amount;
+          }
+          if (t.type === "income" && runningIncomeByCat[t.category] !== undefined) {
+            runningIncomeByCat[t.category] += t.amount;
+          }
+        }
+
+        const days = getDaysInclusive(firstDate, dateStr);
+        let spendingTotal = 0;
+        for (const cat of SPENDING_CATEGORIES) {
+          const avg = runningSpendByCat[cat] / days;
+          spendingByCategory[cat].push(avg);
+          if (state.spendingTotalIncluded[cat]) spendingTotal += avg;
+        }
+
+        let incomeTotal = 0;
+        for (const cat of ["Misc Income","Work income"]) {
+          const avg = runningIncomeByCat[cat] / days;
+          incomeByCategory[cat].push(avg);
+          incomeTotal += avg;
+        }
+
+        totalSpendingAvg.push(spendingTotal);
+        totalIncomeAvg.push(incomeTotal);
+      });
+
+      return { spendingByCategory, incomeByCategory, totalSpendingAvg, totalIncomeAvg };
+    }
+
+    function renderPieChart() {
+      const source = state.filteredTransactions.filter(t => t.type === "spending");
+      let pieList = source;
+      if (state.pieDay) {
+        pieList = source.filter(t => t.date === state.pieDay);
+        els.pieTitle.textContent = `Spending by category on ${state.pieDay}`;
+      } else {
+        els.pieTitle.textContent = "Selected range spending by category";
+      }
+
+      const sums = {};
+      for (const cat of SPENDING_CATEGORIES) sums[cat] = 0;
+      for (const t of pieList) sums[t.category] = (sums[t.category] || 0) + t.amount;
+
+      const labels = SPENDING_CATEGORIES.filter(cat => sums[cat] > 0);
+      const data = labels.map(cat => sums[cat]);
+      const colors = labels.map(cat => state.colors[cat]);
+
+      if (state.pieChart) state.pieChart.destroy();
+      state.pieChart = new Chart(els.pieChartCanvas, {
+        type: "pie",
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderColor: "#0f0f18",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: "#ddd6de" } },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const total = data.reduce((a,b) => a+b, 0) || 1;
+                  const pct = (ctx.parsed / total) * 100;
+                  return `${ctx.label}: ${money(ctx.parsed)} (${num(pct)}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    async function exportPdf() {
+      const { jsPDF } = window.jspdf;
+      const docPdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+      const pageWidth = docPdf.internal.pageSize.getWidth();
+      const margin = 34;
+      let y = 36;
+
+      const addTitle = (text, size = 18) => {
+        docPdf.setFont("helvetica", "bold");
+        docPdf.setFontSize(size);
+        docPdf.text(text, margin, y);
+        y += size + 8;
+      };
+
+      const addText = (text, size = 10) => {
+        docPdf.setFont("helvetica", "normal");
+        docPdf.setFontSize(size);
+        const lines = docPdf.splitTextToSize(text, pageWidth - margin * 2);
+        docPdf.text(lines, margin, y);
+        y += lines.length * (size + 2) + 4;
+      };
+
+      const addPageIfNeeded = (needed = 120) => {
+        if (y + needed > docPdf.internal.pageSize.getHeight() - 30) {
+          docPdf.addPage();
+          y = 36;
+        }
+      };
+
+      const rangeLabel = state.currentRange.start || state.currentRange.end
+        ? `${state.currentRange.start || "beginning"} → ${state.currentRange.end || "today"}`
+        : "All Time";
+
+      const list = state.filteredTransactions;
+      const totalIncome = totalAmount(list, t => t.type === "income");
+      const totalSpending = totalAmount(list, t => t.type === "spending");
+      const net = totalIncome - totalSpending;
+
+      addTitle("Money Tracker Summary");
+      addText(`Selected Date Range: ${rangeLabel}`);
+      addText(`Generated: ${new Date().toLocaleString()}`);
+
+      addTitle("Summary Totals", 14);
+      docPdf.autoTable({
+        startY: y,
+        margin: { left: margin, right: margin },
+        head: [["Metric", "Value"]],
+        body: [
+          ["Total Income", money(totalIncome)],
+          ["Total Spending", money(totalSpending)],
+          ["Net", money(net)],
+          ["Transactions", String(list.length)]
+        ],
+        styles: { fontSize: 9, fillColor: [17,17,26], textColor: [240,240,240], lineColor: [50,50,65], lineWidth: 0.2 },
+        headStyles: { fillColor: [176,11,85] }
+      });
+      y = docPdf.lastAutoTable.finalY + 16;
+
+      addTitle("Quick Stats", 14);
+      const quickRows = [
+        ["Income/day", money(averagePerDayFromFirstToEnd(list.filter(t=>t.type==="income"), t=>t.amount))],
+        ["Spending/day", money(averagePerDayFromFirstToEnd(list.filter(t=>t.type==="spending"), t=>t.amount))],
+        ["Food/day", money(averagePerDayFromFirstToEnd(list.filter(t=>["Groceries","Fast Food"].includes(t.category)), t=>t.amount))],
+        ["Non-food/day", money(averagePerDayFromFirstToEnd(list.filter(t=>t.type==="spending" && !["Groceries","Fast Food"].includes(t.category)), t=>t.amount))]
+      ];
+      docPdf.autoTable({
+        startY: y,
+        margin: { left: margin, right: margin },
+        head: [["Metric", "Value"]],
+        body: quickRows,
+        styles: { fontSize: 9, fillColor: [17,17,26], textColor: [240,240,240], lineColor: [50,50,65], lineWidth: 0.2 },
+        headStyles: { fillColor: [176,11,85] }
+      });
+      y = docPdf.lastAutoTable.finalY + 16;
+
+      addTitle("Averages by Category", 14);
+      const avgRows = CATEGORIES.map(cat => [
+        cat,
+        `${money(averagePerDayInWindow(state.transactions, 30, t => t.category === cat ? t.amount : 0))}/day`,
+        `${money(averagePerDayInWindow(state.transactions, 90, t => t.category === cat ? t.amount : 0))}/day`,
+        `${money(averagePerDayInWindow(state.transactions, 180, t => t.category === cat ? t.amount : 0))}/day`,
+        `${money(averagePerDayInWindow(state.transactions, 365, t => t.category === cat ? t.amount : 0))}/day`
+      ]);
+      docPdf.autoTable({
+        startY: y,
+        margin: { left: margin, right: margin },
+        head: [["Category", "Last Month", "Last 3 Months", "Last 6 Months", "Last Year"]],
+        body: avgRows,
+        styles: { fontSize: 8, fillColor: [17,17,26], textColor: [240,240,240], lineColor: [50,50,65], lineWidth: 0.2 },
+        headStyles: { fillColor: [176,11,85] }
+      });
+      y = docPdf.lastAutoTable.finalY + 16;
+
+      addPageIfNeeded(300);
+      addTitle("Charts", 14);
+
+      const mainImg = els.mainChartCanvas.toDataURL("image/png", 1.0);
+      docPdf.addImage(mainImg, "PNG", margin, y, pageWidth - margin * 2, 220);
+      y += 232;
+
+      addPageIfNeeded(260);
+      const pieImg = els.pieChartCanvas.toDataURL("image/png", 1.0);
+      docPdf.addImage(pieImg, "PNG", margin, y, pageWidth - margin * 2, 220);
+      y += 232;
+
+      addPageIfNeeded(180);
+      addTitle("Full Transactions", 14);
+      const rows = [...state.filteredTransactions].sort((a,b) => b.date.localeCompare(a.date)).map(t => ([
+        t.id,
+        t.date,
+        t.category,
+        t.type,
+        money(t.amount),
+        t.note || "",
+        t.merchant || "",
+        t.paymentMethod || "",
+        (t.tags || []).join(", "),
+        formatTimestamp(t.createdAt),
+        formatTimestamp(t.updatedAt)
+      ]));
+
+      docPdf.autoTable({
+        startY: y,
+        margin: { left: 18, right: 18 },
+        head: [[
+          "ID","Date","Category","Type","Amount","Note","Merchant","Payment Method","Tags","Created At","Updated At"
+        ]],
+        body: rows,
+        styles: { fontSize: 6.8, fillColor: [17,17,26], textColor: [240,240,240], lineColor: [50,50,65], lineWidth: 0.2, overflow: "linebreak", cellWidth: "wrap" },
+        headStyles: { fillColor: [176,11,85] },
+        tableWidth: "auto"
+      });
+
+      docPdf.save("money-tracker-summary.pdf");
+    }
+
+    function formatTimestamp(ts) {
+      try {
+        if (!ts) return "—";
+        if (typeof ts?.toDate === "function") {
+          return ts.toDate().toLocaleString();
+        }
+        if (ts.seconds) {
+          return new Date(ts.seconds * 1000).toLocaleString();
+        }
+        return "—";
+      } catch {
+        return "—";
+      }
+    }
+
+    function formatDateInput(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseDateFromInput(v) {
+      if (!v) return new Date();
+      return new Date(v + "T00:00:00");
+    }
+
+    function addDays(date, days) {
+      const d = new Date(date);
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function hexToRgba(hex, alpha) {
+      const c = hex.replace("#", "");
+      const bigint = parseInt(c.length === 3 ? c.split("").map(x => x + x).join("") : c, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+  </script>
+</body>
+</html>      margin: 0;
       font-size: clamp(1.5rem, 3vw, 2.5rem);
       letter-spacing: -0.04em;
       font-weight: 800;
