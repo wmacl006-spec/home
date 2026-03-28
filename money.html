@@ -3,1674 +3,1340 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Money Tracker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <title>Money Tracker Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
   <style>
     :root {
-      --bg: #0b0b0f;
-      --bg-soft: #12121a;
-      --panel: #171722;
-      --panel-2: #1d1d2a;
-      --panel-3: #252538;
-      --text: #f4f4f8;
-      --muted: #a7a8b5;
-      --border: rgba(255,255,255,0.08);
+      --bg: #090a0f;
+      --bg-2: #0f1118;
+      --panel: rgba(18, 20, 31, 0.92);
+      --panel-2: rgba(24, 27, 40, 0.95);
+      --panel-3: rgba(29, 33, 48, 0.95);
+      --text: #f4f1f5;
+      --muted: #9ca3b5;
       --accent: #b00b55;
-      --accent-2: #d11872;
-      --good: #2ecc71;
-      --bad: #ff5c7a;
-      --warning: #f0b429;
-      --shadow: 0 12px 40px rgba(0,0,0,0.35);
-      --radius-xl: 22px;
-      --radius-lg: 16px;
-      --radius-md: 12px;
-      --input-h: 46px;
+      --accent-2: #cf2d7a;
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.14);
+      --danger: #ff6b81;
+      --success: #57d38c;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
     }
 
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: linear-gradient(180deg, #09090c 0%, #0e0e13 100%); color: var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    body { min-height: 100vh; }
+    html, body { min-height: 100%; }
 
-    .app {
-      width: min(1500px, calc(100vw - 20px));
-      margin: 10px auto 24px;
-      display: grid;
-      gap: 14px;
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(176, 11, 85, 0.23), transparent 23%),
+        radial-gradient(circle at bottom left, rgba(176, 11, 85, 0.12), transparent 28%),
+        linear-gradient(180deg, #090a0f 0%, #0b0d14 100%);
+    }
+
+    .wrap {
+      width: min(1680px, calc(100% - 28px));
+      margin: 20px auto 32px;
     }
 
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 14px;
-      padding: 14px 18px;
-      background: rgba(23, 23, 34, 0.88);
+      gap: 16px;
+      padding: 24px 28px;
       border: 1px solid var(--border);
       border-radius: var(--radius-xl);
+      background: linear-gradient(145deg, rgba(176, 11, 85, 0.16), rgba(255,255,255,0.03));
       box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      position: sticky;
-      top: 8px;
-      z-index: 20;
+      margin-bottom: 18px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-badge {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent), #6e0e7d);
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 18px;
-      box-shadow: 0 8px 24px rgba(176, 11, 85, 0.45);
-    }
-
-    .brand h1 {
+    .topbar h1 {
       margin: 0;
-      font-size: 1.08rem;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
+      font-size: clamp(1.6rem, 3vw, 2.7rem);
+      letter-spacing: -0.04em;
+      font-weight: 800;
     }
 
-    .brand p {
-      margin: 2px 0 0;
-      color: var(--muted);
-      font-size: 0.86rem;
-    }
-
-    .top-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1.2fr 1.8fr;
-      gap: 14px;
-      align-items: start;
-    }
-
-    .left-col, .right-col {
-      display: grid;
-      gap: 14px;
-      align-content: start;
-    }
-
-    .panel {
-      background: linear-gradient(180deg, rgba(28,28,39,0.98), rgba(20,20,29,0.98));
+    .topbar .tag {
+      padding: 10px 14px;
+      border-radius: 999px;
       border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .panel-header {
-      padding: 16px 18px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 10px;
-    }
-
-    .panel-title-wrap h2,
-    .panel-title-wrap h3 {
-      margin: 0;
-      font-size: 1rem;
-      letter-spacing: -0.02em;
-    }
-
-    .panel-title-wrap p {
-      margin: 5px 0 0;
+      background: rgba(255,255,255,0.05);
       color: var(--muted);
-      font-size: 0.84rem;
-    }
-
-    .panel-body {
-      padding: 0 18px 18px;
-    }
-
-    .hero-stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 10px;
-      padding: 0 18px 18px;
-    }
-
-    .stat-card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 18px;
-      padding: 14px;
-      min-height: 100px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .stat-label {
-      color: var(--muted);
-      font-size: 0.8rem;
-      line-height: 1.25;
-    }
-
-    .stat-value {
-      font-size: 1.3rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      word-break: break-word;
-    }
-
-    .stat-sub {
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-
-    .good { color: var(--good); }
-    .bad { color: var(--bad); }
-    .warning { color: var(--warning); }
-
-    .btn, button, select, input, textarea {
-      font: inherit;
-    }
-
-    .btn {
-      border: 0;
-      cursor: pointer;
-      height: 44px;
-      border-radius: 14px;
-      padding: 0 16px;
+      font-size: 0.88rem;
       font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
-      text-decoration: none;
       white-space: nowrap;
     }
 
-    .btn:hover { transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: white;
-      box-shadow: 0 10px 24px rgba(176, 11, 85, 0.32);
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
     }
 
-    .btn-secondary {
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,0.08);
+    .card,
+    .panel {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow: var(--shadow);
     }
 
-    .btn-danger {
-      background: rgba(255,92,122,0.14);
-      color: #ffd7df;
-      border: 1px solid rgba(255,92,122,0.24);
+    .card {
+      border-radius: var(--radius-lg);
+      padding: 18px 18px 16px;
     }
 
-    .btn-small {
-      height: 36px;
-      border-radius: 12px;
-      padding: 0 12px;
-      font-size: 0.86rem;
+    .label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
       font-weight: 700;
     }
 
-    .form-grid {
+    .value {
+      font-size: clamp(1.35rem, 2vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .panel {
+      border-radius: var(--radius-xl);
+      padding: 18px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1.06rem;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-subtle {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .main-layout {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
+      grid-template-columns: minmax(0, 1.75fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .left-stack,
+    .right-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .chart-shell {
+      height: 700px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+      padding: 14px;
+    }
+
+    .pie-chart-shell {
+      height: 360px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+      padding: 14px;
+    }
+
+    form {
+      display: grid;
       gap: 12px;
     }
 
-    .field {
+    .form-row,
+    .range-row,
+    .button-row {
       display: grid;
-      gap: 7px;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
 
-    .field.full { grid-column: 1 / -1; }
+    .button-row.three {
+      grid-template-columns: repeat(3, 1fr);
+    }
 
-    .field label {
-      font-size: 0.8rem;
+    label.input-label {
+      display: grid;
+      gap: 8px;
+      font-size: 0.9rem;
       color: var(--muted);
       font-weight: 600;
     }
 
-    .input, .textarea, .select {
+    input, select, button {
       width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: var(--text);
       border-radius: 14px;
-      padding: 0 14px;
-      height: var(--input-h);
-      outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    }
-
-    .textarea {
-      min-height: 100px;
-      height: auto;
+      border: 1px solid var(--border);
+      background: #0d1018;
+      color: var(--text);
       padding: 12px 14px;
-      resize: vertical;
+      font: inherit;
     }
 
-    .input:focus, .textarea:focus, .select:focus {
+    input:focus, select:focus {
+      outline: 2px solid rgba(176, 11, 85, 0.38);
       border-color: rgba(176, 11, 85, 0.55);
-      box-shadow: 0 0 0 4px rgba(176, 11, 85, 0.14);
-      background: rgba(255,255,255,0.06);
     }
 
-    .form-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
+    button {
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.14s ease, filter 0.14s ease, opacity 0.14s ease;
     }
 
-    .hint {
-      margin-top: 8px;
+    button:hover { transform: translateY(-1px); filter: brightness(1.05); }
+    button:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .primary-btn {
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+
+    .ghost-btn {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .danger-btn {
+      border: none;
+      background: linear-gradient(135deg, #8e1938, #6c1029);
+    }
+
+    .status {
+      min-height: 1.2em;
+      margin-top: 2px;
       color: var(--muted);
-      font-size: 0.78rem;
+      font-size: 0.92rem;
     }
 
-    .filter-grid {
+    .controls-wrap {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
       gap: 10px;
-      padding: 0 18px 18px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 4px;
     }
 
-    .chart-wrap {
-      padding: 0 18px 18px;
-    }
-
-    .chart-card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 20px;
-      padding: 12px;
-      overflow: hidden;
-    }
-
-    .chart-toolbar {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
+    .check-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
       align-items: center;
-      padding: 0 0 12px;
+      padding: 12px 13px;
+      border-radius: 14px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
     }
 
-    .chip-group {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+    .check-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      margin: 0;
     }
 
-    .chip {
+    .line-color-input {
+      width: 42px;
+      height: 32px;
+      padding: 2px;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #0d1018;
+    }
+
+    .line-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+    .line-color-input::-webkit-color-swatch,
+    .line-color-input::-moz-color-swatch {
+      border: none;
+      border-radius: 8px;
+    }
+
+    .range-pill {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
       background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 999px;
-      font-size: 0.8rem;
-      color: var(--text);
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
     }
 
-    .chip input[type="checkbox"] {
-      accent-color: var(--accent);
-      transform: translateY(1px);
-    }
-
-    .color-input {
-      width: 28px;
-      height: 28px;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      cursor: pointer;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    canvas {
-      width: 100% !important;
-      max-width: 100%;
-    }
-
-    .main-chart-canvas {
-      height: 420px !important;
-    }
-
-    .pie-chart-canvas {
-      height: 320px !important;
-    }
-
-    .tables-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .mini-table-wrap {
-      padding: 0 18px 18px;
-    }
-
-    .table-shell {
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 18px;
-      overflow: hidden;
+    .quick-table-wrap,
+    .avg-table-wrap,
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,0.015);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 760px;
+      font-size: 0.95rem;
+    }
+
+    .quick-table,
+    .avg-table {
+      min-width: 1080px;
     }
 
     th, td {
-      padding: 12px 12px;
+      padding: 14px 14px;
       text-align: left;
       border-bottom: 1px solid rgba(255,255,255,0.06);
-      vertical-align: top;
-      font-size: 0.87rem;
+      vertical-align: middle;
     }
 
     th {
-      color: #dadbea;
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       font-weight: 700;
-      font-size: 0.8rem;
-      background: rgba(255,255,255,0.03);
+      background: rgba(255,255,255,0.02);
       position: sticky;
       top: 0;
       z-index: 1;
     }
 
-    td.mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.78rem;
+    .quick-table td:first-child,
+    .avg-table td:first-child {
+      font-weight: 700;
     }
 
-    tr:last-child td { border-bottom: 0; }
-
-    .nowrap { white-space: nowrap; }
-    .muted { color: var(--muted); }
-    .amount-positive { color: var(--good); font-weight: 700; }
-    .amount-negative { color: #ff8aa3; font-weight: 700; }
-
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+    .avg-table th:first-child,
+    .avg-table td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: rgba(18,20,31,0.98);
     }
 
-    .tag {
-      background: rgba(176,11,85,0.16);
-      color: #ffd4e8;
-      padding: 4px 8px;
+    .quick-table th:first-child,
+    .quick-table td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: rgba(18,20,31,0.98);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
       border-radius: 999px;
-      font-size: 0.74rem;
-      border: 1px solid rgba(176,11,85,0.24);
+      background: rgba(176, 11, 85, 0.16);
+      border: 1px solid rgba(176, 11, 85, 0.34);
+      font-size: 0.84rem;
       white-space: nowrap;
     }
 
-    .transaction-table-wrap {
-      overflow: auto;
-      max-height: 720px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .mobile-cards {
-      display: none;
-      gap: 10px;
-      padding: 0 18px 18px;
-    }
-
-    .tx-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 18px;
-      padding: 14px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .tx-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .tx-title {
-      font-weight: 800;
-      font-size: 0.97rem;
-      letter-spacing: -0.02em;
-    }
-
-    .tx-sub {
-      color: var(--muted);
-      font-size: 0.78rem;
-      margin-top: 4px;
-    }
-
-    .tx-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px 12px;
-    }
-
-    .tx-field {
-      min-width: 0;
-    }
-
-    .tx-field-label {
-      color: var(--muted);
-      font-size: 0.74rem;
-      margin-bottom: 4px;
-    }
-
-    .tx-field-value {
-      font-size: 0.84rem;
-      word-break: break-word;
-    }
-
-    .tx-actions {
+    .entry-actions {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
 
-    .section-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 14px;
+    .small-btn {
+      width: auto;
+      padding: 8px 11px;
+      border-radius: 10px;
+      font-size: 0.87rem;
+      line-height: 1;
     }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 10px;
-    }
-
-    .stats-list {
-      display: grid;
-      gap: 8px;
-    }
-
-    .stats-row {
+    .row-label-wrap {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      gap: 14px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 14px;
-      padding: 10px 12px;
+      gap: 12px;
     }
 
-    .stats-row span:first-child {
+    .row-move-controls {
+      display: inline-flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .move-btn {
+      width: auto;
+      min-width: 30px;
+      padding: 6px 9px;
+      border-radius: 9px;
+      font-size: 0.84rem;
+      line-height: 1;
+    }
+
+    .mini-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .mini-stat {
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .mini-stat .mini-label {
       color: var(--muted);
-      font-size: 0.82rem;
-    }
-
-    .stats-row span:last-child {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       font-weight: 700;
-      font-size: 0.86rem;
-      text-align: right;
+      margin-bottom: 8px;
     }
 
-    .notice {
-      margin: 0 18px 18px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03);
-      font-size: 0.85rem;
-      display: none;
+    .mini-stat .mini-value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
     }
 
-    .notice.show { display: block; }
-    .notice.error { border-color: rgba(255,92,122,0.26); color: #ffd5de; background: rgba(255,92,122,0.08); }
-    .notice.success { border-color: rgba(46,204,113,0.26); color: #d8ffe8; background: rgba(46,204,113,0.08); }
+    .footer-space { height: 6px; }
 
-    .footer-space { height: 2px; }
-
-    @media (max-width: 1200px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .hero-stats {
-        grid-template-columns: repeat(2, minmax(0,1fr));
-      }
-      .tables-grid, .section-grid {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 1280px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      .main-layout { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 860px) {
-      .app {
-        width: min(100vw - 12px, 100%);
-        margin: 6px auto 18px;
-      }
-      .topbar {
-        padding: 12px;
-        border-radius: 18px;
-      }
-      .panel {
-        border-radius: 18px;
-      }
-      .panel-header, .panel-body, .chart-wrap, .mini-table-wrap {
-        padding-left: 14px;
-        padding-right: 14px;
-      }
-      .hero-stats, .filter-grid {
-        padding-left: 14px;
-        padding-right: 14px;
-      }
-      .hero-stats {
-        grid-template-columns: repeat(2, minmax(0,1fr));
-      }
-      .filter-grid, .form-grid, .stats-grid {
-        grid-template-columns: 1fr;
-      }
-      .transaction-table-wrap {
-        display: none;
-      }
-      .mobile-cards {
-        display: grid;
-      }
-      .tx-grid {
-        grid-template-columns: 1fr;
-      }
-      .main-chart-canvas {
-        height: 340px !important;
-      }
-      .pie-chart-canvas {
-        height: 280px !important;
-      }
+    @media (max-width: 900px) {
+      .chart-shell { height: 540px; }
     }
 
-    @media (max-width: 560px) {
-      .hero-stats {
-        grid-template-columns: 1fr;
-      }
-      .top-actions {
-        width: 100%;
-      }
-      .top-actions .btn {
-        flex: 1 1 auto;
-      }
-      .brand p {
-        display: none;
-      }
+    @media (max-width: 980px) {
+      .mini-stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { width: min(100% - 16px, 1680px); }
+      .topbar { padding: 20px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-row,
+      .range-row,
+      .button-row,
+      .button-row.three { grid-template-columns: 1fr; }
+      .chart-shell { height: 420px; }
+      .pie-chart-shell { height: 320px; }
+      .mini-stats-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="topbar">
-      <div class="brand">
-        <div class="brand-badge">$</div>
-        <div>
-          <h1>Money Tracker</h1>
-          <p>Live Firestore dashboard</p>
-        </div>
+  <div class="wrap">
+    <section class="topbar">
+      <h1>Money Tracker</h1>
+    </section>
+
+    <section class="stats-grid">
+      <div class="card">
+        <div class="label">Tracked Days</div>
+        <div class="value" id="daysValue">0</div>
       </div>
-      <div class="top-actions">
-        <button class="btn btn-secondary" id="refreshBtn">Refresh</button>
-        <button class="btn btn-primary" id="downloadPdfBtn">Download PDF</button>
+      <div class="card">
+        <div class="label">Entries</div>
+        <div class="value" id="entriesValue">0</div>
       </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title-wrap">
-          <h2>Overview</h2>
-          <p>Selected range and rolling windows</p>
-        </div>
+      <div class="card">
+        <div class="label">Total Income</div>
+        <div class="value" id="incomeValue">$0.00</div>
       </div>
-      <div class="hero-stats" id="heroStats"></div>
-    </div>
+      <div class="card">
+        <div class="label">Total Spending</div>
+        <div class="value" id="spendingValue">$0.00</div>
+      </div>
+      <div class="card">
+        <div class="label">Food Total</div>
+        <div class="value" id="foodValue">$0.00</div>
+      </div>
+    </section>
 
-    <div class="layout">
-      <div class="left-col">
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title-wrap">
-              <h2 id="formTitle">Add Transaction</h2>
-              <p>Collection: <span class="mono">transactions</span></p>
-            </div>
-          </div>
-          <div id="formNotice" class="notice"></div>
-          <div class="panel-body">
-            <form id="transactionForm" novalidate>
-              <div class="form-grid">
-                <div class="field">
-                  <label for="txDate">Date</label>
-                  <input class="input" id="txDate" type="date" required />
-                </div>
-                <div class="field">
-                  <label for="txCategory">Category</label>
-                  <select class="select" id="txCategory" required></select>
-                </div>
-                <div class="field">
-                  <label for="txAmount">Amount</label>
-                  <input class="input" id="txAmount" type="number" min="0" step="0.01" inputmode="decimal" required />
-                </div>
-                <div class="field">
-                  <label for="txPaymentMethod">Payment Method</label>
-                  <input class="input" id="txPaymentMethod" type="text" maxlength="120" placeholder="Cash, Debit, Credit, E-transfer..." />
-                </div>
-                <div class="field full">
-                  <label for="txMerchant">Merchant</label>
-                  <input class="input" id="txMerchant" type="text" maxlength="180" placeholder="Store, employer, person..." />
-                </div>
-                <div class="field full">
-                  <label for="txNote">Note</label>
-                  <textarea class="textarea" id="txNote" maxlength="1000" placeholder="Optional note"></textarea>
-                </div>
-                <div class="field full">
-                  <label for="txTags">Tags</label>
-                  <input class="input" id="txTags" type="text" maxlength="400" placeholder="Comma separated tags" />
-                </div>
-              </div>
-              <div class="form-actions">
-                <button class="btn btn-primary" type="submit" id="saveBtn">Save Transaction</button>
-                <button class="btn btn-secondary" type="button" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
-              </div>
-              <div class="hint">Press Enter with amount 0 to advance the date by one day.</div>
-            </form>
-          </div>
-        </div>
+    <section class="panel" style="margin-bottom: 18px;">
+      <div class="panel-head">
+        <h2>Quick Stats</h2>
+        <div class="panel-subtle">Selected range plus rolling averages</div>
+      </div>
+      <div class="quick-table-wrap">
+        <table class="quick-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Selected Range</th>
+              <th>Last Month</th>
+              <th>Last 3 Months</th>
+              <th>Last 6 Months</th>
+              <th>Last Year</th>
+            </tr>
+          </thead>
+          <tbody id="quickStatsBody">
+            <tr><td colspan="6" style="color: var(--muted);">No data yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title-wrap">
-              <h2>Filters</h2>
-              <p>Range, pie day, and display controls</p>
-            </div>
+    <section class="main-layout">
+      <div class="left-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Average Per Day</h2>
+            <div class="range-pill" id="activeRangeLabel">Full Range</div>
           </div>
-          <div class="filter-grid">
-            <div class="field">
-              <label for="startDate">Start Date</label>
-              <input class="input" id="startDate" type="date" />
-            </div>
-            <div class="field">
-              <label for="endDate">End Date</label>
-              <input class="input" id="endDate" type="date" />
-            </div>
-            <div class="field">
-              <label for="pieDate">Pie Chart Day</label>
-              <input class="input" id="pieDate" type="date" />
-            </div>
-            <div class="field">
-              <label for="rangePreset">Preset</label>
-              <select class="select" id="rangePreset">
-                <option value="all">All</option>
-                <option value="month">Last Month</option>
-                <option value="3months">Last 3 Months</option>
-                <option value="6months">Last 6 Months</option>
-                <option value="year">Last Year</option>
-                <option value="custom">Custom</option>
-              </select>
-            </div>
+          <div class="chart-shell">
+            <canvas id="moneyChart"></canvas>
           </div>
-          <div class="panel-body">
-            <div class="form-actions">
-              <button class="btn btn-primary" id="applyRangeBtn" type="button">Apply Range</button>
-              <button class="btn btn-secondary" id="resetRangeBtn" type="button">Reset</button>
-            </div>
-          </div>
-        </div>
+        </section>
 
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title-wrap">
-              <h2>Pie Chart</h2>
-              <p>Spending contribution by category for selected day</p>
-            </div>
-          </div>
-          <div class="chart-wrap">
-            <div class="chart-card">
-              <canvas id="pieChart" class="pie-chart-canvas"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-grid">
-          <div class="panel">
-            <div class="panel-header">
-              <div class="panel-title-wrap">
-                <h3>Quick Stats</h3>
-                <p>Selected range and rolling windows</p>
-              </div>
-            </div>
-            <div class="panel-body">
-              <div class="stats-list" id="quickStatsList"></div>
-            </div>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Range</h2>
+            <div class="panel-subtle">Controls moved under the graph</div>
           </div>
 
-          <div class="panel">
-            <div class="panel-header">
-              <div class="panel-title-wrap">
-                <h3>Extra Stats</h3>
-                <p>Bills, projections, frequency, mix</p>
-              </div>
-            </div>
-            <div class="panel-body">
-              <div class="stats-list" id="extraStatsList"></div>
-            </div>
+          <div class="range-row">
+            <label class="input-label">
+              Start Date
+              <input type="date" id="rangeStartInput" />
+            </label>
+            <label class="input-label">
+              End Date
+              <input type="date" id="rangeEndInput" />
+            </label>
           </div>
-        </div>
+
+          <div class="button-row three" style="margin-top:12px;">
+            <button type="button" class="primary-btn" id="applyRangeButton">Apply Range</button>
+            <button type="button" class="ghost-btn" id="clearRangeButton">Clear Range</button>
+            <button type="button" class="ghost-btn" id="downloadPdfButton">Download PDF</button>
+          </div>
+        </section>
       </div>
 
-      <div class="right-col">
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title-wrap">
-              <h2>Main Chart</h2>
-              <p>Average per day over time, stacked category areas under total spending, toggles, comparison line</p>
-            </div>
+      <div class="right-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Spending By Category</h2>
+            <div class="panel-subtle">Current selected range</div>
           </div>
-          <div class="chart-wrap">
-            <div class="chart-card">
-              <div class="chart-toolbar">
-                <div class="chip-group" id="lineToggleGroup"></div>
-                <div class="chip-group" id="spendingCountToggleGroup"></div>
-              </div>
-              <canvas id="mainChart" class="main-chart-canvas"></canvas>
-            </div>
+          <div class="pie-chart-shell">
+            <canvas id="spendingPieChart"></canvas>
           </div>
-        </div>
+        </section>
 
-        <div class="tables-grid">
-          <div class="panel">
-            <div class="panel-header">
-              <div class="panel-title-wrap">
-                <h3>Averages by Category</h3>
-                <p>Average per day by window</p>
-              </div>
-            </div>
-            <div class="mini-table-wrap">
-              <div class="table-shell">
-                <div class="transaction-table-wrap" style="max-height: 420px;">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Category</th>
-                        <th>Selected</th>
-                        <th>1M</th>
-                        <th>3M</th>
-                        <th>6M</th>
-                        <th>1Y</th>
-                      </tr>
-                    </thead>
-                    <tbody id="averagesByCategoryBody"></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Line Visibility</h2>
           </div>
+          <div class="controls-wrap" id="toggleGrid"></div>
+        </section>
 
-          <div class="panel">
-            <div class="panel-header">
-              <div class="panel-title-wrap">
-                <h3>Window Summary</h3>
-                <p>Average per day snapshots</p>
-              </div>
-            </div>
-            <div class="panel-body">
-              <div class="stats-grid" id="windowSummaryGrid"></div>
-            </div>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Total Spending Includes</h2>
           </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title-wrap">
-              <h2>Transactions</h2>
-              <p>All details from Firestore</p>
-            </div>
-          </div>
-          <div class="transaction-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Category</th>
-                  <th>Type</th>
-                  <th>Amount</th>
-                  <th>Note</th>
-                  <th>Merchant</th>
-                  <th>Payment</th>
-                  <th>Tags</th>
-                  <th>Created</th>
-                  <th>Updated</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="transactionsTableBody"></tbody>
-            </table>
-          </div>
-          <div class="mobile-cards" id="mobileCards"></div>
-        </div>
+          <div class="controls-wrap" id="spendingIncludeGrid"></div>
+        </section>
       </div>
-    </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <div class="panel-head">
+        <h2>Averages By Category</h2>
+        <div class="panel-subtle">Daily averages across multiple lookback windows</div>
+      </div>
+      <div class="avg-table-wrap">
+        <table class="avg-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Selected Range</th>
+              <th>Last Month</th>
+              <th>Last 3 Months</th>
+              <th>Last 6 Months</th>
+              <th>Last Year</th>
+            </tr>
+          </thead>
+          <tbody id="averagesBody">
+            <tr><td colspan="6" style="color: var(--muted);">No data yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <div class="panel-head">
+        <h2>Extra Stats</h2>
+        <div class="panel-subtle">Average bills and yearly projections</div>
+      </div>
+      <div class="mini-stats-grid" id="extraStatsGrid">
+        <div class="mini-stat"><div class="mini-label">Average Grocery Bill</div><div class="mini-value">$0.00</div></div>
+        <div class="mini-stat"><div class="mini-label">Average Fast Food Bill</div><div class="mini-value">$0.00</div></div>
+        <div class="mini-stat"><div class="mini-label">Projected Food / Year</div><div class="mini-value">$0.00</div></div>
+        <div class="mini-stat"><div class="mini-label">Projected Non-Food / Year</div><div class="mini-value">$0.00</div></div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <div class="panel-head">
+        <h2 id="formHeading">Add Transaction</h2>
+        <div class="panel-subtle">Edit and delete are password protected</div>
+      </div>
+
+      <form id="entryForm">
+        <div class="form-row">
+          <label class="input-label">
+            Date
+            <input type="date" id="dateInput" required />
+          </label>
+          <label class="input-label">
+            Category
+            <select id="categoryInput" required></select>
+          </label>
+        </div>
+
+        <label class="input-label">
+          Amount
+          <input type="number" id="amountInput" required min="0" step="0.01" placeholder="25.00" />
+        </label>
+
+        <div class="form-row">
+          <button type="submit" class="primary-btn" id="submitButton">Add Entry</button>
+          <button type="button" class="ghost-btn" id="cancelEditButton" style="display:none;">Cancel Edit</button>
+        </div>
+      </form>
+
+      <div class="status" id="statusText"></div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <div class="panel-head">
+        <h2 id="entriesTitle">Transactions</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="entriesTableBody">
+            <tr><td colspan="5" style="color: var(--muted);">No data yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
     <div class="footer-space"></div>
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js';
+    import { getAnalytics, isSupported as analyticsSupported } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js';
     import {
       getFirestore,
       collection,
       addDoc,
-      updateDoc,
-      deleteDoc,
-      doc,
       getDocs,
       query,
       orderBy,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      serverTimestamp,
+      doc,
+      updateDoc,
+      deleteDoc
+    } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBH4LeGmjVEg61b-59Tp9nWo8iw7hfwivM",
-      authDomain: "money-4a3cf.firebaseapp.com",
-      projectId: "money-4a3cf",
-      storageBucket: "money-4a3cf.firebasestorage.app",
-      messagingSenderId: "849812707825",
-      appId: "1:849812707825:web:6c12e7b0d564bbef1a8c50",
-      measurementId: "G-32WL5PEEFY"
+      apiKey: 'AIzaSyBH4LeGmjVEg61b-59Tp9nWo8iw7hfwivM',
+      authDomain: 'money-4a3cf.firebaseapp.com',
+      projectId: 'money-4a3cf',
+      storageBucket: 'money-4a3cf.firebasestorage.app',
+      messagingSenderId: '849812707825',
+      appId: '1:849812707825:web:6c12e7b0d564bbef1a8c50',
+      measurementId: 'G-32WL5PEEFY'
     };
 
     const app = initializeApp(firebaseConfig);
-    getAnalytics(app);
+    if (await analyticsSupported()) {
+      getAnalytics(app);
+    }
     const db = getFirestore(app);
 
-    const COLLECTION_NAME = "transactions";
-    const PASSWORD = "mmed2025";
+    const TRANSACTIONS_COLLECTION = 'transactions';
+    const EDIT_PASSWORD = 'mmed2025';
     const CATEGORIES = [
-      "Misc Income",
-      "Work income",
-      "Misc Spending",
-      "Groceries",
-      "Fast Food",
-      "Housing costs",
-      "Transport costs",
-      "Gambling",
-      "School costs"
+      'Misc Income',
+      'Misc Spending',
+      'Groceries',
+      'Fast Food',
+      'Work income',
+      'Housing costs',
+      'Transport costs',
+      'Gambling',
+      'School costs'
     ];
-    const INCOME_CATEGORIES = new Set(["Misc Income", "Work income"]);
-    const SPENDING_CATEGORIES = CATEGORIES.filter(c => !INCOME_CATEGORIES.has(c));
 
-    const defaultLineColors = {
-      totalSpending: "#ff5c7a",
-      totalIncome: "#2ecc71",
-      averageSpending: "#7c89ff",
-      todayComparison: "#f0b429",
-      "Misc Spending": "#ff7f50",
-      "Groceries": "#41d1a6",
-      "Fast Food": "#f39c12",
-      "Housing costs": "#9b59b6",
-      "Transport costs": "#3498db",
-      "Gambling": "#e056fd",
-      "School costs": "#95a5a6"
+    const INCOME_CATEGORIES = new Set(['Misc Income', 'Work income']);
+    const SPENDING_CATEGORIES = CATEGORIES.filter(category => !INCOME_CATEGORIES.has(category));
+
+    const DISPLAY_METRICS = [
+      'Misc Income',
+      'Work income',
+      'Misc Spending',
+      'Groceries',
+      'Fast Food',
+      'Food',
+      'Housing costs',
+      'Transport costs',
+      'Gambling',
+      'School costs',
+      'Total Income',
+      'Total Spending'
+    ];
+
+    const colors = {
+      'Misc Income': '#ff7ac8',
+      'Work income': '#57d38c',
+      'Misc Spending': '#ffd166',
+      'Groceries': '#7bdff2',
+      'Fast Food': '#ff9f68',
+      'Food': '#f6c945',
+      'Housing costs': '#c9a0ff',
+      'Transport costs': '#68d391',
+      'Gambling': '#ff6b81',
+      'School costs': '#8ec5ff',
+      'Total Income': '#8affc1',
+      'Total Spending': '#ff8fab'
     };
 
-    const els = {
-      heroStats: document.getElementById("heroStats"),
-      formTitle: document.getElementById("formTitle"),
-      form: document.getElementById("transactionForm"),
-      txDate: document.getElementById("txDate"),
-      txCategory: document.getElementById("txCategory"),
-      txAmount: document.getElementById("txAmount"),
-      txNote: document.getElementById("txNote"),
-      txMerchant: document.getElementById("txMerchant"),
-      txPaymentMethod: document.getElementById("txPaymentMethod"),
-      txTags: document.getElementById("txTags"),
-      saveBtn: document.getElementById("saveBtn"),
-      cancelEditBtn: document.getElementById("cancelEditBtn"),
-      formNotice: document.getElementById("formNotice"),
-      startDate: document.getElementById("startDate"),
-      endDate: document.getElementById("endDate"),
-      pieDate: document.getElementById("pieDate"),
-      rangePreset: document.getElementById("rangePreset"),
-      applyRangeBtn: document.getElementById("applyRangeBtn"),
-      resetRangeBtn: document.getElementById("resetRangeBtn"),
-      lineToggleGroup: document.getElementById("lineToggleGroup"),
-      spendingCountToggleGroup: document.getElementById("spendingCountToggleGroup"),
-      quickStatsList: document.getElementById("quickStatsList"),
-      extraStatsList: document.getElementById("extraStatsList"),
-      averagesByCategoryBody: document.getElementById("averagesByCategoryBody"),
-      windowSummaryGrid: document.getElementById("windowSummaryGrid"),
-      transactionsTableBody: document.getElementById("transactionsTableBody"),
-      mobileCards: document.getElementById("mobileCards"),
-      refreshBtn: document.getElementById("refreshBtn"),
-      downloadPdfBtn: document.getElementById("downloadPdfBtn")
-    };
+    const defaultVisible = new Set(['Groceries', 'Fast Food', 'Food', 'Total Income', 'Total Spending']);
+    const WINDOW_DEFS = [
+      { key: 'selected', label: 'Selected Range' },
+      { key: 'last30', label: 'Last Month', days: 30 },
+      { key: 'last90', label: 'Last 3 Months', days: 90 },
+      { key: 'last180', label: 'Last 6 Months', days: 180 },
+      { key: 'last365', label: 'Last Year', days: 365 }
+    ];
 
-    let state = {
-      transactions: [],
-      editingId: null,
-      selectedRange: { start: null, end: null },
-      pieDate: null,
-      visibleLines: {
-        totalSpending: true,
-        totalIncome: true,
-        averageSpending: true,
-        todayComparison: true,
-        ...Object.fromEntries(SPENDING_CATEGORIES.map(c => [c, true]))
-      },
-      includedInTotalSpending: Object.fromEntries(SPENDING_CATEGORIES.map(c => [c, true])),
-      lineColors: { ...defaultLineColors }
-    };
+    let averagesRowOrder = [
+      'Misc Income',
+      'Work income',
+      'Total Income',
+      'Misc Spending',
+      'Groceries',
+      'Fast Food',
+      'Food',
+      'Housing costs',
+      'Transport costs',
+      'Gambling',
+      'School costs',
+      'Total Spending'
+    ];
 
-    let mainChart;
+    const dateInput = document.getElementById('dateInput');
+    const categoryInput = document.getElementById('categoryInput');
+    const amountInput = document.getElementById('amountInput');
+    const entryForm = document.getElementById('entryForm');
+    const statusText = document.getElementById('statusText');
+    const toggleGrid = document.getElementById('toggleGrid');
+    const spendingIncludeGrid = document.getElementById('spendingIncludeGrid');
+    const entriesTableBody = document.getElementById('entriesTableBody');
+    const formHeading = document.getElementById('formHeading');
+    const submitButton = document.getElementById('submitButton');
+    const cancelEditButton = document.getElementById('cancelEditButton');
+    const averagesBody = document.getElementById('averagesBody');
+    const quickStatsBody = document.getElementById('quickStatsBody');
+    const rangeStartInput = document.getElementById('rangeStartInput');
+    const rangeEndInput = document.getElementById('rangeEndInput');
+    const applyRangeButton = document.getElementById('applyRangeButton');
+    const clearRangeButton = document.getElementById('clearRangeButton');
+    const downloadPdfButton = document.getElementById('downloadPdfButton');
+    const activeRangeLabel = document.getElementById('activeRangeLabel');
+    const entriesTitle = document.getElementById('entriesTitle');
+    const extraStatsGrid = document.getElementById('extraStatsGrid');
+
+    const daysValue = document.getElementById('daysValue');
+    const entriesValue = document.getElementById('entriesValue');
+    const incomeValue = document.getElementById('incomeValue');
+    const spendingValue = document.getElementById('spendingValue');
+    const foodValue = document.getElementById('foodValue');
+
+    let chart;
     let pieChart;
+    let lastTransactions = [];
+    let filteredTransactions = [];
+    let editingId = null;
+    let activeRange = { start: '', end: '' };
+    let currentComputed = null;
+    let editSessionUnlocked = false;
 
-    function formatCurrency(value) {
-      const n = Number(value || 0);
-      return new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 2 }).format(n);
+    dateInput.value = new Date().toISOString().slice(0, 10);
+
+    CATEGORIES.forEach((category) => {
+      const option = document.createElement('option');
+      option.value = category;
+      option.textContent = category;
+      categoryInput.appendChild(option);
+    });
+
+    const visibleMetricState = {};
+    DISPLAY_METRICS.forEach(metric => {
+      visibleMetricState[metric] = defaultVisible.has(metric);
+    });
+
+    const spendingIncludedState = {};
+    SPENDING_CATEGORIES.forEach(category => {
+      spendingIncludedState[category] = true;
+    });
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat('en-CA', {
+        style: 'currency',
+        currency: 'CAD',
+        maximumFractionDigits: 2
+      }).format(value || 0);
     }
 
-    function formatPerDay(value) {
-      return `${formatCurrency(value)}/day`;
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function formatDateValue(date) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, "0");
-      const d = String(date.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
-    }
-
-    function parseDateLocal(yyyyMmDd) {
-      if (!yyyyMmDd) return null;
-      const [y, m, d] = yyyyMmDd.split("-").map(Number);
+    function parseDateAsLocal(dateString) {
+      const [y, m, d] = dateString.split('-').map(Number);
       return new Date(y, m - 1, d);
     }
 
-    function startOfDay(date) {
-      const d = new Date(date);
-      d.setHours(0,0,0,0);
-      return d;
+    function formatDateInputValue(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
 
-    function endOfDay(date) {
-      const d = new Date(date);
-      d.setHours(23,59,59,999);
-      return d;
+    function formatDisplayDate(dateString) {
+      const date = parseDateAsLocal(dateString);
+      return new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }).format(date);
     }
 
-    function addDays(date, days) {
-      const d = new Date(date);
-      d.setDate(d.getDate() + days);
-      return d;
+    function showStatus(message, isError = false) {
+      statusText.textContent = message;
+      statusText.style.color = isError ? 'var(--danger)' : 'var(--muted)';
     }
 
-    function daysBetweenInclusive(a, b) {
-      const one = startOfDay(a).getTime();
-      const two = startOfDay(b).getTime();
-      return Math.max(1, Math.floor((two - one) / 86400000) + 1);
+    function advanceDateByOneDay() {
+      if (!dateInput.value) return;
+      const nextDate = parseDateAsLocal(dateInput.value);
+      nextDate.setDate(nextDate.getDate() + 1);
+      dateInput.value = formatDateInputValue(nextDate);
     }
 
-    function timestampToString(ts) {
-      if (!ts) return "—";
-      try {
-        let d;
-        if (ts?.toDate) d = ts.toDate();
-        else if (ts instanceof Date) d = ts;
-        else return "—";
-        return d.toLocaleString();
-      } catch {
-        return "—";
+    function dayDiffInclusive(start, end) {
+      const ms = 24 * 60 * 60 * 1000;
+      return Math.floor((end - start) / ms) + 1;
+    }
+
+    function resetForm({ keepDate = true } = {}) {
+      const currentDate = dateInput.value;
+      const currentCategory = categoryInput.value;
+      entryForm.reset();
+      if (keepDate && currentDate) {
+        dateInput.value = currentDate;
+      } else if (!dateInput.value) {
+        dateInput.value = formatDateInputValue(new Date());
       }
-    }
-
-    function getTypeFromCategory(category) {
-      return INCOME_CATEGORIES.has(category) ? "income" : "spending";
-    }
-
-    function parseTags(tagsInput) {
-      return String(tagsInput || "")
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean);
-    }
-
-    function showNotice(msg, type = "error") {
-      els.formNotice.className = `notice show ${type}`;
-      els.formNotice.textContent = msg;
-    }
-
-    function clearNotice() {
-      els.formNotice.className = "notice";
-      els.formNotice.textContent = "";
-    }
-
-    function populateCategories() {
-      els.txCategory.innerHTML = CATEGORIES.map(cat => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`).join("");
-    }
-
-    function initializeDefaults() {
-      const today = formatDateValue(new Date());
-      els.txDate.value = today;
-      els.pieDate.value = today;
-      state.pieDate = today;
-      els.rangePreset.value = "all";
-    }
-
-    function getCurrentFormData() {
-      const category = els.txCategory.value;
-      return {
-        date: els.txDate.value,
-        category,
-        type: getTypeFromCategory(category),
-        amount: Number(els.txAmount.value),
-        note: els.txNote.value.trim(),
-        merchant: els.txMerchant.value.trim(),
-        paymentMethod: els.txPaymentMethod.value.trim(),
-        tags: parseTags(els.txTags.value)
-      };
-    }
-
-    function validateTransactionData(data) {
-      if (!data.date) return "Date is required.";
-      if (!data.category) return "Category is required.";
-      if (!Number.isFinite(data.amount)) return "Amount is required.";
-      if (data.amount <= 0) return "Amount must be greater than 0.";
-      return null;
-    }
-
-    function resetForm({ preserveCategory = true } = {}) {
-      const existingCategory = els.txCategory.value;
-      els.form.reset();
-      els.txDate.value = formatDateValue(new Date());
-      if (preserveCategory && existingCategory) {
-        els.txCategory.value = existingCategory;
+      if (currentCategory) {
+        categoryInput.value = currentCategory;
       }
-      state.editingId = null;
-      els.formTitle.textContent = "Add Transaction";
-      els.saveBtn.textContent = "Save Transaction";
-      els.cancelEditBtn.style.display = "none";
-      clearNotice();
+      editingId = null;
+      formHeading.textContent = 'Add Transaction';
+      submitButton.textContent = 'Add Entry';
+      cancelEditButton.style.display = 'none';
+      amountInput.value = '';
+      amountInput.focus();
     }
 
-    function getPasswordOrNull(actionLabel) {
-      const pw = window.prompt(`Enter password to ${actionLabel}:`);
-      if (pw === null) return null;
-      return pw;
-    }
-
-    function requirePassword(actionLabel) {
-      const pw = getPasswordOrNull(actionLabel);
-      if (pw === null) return false;
-      if (pw !== PASSWORD) {
-        alert("Incorrect password.");
+    function requireEditPassword() {
+      if (editSessionUnlocked) return true;
+      const entered = window.prompt('Enter edit password');
+      if (entered === null) {
+        showStatus('Password prompt cancelled.', true);
         return false;
       }
+      if (entered !== EDIT_PASSWORD) {
+        showStatus('Wrong password.', true);
+        return false;
+      }
+      editSessionUnlocked = true;
+      showStatus('Edit controls unlocked for this session.');
       return true;
     }
 
-    async function loadTransactions() {
-      const q = query(collection(db, COLLECTION_NAME), orderBy("date", "desc"));
-      const snap = await getDocs(q);
-      state.transactions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      if (!els.pieDate.value && state.transactions.length) {
-        els.pieDate.value = state.transactions[0].date;
-        state.pieDate = state.transactions[0].date;
+    function startEditTransaction(id) {
+      if (!requireEditPassword()) return;
+      const tx = lastTransactions.find(item => item.id === id);
+      if (!tx) return;
+      editingId = id;
+      formHeading.textContent = 'Edit Transaction';
+      submitButton.textContent = 'Save Changes';
+      cancelEditButton.style.display = 'block';
+      dateInput.value = tx.date;
+      categoryInput.value = tx.category;
+      amountInput.value = tx.amount;
+      amountInput.focus();
+      amountInput.select();
+      showStatus(`Editing ${tx.category} on ${tx.date}`);
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    async function deleteTransaction(id) {
+      if (!requireEditPassword()) return;
+      const tx = lastTransactions.find(item => item.id === id);
+      if (!tx) return;
+      const confirmed = window.confirm(`Delete ${tx.category} on ${tx.date} for ${formatMoney(tx.amount)}?`);
+      if (!confirmed) return;
+
+      try {
+        showStatus('Deleting entry...');
+        await deleteDoc(doc(db, TRANSACTIONS_COLLECTION, id));
+        if (editingId === id) resetForm();
+        await loadTransactions('Entry deleted.');
+      } catch (error) {
+        console.error(error);
+        showStatus('Could not delete entry.', true);
       }
-      renderAll();
     }
 
-    function getAllDateBounds() {
-      if (!state.transactions.length) {
-        const today = new Date();
-        return { first: today, last: today };
-      }
-      const dates = state.transactions.map(t => parseDateLocal(t.date)).filter(Boolean).sort((a,b)=>a-b);
-      return { first: dates[0], last: dates[dates.length - 1] };
+    function buildLineToggleControls() {
+      toggleGrid.innerHTML = '';
+
+      DISPLAY_METRICS.forEach(metric => {
+        const row = document.createElement('label');
+        row.className = 'check-row';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = visibleMetricState[metric];
+        checkbox.addEventListener('change', () => {
+          visibleMetricState[metric] = checkbox.checked;
+          refreshActiveView();
+        });
+
+        const text = document.createElement('span');
+        text.textContent = metric;
+
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.value = colors[metric];
+        colorInput.className = 'line-color-input';
+        colorInput.title = `Choose color for ${metric}`;
+        colorInput.addEventListener('input', () => {
+          colors[metric] = colorInput.value;
+          refreshActiveView();
+        });
+
+        row.appendChild(checkbox);
+        row.appendChild(text);
+        row.appendChild(colorInput);
+        toggleGrid.appendChild(row);
+      });
     }
 
-    function applyPresetRange(preset) {
-      const today = startOfDay(new Date());
-      let start = null;
-      let end = today;
+    function buildSpendingIncludeControls() {
+      spendingIncludeGrid.innerHTML = '';
+      SPENDING_CATEGORIES.forEach(category => {
+        const row = document.createElement('label');
+        row.className = 'check-row';
 
-      if (preset === "all") {
-        const { first, last } = getAllDateBounds();
-        start = first;
-        end = last > today ? last : today;
-      } else if (preset === "month") {
-        start = addDays(today, -30);
-      } else if (preset === "3months") {
-        start = addDays(today, -91);
-      } else if (preset === "6months") {
-        start = addDays(today, -183);
-      } else if (preset === "year") {
-        start = addDays(today, -365);
-      } else {
-        return;
-      }
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = spendingIncludedState[category];
+        checkbox.addEventListener('change', () => {
+          spendingIncludedState[category] = checkbox.checked;
+          refreshActiveView();
+        });
 
-      els.startDate.value = formatDateValue(start);
-      els.endDate.value = formatDateValue(end);
-      state.selectedRange = { start: formatDateValue(start), end: formatDateValue(end) };
+        const text = document.createElement('span');
+        text.textContent = category;
+
+        const amount = document.createElement('span');
+        amount.style.color = 'var(--muted)';
+        amount.style.fontSize = '0.88rem';
+        amount.textContent = '';
+
+        row.appendChild(checkbox);
+        row.appendChild(text);
+        row.appendChild(amount);
+        spendingIncludeGrid.appendChild(row);
+      });
     }
 
-    function getSelectedRangeDates() {
-      const start = els.startDate.value ? parseDateLocal(els.startDate.value) : null;
-      const end = els.endDate.value ? parseDateLocal(els.endDate.value) : null;
-      return { start, end };
-    }
-
-    function getTransactionsInRange(startDate, endDate) {
-      return state.transactions.filter(tx => {
-        const d = parseDateLocal(tx.date);
-        if (!d) return false;
-        if (startDate && d < startDate) return false;
-        if (endDate && d > endDate) return false;
+    function getFilteredTransactions(allTransactions) {
+      const { start, end } = activeRange;
+      return allTransactions.filter(tx => {
+        if (start && tx.date < start) return false;
+        if (end && tx.date > end) return false;
         return true;
       });
     }
 
-    function getWindowTransactions(days) {
-      const today = startOfDay(new Date());
-      const start = addDays(today, -(days - 1));
-      return {
-        start,
-        end: today,
-        transactions: getTransactionsInRange(start, today)
-      };
-    }
-
-    function buildDailySeries(startDate, endDate, transactions) {
-      const txByDay = {};
-      transactions.forEach(tx => {
-        const key = tx.date;
-        if (!txByDay[key]) {
-          txByDay[key] = { income: 0, spending: 0, categories: {} };
-        }
-        const amt = Number(tx.amount) || 0;
-        if (tx.type === "income") {
-          txByDay[key].income += amt;
-        } else {
-          txByDay[key].spending += amt;
-          txByDay[key].categories[tx.category] = (txByDay[key].categories[tx.category] || 0) + amt;
-        }
-      });
-
-      const labels = [];
-      const cumulative = {
-        totalIncome: [],
-        totalSpending: [],
-        averageSpending: [],
-        todayComparison: [],
-        categories: Object.fromEntries(SPENDING_CATEGORIES.map(c => [c, []]))
-      };
-
-      let runningIncome = 0;
-      let runningSpendingCategories = Object.fromEntries(SPENDING_CATEGORIES.map(c => [c, 0]));
-
-      const totalDays = daysBetweenInclusive(startDate, endDate);
-      let cursor = new Date(startDate);
-
-      for (let i = 0; i < totalDays; i++) {
-        const dayKey = formatDateValue(cursor);
-        const record = txByDay[dayKey] || { income: 0, spending: 0, categories: {} };
-
-        runningIncome += record.income;
-
-        SPENDING_CATEGORIES.forEach(cat => {
-          if (state.includedInTotalSpending[cat]) {
-            runningSpendingCategories[cat] += record.categories[cat] || 0;
-          }
-        });
-
-        const totalSpending = SPENDING_CATEGORIES.reduce((sum, cat) => sum + runningSpendingCategories[cat], 0);
-        const dayCount = i + 1;
-        const avgSpending = totalSpending / dayCount;
-        const comparison = dayCount > 0 ? totalSpending / totalDays : 0;
-
-        labels.push(dayKey);
-        cumulative.totalIncome.push(runningIncome / dayCount);
-        cumulative.totalSpending.push(totalSpending / dayCount);
-        cumulative.averageSpending.push(avgSpending);
-        cumulative.todayComparison.push(comparison);
-
-        let stackRunning = 0;
-        SPENDING_CATEGORIES.forEach(cat => {
-          stackRunning += runningSpendingCategories[cat] / dayCount;
-          cumulative.categories[cat].push(stackRunning);
-        });
-
-        cursor = addDays(cursor, 1);
+    function getRangeBounds(transactions) {
+      if (activeRange.start && activeRange.end) {
+        return {
+          start: parseDateAsLocal(activeRange.start),
+          end: parseDateAsLocal(activeRange.end),
+          rangeLabel: `${formatDisplayDate(activeRange.start)} → ${formatDisplayDate(activeRange.end)}`,
+          startValue: activeRange.start,
+          endValue: activeRange.end
+        };
       }
 
-      return { labels, ...cumulative };
-    }
+      if (!transactions.length) return null;
 
-    function calcRangeMetrics(transactions, startDate, endDate) {
-      const days = daysBetweenInclusive(startDate, endDate);
-      const incomeTx = transactions.filter(t => t.type === "income");
-      const spendingTx = transactions.filter(t => t.type === "spending");
-
-      const totalIncome = incomeTx.reduce((s, t) => s + (Number(t.amount) || 0), 0);
-      const totalSpending = spendingTx.reduce((s, t) => s + (Number(t.amount) || 0), 0);
-      const includedSpending = spendingTx
-        .filter(t => state.includedInTotalSpending[t.category])
-        .reduce((s, t) => s + (Number(t.amount) || 0), 0);
-
-      const categoryTotals = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
-      transactions.forEach(t => {
-        categoryTotals[t.category] = (categoryTotals[t.category] || 0) + (Number(t.amount) || 0);
-      });
-
-      const spendingCategoryTotals = Object.fromEntries(SPENDING_CATEGORIES.map(c => [c, 0]));
-      spendingTx.forEach(t => {
-        spendingCategoryTotals[t.category] = (spendingCategoryTotals[t.category] || 0) + (Number(t.amount) || 0);
-      });
-
-      const groceryBills = spendingTx.filter(t => t.category === "Groceries").map(t => Number(t.amount) || 0);
-      const fastFoodBills = spendingTx.filter(t => t.category === "Fast Food").map(t => Number(t.amount) || 0);
-      const foodSpending = (spendingCategoryTotals["Groceries"] || 0) + (spendingCategoryTotals["Fast Food"] || 0);
-      const nonFoodSpending = totalSpending - foodSpending;
-
-      const largestExpense = spendingTx.length ? Math.max(...spendingTx.map(t => Number(t.amount) || 0)) : 0;
-      const largestIncome = incomeTx.length ? Math.max(...incomeTx.map(t => Number(t.amount) || 0)) : 0;
-      const avgSpendTransaction = spendingTx.length ? totalSpending / spendingTx.length : 0;
-      const avgIncomeTransaction = incomeTx.length ? totalIncome / incomeTx.length : 0;
-      const spendDays = new Set(spendingTx.map(t => t.date)).size || 0;
-      const incomeDays = new Set(incomeTx.map(t => t.date)).size || 0;
-      const activeDays = new Set(transactions.map(t => t.date)).size || 0;
+      const sorted = [...transactions].sort((a, b) => a.date.localeCompare(b.date));
+      const start = parseDateAsLocal(sorted[0].date);
+      const today = new Date();
+      const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
       return {
-        days,
+        start,
+        end,
+        rangeLabel: `${formatDisplayDate(formatDateInputValue(start))} → ${formatDisplayDate(formatDateInputValue(end))}`,
+        startValue: formatDateInputValue(start),
+        endValue: formatDateInputValue(end)
+      };
+    }
+
+    function getEndReferenceDate(allTransactions) {
+      if (activeRange.end) return parseDateAsLocal(activeRange.end);
+      const today = new Date();
+      return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    }
+
+    function buildMetricTotals(transactions) {
+      const totals = {};
+      DISPLAY_METRICS.forEach(metric => totals[metric] = 0);
+
+      for (const tx of transactions) {
+        totals[tx.category] = (totals[tx.category] || 0) + tx.amount;
+        if (INCOME_CATEGORIES.has(tx.category)) {
+          totals['Total Income'] += tx.amount;
+        } else if (spendingIncludedState[tx.category]) {
+          totals['Total Spending'] += tx.amount;
+        }
+      }
+
+      totals['Food'] = (totals['Groceries'] || 0) + (totals['Fast Food'] || 0);
+      return totals;
+    }
+
+    function getNonFoodTotalFromTotals(totals) {
+      return (totals['Total Spending'] || 0) - (totals['Food'] || 0);
+    }
+
+    function getAverageTransactionAmount(transactions, category) {
+      const matching = transactions.filter(tx => tx.category === category);
+      if (!matching.length) return 0;
+      const total = matching.reduce((sum, tx) => sum + tx.amount, 0);
+      return total / matching.length;
+    }
+
+    function moveAverageRow(metric, direction) {
+      const index = averagesRowOrder.indexOf(metric);
+      if (index === -1) return;
+      const swapIndex = direction === 'up' ? index - 1 : index + 1;
+      if (swapIndex < 0 || swapIndex >= averagesRowOrder.length) return;
+      [averagesRowOrder[index], averagesRowOrder[swapIndex]] = [averagesRowOrder[swapIndex], averagesRowOrder[index]];
+      if (currentComputed) {
+        renderAverages(buildWindowSet(lastTransactions, currentComputed));
+      }
+    }
+
+    function getWindowStats(allTransactions, endDate, windowDays) {
+      const end = new Date(endDate);
+      const start = new Date(end);
+      start.setDate(end.getDate() - (windowDays - 1));
+      const startKey = formatDateInputValue(start);
+      const endKey = formatDateInputValue(end);
+      const txs = allTransactions.filter(tx => tx.date >= startKey && tx.date <= endKey);
+      const totals = buildMetricTotals(txs);
+      const averages = {};
+      Object.entries(totals).forEach(([metric, total]) => {
+        averages[metric] = windowDays ? total / windowDays : 0;
+      });
+      return {
+        start,
+        end,
+        startKey,
+        endKey,
+        label: `${formatDisplayDate(startKey)} → ${formatDisplayDate(endKey)}`,
+        days: windowDays,
+        transactions: txs,
+        totals,
+        averages
+      };
+    }
+
+    function buildWindowSet(allTransactions, computed) {
+      const endReference = getEndReferenceDate(allTransactions);
+      return {
+        selected: {
+          label: computed.rangeLabel,
+          days: computed.trackedDays,
+          transactions: filteredTransactions,
+          totals: computed.totalsByMetric,
+          averages: computed.averagesByMetric
+        },
+        last30: getWindowStats(allTransactions, endReference, 30),
+        last90: getWindowStats(allTransactions, endReference, 90),
+        last180: getWindowStats(allTransactions, endReference, 180),
+        last365: getWindowStats(allTransactions, endReference, 365)
+      };
+    }
+
+    function computeMetricSeries(transactions) {
+      const bounds = getRangeBounds(transactions);
+      if (!bounds) {
+        return {
+          labels: [],
+          seriesMap: {},
+          trackedDays: 0,
+          totalIncome: 0,
+          totalSpending: 0,
+          foodTotal: 0,
+          totalsByMetric: {},
+          averagesByMetric: {},
+          rangeLabel: 'No Data',
+          rangeStart: '',
+          rangeEnd: ''
+        };
+      }
+
+      const { start, end, rangeLabel, startValue, endValue } = bounds;
+      const trackedDays = Math.max(1, dayDiffInclusive(start, end));
+      const dailySums = {};
+
+      for (const tx of transactions) {
+        if (!dailySums[tx.date]) dailySums[tx.date] = {};
+        dailySums[tx.date][tx.category] = (dailySums[tx.date][tx.category] || 0) + tx.amount;
+      }
+
+      const cumulative = {};
+      DISPLAY_METRICS.forEach(metric => cumulative[metric] = 0);
+
+      const seriesMap = {};
+      DISPLAY_METRICS.forEach(metric => seriesMap[metric] = []);
+      const labels = [];
+
+      let totalIncome = 0;
+      let totalSpending = 0;
+      let foodTotal = 0;
+
+      for (let dayNumber = 1; dayNumber <= trackedDays; dayNumber++) {
+        const currentDate = new Date(start);
+        currentDate.setDate(start.getDate() + (dayNumber - 1));
+        const dateKey = formatDateInputValue(currentDate);
+        const dayData = dailySums[dateKey] || {};
+
+        for (const category of CATEGORIES) {
+          const amount = dayData[category] || 0;
+          cumulative[category] = (cumulative[category] || 0) + amount;
+
+          if (INCOME_CATEGORIES.has(category)) {
+            totalIncome += amount;
+          } else if (spendingIncludedState[category]) {
+            totalSpending += amount;
+          }
+        }
+
+        const groceriesToday = dayData['Groceries'] || 0;
+        const fastFoodToday = dayData['Fast Food'] || 0;
+        foodTotal += groceriesToday + fastFoodToday;
+        cumulative['Food'] = foodTotal;
+        cumulative['Total Income'] = totalIncome;
+        cumulative['Total Spending'] = totalSpending;
+
+        labels.push(dateKey);
+        DISPLAY_METRICS.forEach(metric => {
+          seriesMap[metric].push(Number((cumulative[metric] / dayNumber).toFixed(2)));
+        });
+      }
+
+      const totalsByMetric = {
+        'Misc Income': cumulative['Misc Income'],
+        'Work income': cumulative['Work income'],
+        'Misc Spending': cumulative['Misc Spending'],
+        'Groceries': cumulative['Groceries'],
+        'Fast Food': cumulative['Fast Food'],
+        'Food': cumulative['Food'],
+        'Housing costs': cumulative['Housing costs'],
+        'Transport costs': cumulative['Transport costs'],
+        'Gambling': cumulative['Gambling'],
+        'School costs': cumulative['School costs'],
+        'Total Income': totalIncome,
+        'Total Spending': totalSpending
+      };
+
+      const averagesByMetric = {};
+      Object.entries(totalsByMetric).forEach(([metric, total]) => {
+        averagesByMetric[metric] = trackedDays ? total / trackedDays : 0;
+      });
+
+      return {
+        labels,
+        seriesMap,
+        trackedDays,
         totalIncome,
         totalSpending,
-        includedSpending,
-        net: totalIncome - totalSpending,
-        avgIncomePerDay: totalIncome / days,
-        avgSpendingPerDay: totalSpending / days,
-        avgIncludedSpendingPerDay: includedSpending / days,
-        avgNetPerDay: (totalIncome - totalSpending) / days,
-        categoryTotals,
-        spendingCategoryTotals,
-        groceryBills,
-        fastFoodBills,
-        foodSpending,
-        nonFoodSpending,
-        largestExpense,
-        largestIncome,
-        avgSpendTransaction,
-        avgIncomeTransaction,
-        spendDays,
-        incomeDays,
-        activeDays,
-        txCount: transactions.length,
-        spendTxCount: spendingTx.length,
-        incomeTxCount: incomeTx.length,
-        avgGroceryBill: groceryBills.length ? groceryBills.reduce((a,b)=>a+b,0) / groceryBills.length : 0,
-        avgFastFoodBill: fastFoodBills.length ? fastFoodBills.reduce((a,b)=>a+b,0) / fastFoodBills.length : 0,
-        projectedFoodPerYear: (foodSpending / days) * 365,
-        projectedNonFoodPerYear: (nonFoodSpending / days) * 365,
-        projectedIncomePerYear: (totalIncome / days) * 365,
-        projectedSpendingPerYear: (totalSpending / days) * 365
+        foodTotal,
+        totalsByMetric,
+        averagesByMetric,
+        rangeLabel,
+        rangeStart: startValue,
+        rangeEnd: endValue
       };
     }
 
-    function getCurrentSelectedTransactions() {
-      const { start, end } = getSelectedRangeDates();
-      const bounds = getAllDateBounds();
-      const realStart = start || bounds.first;
-      const realEnd = end || startOfDay(new Date());
-      return {
-        start: realStart,
-        end: realEnd,
-        transactions: getTransactionsInRange(realStart, realEnd)
-      };
-    }
-
-    function getRollingWindowMetrics() {
-      return {
-        month: calcRangeMetrics(getWindowTransactions(30).transactions, getWindowTransactions(30).start, getWindowTransactions(30).end),
-        threeMonths: calcRangeMetrics(getWindowTransactions(91).transactions, getWindowTransactions(91).start, getWindowTransactions(91).end),
-        sixMonths: calcRangeMetrics(getWindowTransactions(183).transactions, getWindowTransactions(183).start, getWindowTransactions(183).end),
-        year: calcRangeMetrics(getWindowTransactions(365).transactions, getWindowTransactions(365).start, getWindowTransactions(365).end)
-      };
-    }
-
-    function renderHeroStats(selectedMetrics, rolling) {
-      const cards = [
-        { label: "Selected Total Spending", value: formatCurrency(selectedMetrics.totalSpending), sub: formatPerDay(selectedMetrics.avgSpendingPerDay), cls: "bad" },
-        { label: "Selected Total Income", value: formatCurrency(selectedMetrics.totalIncome), sub: formatPerDay(selectedMetrics.avgIncomePerDay), cls: "good" },
-        { label: "Selected Net", value: formatCurrency(selectedMetrics.net), sub: formatPerDay(selectedMetrics.avgNetPerDay), cls: selectedMetrics.net >= 0 ? "good" : "bad" },
-        { label: "Selected Food Spending", value: formatCurrency(selectedMetrics.foodSpending), sub: formatPerDay(selectedMetrics.foodSpending / selectedMetrics.days), cls: "warning" },
-        { label: "1M Spending", value: formatPerDay(rolling.month.avgSpendingPerDay), sub: formatCurrency(rolling.month.totalSpending), cls: "bad" },
-        { label: "3M Spending", value: formatPerDay(rolling.threeMonths.avgSpendingPerDay), sub: formatCurrency(rolling.threeMonths.totalSpending), cls: "bad" },
-        { label: "6M Spending", value: formatPerDay(rolling.sixMonths.avgSpendingPerDay), sub: formatCurrency(rolling.sixMonths.totalSpending), cls: "bad" },
-        { label: "1Y Spending", value: formatPerDay(rolling.year.avgSpendingPerDay), sub: formatCurrency(rolling.year.totalSpending), cls: "bad" }
-      ];
-      els.heroStats.innerHTML = cards.map(card => `
-        <div class="stat-card">
-          <div class="stat-label">${escapeHtml(card.label)}</div>
-          <div class="stat-value ${card.cls}">${escapeHtml(card.value)}</div>
-          <div class="stat-sub">${escapeHtml(card.sub)}</div>
-        </div>
-      `).join("");
-    }
-
-    function renderQuickStats(selectedMetrics, rolling) {
-      const rows = [
-        ["Selected days", selectedMetrics.days],
-        ["Selected transactions", selectedMetrics.txCount],
-        ["Selected avg spending/day", formatPerDay(selectedMetrics.avgSpendingPerDay)],
-        ["Selected avg income/day", formatPerDay(selectedMetrics.avgIncomePerDay)],
-        ["Selected avg net/day", formatPerDay(selectedMetrics.avgNetPerDay)],
-        ["Selected food/day", formatPerDay(selectedMetrics.foodSpending / selectedMetrics.days)],
-        ["Selected non-food/day", formatPerDay(selectedMetrics.nonFoodSpending / selectedMetrics.days)],
-        ["1M spending/day", formatPerDay(rolling.month.avgSpendingPerDay)],
-        ["3M spending/day", formatPerDay(rolling.threeMonths.avgSpendingPerDay)],
-        ["6M spending/day", formatPerDay(rolling.sixMonths.avgSpendingPerDay)],
-        ["1Y spending/day", formatPerDay(rolling.year.avgSpendingPerDay)],
-        ["1M income/day", formatPerDay(rolling.month.avgIncomePerDay)],
-        ["3M income/day", formatPerDay(rolling.threeMonths.avgIncomePerDay)],
-        ["6M income/day", formatPerDay(rolling.sixMonths.avgIncomePerDay)],
-        ["1Y income/day", formatPerDay(rolling.year.avgIncomePerDay)]
-      ];
-      els.quickStatsList.innerHTML = rows.map(([label, value]) => `
-        <div class="stats-row"><span>${escapeHtml(String(label))}</span><span>${escapeHtml(String(value))}</span></div>
-      `).join("");
-    }
-
-    function renderExtraStats(selectedMetrics) {
-      const rows = [
-        ["Average grocery bill", formatCurrency(selectedMetrics.avgGroceryBill)],
-        ["Average fast food bill", formatCurrency(selectedMetrics.avgFastFoodBill)],
-        ["Average spending transaction", formatCurrency(selectedMetrics.avgSpendTransaction)],
-        ["Average income transaction", formatCurrency(selectedMetrics.avgIncomeTransaction)],
-        ["Largest expense", formatCurrency(selectedMetrics.largestExpense)],
-        ["Largest income", formatCurrency(selectedMetrics.largestIncome)],
-        ["Projected food/year", formatCurrency(selectedMetrics.projectedFoodPerYear)],
-        ["Projected non-food/year", formatCurrency(selectedMetrics.projectedNonFoodPerYear)],
-        ["Projected income/year", formatCurrency(selectedMetrics.projectedIncomePerYear)],
-        ["Projected spending/year", formatCurrency(selectedMetrics.projectedSpendingPerYear)],
-        ["Days with spending", selectedMetrics.spendDays],
-        ["Days with income", selectedMetrics.incomeDays],
-        ["Active days", selectedMetrics.activeDays]
-      ];
-      els.extraStatsList.innerHTML = rows.map(([label, value]) => `
-        <div class="stats-row"><span>${escapeHtml(String(label))}</span><span>${escapeHtml(String(value))}</span></div>
-      `).join("");
-    }
-
-    function renderAveragesByCategory(selectedMetrics, rolling) {
-      const rows = CATEGORIES.map(cat => {
-        const selected = (selectedMetrics.categoryTotals[cat] || 0) / selectedMetrics.days;
-        const m1 = (rolling.month.categoryTotals[cat] || 0) / rolling.month.days;
-        const m3 = (rolling.threeMonths.categoryTotals[cat] || 0) / rolling.threeMonths.days;
-        const m6 = (rolling.sixMonths.categoryTotals[cat] || 0) / rolling.sixMonths.days;
-        const y1 = (rolling.year.categoryTotals[cat] || 0) / rolling.year.days;
-        return `
-          <tr>
-            <td>${escapeHtml(cat)}</td>
-            <td>${escapeHtml(formatPerDay(selected))}</td>
-            <td>${escapeHtml(formatPerDay(m1))}</td>
-            <td>${escapeHtml(formatPerDay(m3))}</td>
-            <td>${escapeHtml(formatPerDay(m6))}</td>
-            <td>${escapeHtml(formatPerDay(y1))}</td>
-          </tr>
-        `;
-      }).join("");
-      els.averagesByCategoryBody.innerHTML = rows || `<tr><td colspan="6" class="muted">No data</td></tr>`;
-    }
-
-    function renderWindowSummary(rolling) {
-      const items = [
-        ["Last Month", rolling.month],
-        ["Last 3 Months", rolling.threeMonths],
-        ["Last 6 Months", rolling.sixMonths],
-        ["Last Year", rolling.year]
-      ];
-      els.windowSummaryGrid.innerHTML = items.map(([label, m]) => `
-        <div class="stat-card">
-          <div class="stat-label">${escapeHtml(label)}</div>
-          <div class="stat-value">${escapeHtml(formatPerDay(m.avgSpendingPerDay))}</div>
-          <div class="stat-sub">Income ${escapeHtml(formatPerDay(m.avgIncomePerDay))} · Net ${escapeHtml(formatPerDay(m.avgNetPerDay))}</div>
-        </div>
-      `).join("");
-    }
-
-    function buildLineToggleControls() {
-      const mainItems = [
-        { key: "averageSpending", label: "Avg Spending Line" },
-        { key: "totalSpending", label: "Total Spending" },
-        { key: "totalIncome", label: "Total Income" },
-        { key: "todayComparison", label: "Today Comparison" }
-      ];
-      els.lineToggleGroup.innerHTML = [
-        ...mainItems.map(item => `
-          <label class="chip">
-            <input type="checkbox" data-line-key="${escapeHtml(item.key)}" ${state.visibleLines[item.key] ? "checked" : ""}>
-            <span>${escapeHtml(item.label)}</span>
-            <input type="color" class="color-input" data-color-key="${escapeHtml(item.key)}" value="${escapeHtml(state.lineColors[item.key])}">
-          </label>
-        `),
-        ...SPENDING_CATEGORIES.map(cat => `
-          <label class="chip">
-            <input type="checkbox" data-line-key="${escapeHtml(cat)}" ${state.visibleLines[cat] ? "checked" : ""}>
-            <span>${escapeHtml(cat)}</span>
-            <input type="color" class="color-input" data-color-key="${escapeHtml(cat)}" value="${escapeHtml(state.lineColors[cat])}">
-          </label>
-        `)
-      ].join("");
-
-      els.spendingCountToggleGroup.innerHTML = SPENDING_CATEGORIES.map(cat => `
-        <label class="chip">
-          <input type="checkbox" data-spending-key="${escapeHtml(cat)}" ${state.includedInTotalSpending[cat] ? "checked" : ""}>
-          <span>Count ${escapeHtml(cat)}</span>
-        </label>
-      `).join("");
-    }
-
-    function getRgba(hex, alpha) {
-      const clean = hex.replace("#", "");
-      const full = clean.length === 3 ? clean.split("").map(x => x + x).join("") : clean;
-      const bigint = parseInt(full, 16);
-      const r = (bigint >> 16) & 255;
-      const g = (bigint >> 8) & 255;
-      const b = bigint & 255;
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-
-    function renderMainChart(selectedTransactions, startDate, endDate) {
-      const series = buildDailySeries(startDate, endDate, selectedTransactions);
-
+    function buildDatasets(seriesMap) {
       const datasets = [];
 
-      SPENDING_CATEGORIES.forEach(cat => {
+      DISPLAY_METRICS.forEach(metric => {
+        if (!visibleMetricState[metric]) return;
+        const color = colors[metric] || '#ffffff';
+        const values = seriesMap[metric] || [];
+        if (!values.length) return;
+
         datasets.push({
-          label: cat,
-          data: series.categories[cat],
-          borderColor: state.lineColors[cat],
-          backgroundColor: getRgba(state.lineColors[cat], 0.18),
-          borderWidth: 2,
-          fill: true,
-          stack: "spendingStack",
-          tension: 0.25,
+          label: metric,
+          data: values,
+          borderColor: color,
+          backgroundColor: color,
+          tension: 0.26,
           pointRadius: 0,
-          pointHoverRadius: 4,
-          hidden: !state.visibleLines[cat]
+          pointHoverRadius: 5,
+          pointHitRadius: 14,
+          pointHoverBorderWidth: 2,
+          borderWidth: metric === 'Total Spending' || metric === 'Total Income' || metric === 'Food' ? 3.2 : 2.2,
+          fill: false
+        });
+
+        const finalValue = values[values.length - 1];
+        datasets.push({
+          label: `${metric} Today Avg`,
+          data: new Array(values.length).fill(finalValue),
+          borderColor: color,
+          backgroundColor: color,
+          borderDash: [8, 8],
+          borderWidth: 1.2,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          tension: 0,
+          fill: false
         });
       });
 
-      datasets.push({
-        label: "Total Spending",
-        data: series.totalSpending,
-        borderColor: state.lineColors.totalSpending,
-        backgroundColor: "transparent",
-        borderWidth: 3,
-        fill: false,
-        tension: 0.2,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        hidden: !state.visibleLines.totalSpending
-      });
-
-      datasets.push({
-        label: "Total Income",
-        data: series.totalIncome,
-        borderColor: state.lineColors.totalIncome,
-        backgroundColor: "transparent",
-        borderWidth: 3,
-        fill: false,
-        tension: 0.2,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        hidden: !state.visibleLines.totalIncome
-      });
-
-      datasets.push({
-        label: "Average Spending",
-        data: series.averageSpending,
-        borderColor: state.lineColors.averageSpending,
-        backgroundColor: "transparent",
-        borderWidth: 2,
-        fill: false,
-        tension: 0.2,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        hidden: !state.visibleLines.averageSpending
-      });
-
-      datasets.push({
-        label: "Today Comparison",
-        data: series.todayComparison,
-        borderColor: state.lineColors.todayComparison,
-        backgroundColor: "transparent",
-        borderWidth: 2,
-        borderDash: [8, 6],
-        fill: false,
-        tension: 0,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        hidden: !state.visibleLines.todayComparison
-      });
-
-      if (mainChart) mainChart.destroy();
-      mainChart = new Chart(document.getElementById("mainChart"), {
-        type: "line",
-        data: {
-          labels: series.labels,
-          datasets
-        },
-        options: {
-          maintainAspectRatio: false,
-          responsive: true,
-          interaction: {
-            mode: "index",
-            intersect: false
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label(ctx) {
-                  return `${ctx.dataset.label}: ${formatPerDay(ctx.parsed.y || 0)}`;
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: "#c8c9d6", maxRotation: 0, autoSkip: true },
-              grid: { color: "rgba(255,255,255,0.05)" }
-            },
-            y: {
-              stacked: false,
-              ticks: {
-                color: "#c8c9d6",
-                callback: value => formatCurrency(value)
-              },
-              grid: { color: "rgba(255,255,255,0.06)" }
-            }
-          }
-        }
-      });
+      return datasets;
     }
 
-    function renderPieChart(selectedTransactions) {
-      const pieDate = els.pieDate.value || state.pieDate || formatDateValue(new Date());
-      state.pieDate = pieDate;
+    function getSpendingPieData(transactions) {
+      const totals = {};
+      for (const category of SPENDING_CATEGORIES) {
+        if (!spendingIncludedState[category]) continue;
+        totals[category] = 0;
+      }
 
-      const dayTransactions = selectedTransactions.filter(t => t.date === pieDate && t.type === "spending");
-      const totals = Object.fromEntries(SPENDING_CATEGORIES.map(c => [c, 0]));
-      dayTransactions.forEach(tx => {
-        totals[tx.category] = (totals[tx.category] || 0) + (Number(tx.amount) || 0);
-      });
+      for (const tx of transactions) {
+        if (!INCOME_CATEGORIES.has(tx.category) && spendingIncludedState[tx.category]) {
+          totals[tx.category] = (totals[tx.category] || 0) + tx.amount;
+        }
+      }
 
-      const labels = SPENDING_CATEGORIES.filter(cat => totals[cat] > 0);
-      const values = labels.map(cat => totals[cat]);
-      const colors = labels.map(cat => state.lineColors[cat]);
+      const labels = Object.keys(totals).filter(label => totals[label] > 0);
+      const data = labels.map(label => Number(totals[label].toFixed(2)));
+      const backgroundColor = labels.map(label => colors[label] || '#ffffff');
 
-      if (pieChart) pieChart.destroy();
-      pieChart = new Chart(document.getElementById("pieChart"), {
-        type: "pie",
+      return { labels, data, backgroundColor };
+    }
+
+    function renderSpendingPieChart(transactions) {
+      const pieData = getSpendingPieData(transactions);
+
+      if (pieChart) {
+        pieChart.destroy();
+      }
+
+      pieChart = new Chart(document.getElementById('spendingPieChart'), {
+        type: 'pie',
         data: {
-          labels: labels.length ? labels : ["No spending"],
+          labels: pieData.labels.length ? pieData.labels : ['No spending'],
           datasets: [{
-            data: labels.length ? values : [1],
-            backgroundColor: labels.length ? colors : ["rgba(255,255,255,0.12)"],
-            borderColor: "#111218",
+            data: pieData.data.length ? pieData.data : [1],
+            backgroundColor: pieData.backgroundColor.length ? pieData.backgroundColor : ['#2a2f3d'],
+            borderColor: '#0d1018',
             borderWidth: 2
           }]
         },
         options: {
+          responsive: true,
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              position: "bottom",
-              labels: { color: "#dadbea" }
+              position: 'bottom',
+              labels: {
+                color: '#f4f1f5',
+                padding: 14,
+                font: { size: 11, weight: 600 }
+              }
             },
             tooltip: {
+              backgroundColor: 'rgba(13,16,24,0.96)',
+              borderColor: 'rgba(255,255,255,0.08)',
+              borderWidth: 1,
               callbacks: {
-                label(ctx) {
-                  if (!labels.length) return "No spending";
-                  const total = values.reduce((a,b)=>a+b,0) || 1;
-                  const v = ctx.parsed;
-                  const pct = ((v / total) * 100).toFixed(1);
-                  return `${ctx.label}: ${formatCurrency(v)} (${pct}%)`;
+                label: (ctx) => {
+                  if (!pieData.data.length) return 'No spending';
+                  const total = pieData.data.reduce((sum, value) => sum + value, 0);
+                  const value = ctx.parsed || 0;
+                  const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                  return `${ctx.label}: ${formatMoney(value)} (${pct}%)`;
                 }
               }
             }
@@ -1679,435 +1345,486 @@
       });
     }
 
-    function renderTransactionsTable() {
-      const sorted = [...state.transactions].sort((a,b) => (b.date || "").localeCompare(a.date || ""));
-      els.transactionsTableBody.innerHTML = sorted.map(tx => {
-        const amountClass = tx.type === "income" ? "amount-positive" : "amount-negative";
-        const tagsHtml = (tx.tags || []).length
-          ? `<div class="tag-list">${tx.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>`
-          : `<span class="muted">—</span>`;
-        return `
-          <tr>
-            <td class="nowrap">${escapeHtml(tx.date || "—")}</td>
-            <td>${escapeHtml(tx.category || "—")}</td>
-            <td>${escapeHtml(tx.type || "—")}</td>
-            <td class="${amountClass}">${escapeHtml(formatCurrency(tx.amount || 0))}</td>
-            <td>${escapeHtml(tx.note || "—")}</td>
-            <td>${escapeHtml(tx.merchant || "—")}</td>
-            <td>${escapeHtml(tx.paymentMethod || "—")}</td>
-            <td>${tagsHtml}</td>
-            <td class="mono">${escapeHtml(timestampToString(tx.createdAt))}</td>
-            <td class="mono">${escapeHtml(timestampToString(tx.updatedAt))}</td>
-            <td>
-              <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button class="btn btn-secondary btn-small" data-edit-id="${escapeHtml(tx.id)}">Edit</button>
-                <button class="btn btn-danger btn-small" data-delete-id="${escapeHtml(tx.id)}">Delete</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join("") || `<tr><td colspan="11" class="muted">No transactions yet.</td></tr>`;
+    function renderQuickStats(windowSet) {
+      const metricRows = [
+        { label: 'Income / Day', valueFor: (w) => w.averages['Total Income'] || 0 },
+        { label: 'Spending / Day', valueFor: (w) => w.averages['Total Spending'] || 0 },
+        { label: 'Food / Day', valueFor: (w) => w.averages['Food'] || 0 },
+        { label: 'Non-Food Spending / Day', valueFor: (w) => getNonFoodTotalFromTotals(w.totals || {}) / (w.days || 1) },
+        { label: 'Net / Day', valueFor: (w) => (w.averages['Total Income'] || 0) - (w.averages['Total Spending'] || 0) }
+      ];
+
+      quickStatsBody.innerHTML = metricRows.map(row => `
+        <tr>
+          <td>${row.label}</td>
+          <td>${formatMoney(row.valueFor(windowSet.selected))}</td>
+          <td>${formatMoney(row.valueFor(windowSet.last30))}</td>
+          <td>${formatMoney(row.valueFor(windowSet.last90))}</td>
+          <td>${formatMoney(row.valueFor(windowSet.last180))}</td>
+          <td>${formatMoney(row.valueFor(windowSet.last365))}</td>
+        </tr>
+      `).join('');
     }
 
-    function renderMobileCards() {
-      const sorted = [...state.transactions].sort((a,b) => (b.date || "").localeCompare(a.date || ""));
-      els.mobileCards.innerHTML = sorted.map(tx => {
-        const tagsHtml = (tx.tags || []).length
-          ? `<div class="tag-list">${tx.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>`
-          : `<span class="muted">—</span>`;
-        return `
-          <div class="tx-card">
-            <div class="tx-top">
-              <div>
-                <div class="tx-title">${escapeHtml(tx.category || "—")}</div>
-                <div class="tx-sub">${escapeHtml(tx.date || "—")} · ${escapeHtml(tx.type || "—")}</div>
-              </div>
-              <div class="${tx.type === 'income' ? 'amount-positive' : 'amount-negative'}">${escapeHtml(formatCurrency(tx.amount || 0))}</div>
+    function renderAverages(windowSet) {
+      averagesBody.innerHTML = averagesRowOrder.map((metric, index) => `
+        <tr>
+          <td>
+            <div class="row-label-wrap">
+              <span>${metric}</span>
+              <span class="row-move-controls">
+                <button type="button" class="small-btn ghost-btn move-btn" data-move="up" data-metric="${metric}" ${index === 0 ? 'disabled' : ''}>↑</button>
+                <button type="button" class="small-btn ghost-btn move-btn" data-move="down" data-metric="${metric}" ${index === averagesRowOrder.length - 1 ? 'disabled' : ''}>↓</button>
+              </span>
             </div>
-            <div class="tx-grid">
-              <div class="tx-field"><div class="tx-field-label">Note</div><div class="tx-field-value">${escapeHtml(tx.note || "—")}</div></div>
-              <div class="tx-field"><div class="tx-field-label">Merchant</div><div class="tx-field-value">${escapeHtml(tx.merchant || "—")}</div></div>
-              <div class="tx-field"><div class="tx-field-label">Payment</div><div class="tx-field-value">${escapeHtml(tx.paymentMethod || "—")}</div></div>
-              <div class="tx-field"><div class="tx-field-label">Tags</div><div class="tx-field-value">${tagsHtml}</div></div>
-              <div class="tx-field"><div class="tx-field-label">Created</div><div class="tx-field-value">${escapeHtml(timestampToString(tx.createdAt))}</div></div>
-              <div class="tx-field"><div class="tx-field-label">Updated</div><div class="tx-field-value">${escapeHtml(timestampToString(tx.updatedAt))}</div></div>
-            </div>
-            <div class="tx-actions">
-              <button class="btn btn-secondary btn-small" data-edit-id="${escapeHtml(tx.id)}">Edit</button>
-              <button class="btn btn-danger btn-small" data-delete-id="${escapeHtml(tx.id)}">Delete</button>
-            </div>
-          </div>
-        `;
-      }).join("") || `<div class="tx-card muted">No transactions yet.</div>`;
+          </td>
+          <td>${formatMoney(windowSet.selected.averages[metric] || 0)}</td>
+          <td>${formatMoney(windowSet.last30.averages[metric] || 0)}</td>
+          <td>${formatMoney(windowSet.last90.averages[metric] || 0)}</td>
+          <td>${formatMoney(windowSet.last180.averages[metric] || 0)}</td>
+          <td>${formatMoney(windowSet.last365.averages[metric] || 0)}</td>
+        </tr>
+      `).join('');
     }
 
-    function renderAll() {
-      buildLineToggleControls();
+    function renderExtraStats(windowSet) {
+      const selectedTransactions = windowSet.selected.transactions || [];
+      const foodTransactions = selectedTransactions.filter(tx => tx.category === 'Groceries' || tx.category === 'Fast Food');
+      const avgGroceryBill = getAverageTransactionAmount(selectedTransactions, 'Groceries');
+      const avgFastFoodBill = getAverageTransactionAmount(selectedTransactions, 'Fast Food');
+      const foodPerYear = (windowSet.selected.averages['Food'] || 0) * 365;
+      const nonFoodPerYear = (getNonFoodTotalFromTotals(windowSet.selected.totals || {}) / (windowSet.selected.days || 1)) * 365;
+      const overallPerYear = (windowSet.selected.averages['Total Spending'] || 0) * 365;
+      const housingPerMonth = (windowSet.selected.averages['Housing costs'] || 0) * 30.4375;
+      const fastFoodShare = (windowSet.selected.totals['Food'] || 0) > 0
+        ? ((windowSet.selected.totals['Fast Food'] || 0) / windowSet.selected.totals['Food']) * 100
+        : 0;
+      const avgFoodBill = foodTransactions.length
+        ? (foodTransactions.reduce((sum, tx) => sum + tx.amount, 0) / foodTransactions.length)
+        : 0;
 
-      const selected = getCurrentSelectedTransactions();
-      const rolling = getRollingWindowMetrics();
-      const selectedMetrics = calcRangeMetrics(selected.transactions, selected.start, selected.end);
+      const stats = [
+        { label: 'Average Grocery Bill', value: formatMoney(avgGroceryBill) },
+        { label: 'Average Fast Food Bill', value: formatMoney(avgFastFoodBill) },
+        { label: 'Average Food Bill', value: formatMoney(avgFoodBill) },
+        { label: 'Projected Food / Year', value: formatMoney(foodPerYear) },
+        { label: 'Projected Non-Food / Year', value: formatMoney(nonFoodPerYear) },
+        { label: 'Projected Total Spending / Year', value: formatMoney(overallPerYear) },
+        { label: 'Housing Cost / Month', value: formatMoney(housingPerMonth) },
+        { label: 'Fast Food Share Of Food', value: `${fastFoodShare.toFixed(1)}%` }
+      ];
 
-      renderHeroStats(selectedMetrics, rolling);
-      renderQuickStats(selectedMetrics, rolling);
-      renderExtraStats(selectedMetrics);
-      renderAveragesByCategory(selectedMetrics, rolling);
-      renderWindowSummary(rolling);
-      renderMainChart(selected.transactions, selected.start, selected.end);
-      renderPieChart(selected.transactions);
-      renderTransactionsTable();
-      renderMobileCards();
+      extraStatsGrid.innerHTML = stats.map(stat => `
+        <div class="mini-stat">
+          <div class="mini-label">${stat.label}</div>
+          <div class="mini-value">${stat.value}</div>
+        </div>
+      `).join('');
     }
 
-    function loadTransactionIntoForm(tx) {
-      const currentScrollY = window.scrollY;
-      const currentScrollX = window.scrollX;
-
-      els.txDate.value = tx.date || "";
-      els.txCategory.value = tx.category || CATEGORIES[0];
-      els.txAmount.value = tx.amount ?? "";
-      els.txNote.value = tx.note || "";
-      els.txMerchant.value = tx.merchant || "";
-      els.txPaymentMethod.value = tx.paymentMethod || "";
-      els.txTags.value = Array.isArray(tx.tags) ? tx.tags.join(", ") : "";
-      state.editingId = tx.id;
-      els.formTitle.textContent = "Edit Transaction";
-      els.saveBtn.textContent = "Save Changes";
-      els.cancelEditBtn.style.display = "inline-flex";
-
-      requestAnimationFrame(() => window.scrollTo(currentScrollX, currentScrollY));
-    }
-
-    async function handleSubmit(e) {
-      e.preventDefault();
-      clearNotice();
-
-      const data = getCurrentFormData();
-      const error = validateTransactionData(data);
-      if (error) {
-        showNotice(error, "error");
+    function renderEntriesTable(transactions) {
+      if (!transactions.length) {
+        entriesTableBody.innerHTML = '<tr><td colspan="5" style="color: var(--muted);">No transactions in this range.</td></tr>';
         return;
       }
+
+      const sorted = [...transactions].sort((a, b) => {
+        const byDate = b.date.localeCompare(a.date);
+        if (byDate !== 0) return byDate;
+        return b.id.localeCompare(a.id);
+      });
+
+      entriesTableBody.innerHTML = sorted.map(tx => `
+        <tr>
+          <td>${tx.date}</td>
+          <td><span class="pill">${tx.category}</span></td>
+          <td>${tx.type}</td>
+          <td>${formatMoney(tx.amount)}</td>
+          <td>
+            <div class="entry-actions">
+              <button type="button" class="small-btn ghost-btn" data-action="edit" data-id="${tx.id}">Edit</button>
+              <button type="button" class="small-btn danger-btn" data-action="delete" data-id="${tx.id}">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updateRangeDisplays(rangeLabel) {
+      activeRangeLabel.textContent = rangeLabel || 'Full Range';
+      entriesTitle.textContent = activeRange.start || activeRange.end ? 'Transactions in Range' : 'Transactions';
+    }
+
+    function refreshActiveView() {
+      filteredTransactions = getFilteredTransactions(lastTransactions);
+      const computed = computeMetricSeries(filteredTransactions);
+      currentComputed = computed;
+
+      daysValue.textContent = String(computed.trackedDays || 0);
+      entriesValue.textContent = String(filteredTransactions.length || 0);
+      incomeValue.textContent = formatMoney(computed.totalIncome);
+      spendingValue.textContent = formatMoney(computed.totalSpending);
+      foodValue.textContent = formatMoney(computed.foodTotal);
+
+      const windowSet = buildWindowSet(lastTransactions, computed);
+      renderQuickStats(windowSet);
+      renderAverages(windowSet);
+      renderExtraStats(windowSet);
+      renderEntriesTable(filteredTransactions);
+      renderSpendingPieChart(filteredTransactions);
+      updateRangeDisplays(computed.rangeLabel || 'Full Range');
+
+      const data = {
+        labels: computed.labels,
+        datasets: buildDatasets(computed.seriesMap)
+      };
+
+      if (chart) {
+        chart.data = data;
+        chart.update();
+      } else {
+        chart = new Chart(document.getElementById('moneyChart'), {
+          type: 'line',
+          data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'nearest', intersect: false },
+            plugins: {
+              legend: {
+                labels: {
+                  color: '#f4f1f5',
+                  boxWidth: 18,
+                  boxHeight: 3,
+                  padding: 16,
+                  font: { size: 11, weight: 600 },
+                  filter: (legendItem) => !legendItem.text.endsWith('Today Avg')
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(13,16,24,0.96)',
+                borderColor: 'rgba(255,255,255,0.08)',
+                borderWidth: 1,
+                callbacks: {
+                  title: (items) => items.length ? formatDisplayDate(items[0].label) : '',
+                  label: (ctx) => `${ctx.dataset.label}: ${formatMoney(ctx.parsed.y)}`
+                }
+              }
+            },
+            elements: {
+              point: {
+                radius: 0,
+                hoverRadius: 5,
+                hitRadius: 14
+              }
+            },
+            scales: {
+              x: {
+                ticks: {
+                  color: '#9ca3b5',
+                  maxTicksLimit: 10,
+                  callback: function(value) {
+                    const label = this.getLabelForValue(value);
+                    return formatDisplayDate(label);
+                  }
+                },
+                grid: { color: 'rgba(255,255,255,0.05)' }
+              },
+              y: {
+                ticks: {
+                  color: '#9ca3b5',
+                  callback: (value) => formatMoney(value)
+                },
+                grid: { color: 'rgba(255,255,255,0.05)' }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function validateRangeInputs() {
+      const start = rangeStartInput.value;
+      const end = rangeEndInput.value;
+      if (!start && !end) return { valid: true, start: '', end: '' };
+      if (!start || !end) {
+        return { valid: false, message: 'Choose both a start date and an end date.' };
+      }
+      if (start > end) {
+        return { valid: false, message: 'Start date must be on or before end date.' };
+      }
+      return { valid: true, start, end };
+    }
+
+    function applyRangeFilter() {
+      const result = validateRangeInputs();
+      if (!result.valid) {
+        showStatus(result.message, true);
+        return;
+      }
+      activeRange = { start: result.start, end: result.end };
+      refreshActiveView();
+      if (activeRange.start && activeRange.end) {
+        showStatus(`Showing ${activeRange.start} to ${activeRange.end}.`);
+      } else {
+        showStatus('Showing full range.');
+      }
+    }
+
+    function clearRangeFilter() {
+      rangeStartInput.value = '';
+      rangeEndInput.value = '';
+      activeRange = { start: '', end: '' };
+      refreshActiveView();
+      showStatus('Range cleared.');
+    }
+
+    function buildAverageRowsForPdf(windowSet) {
+      const order = [
+        'Misc Income',
+        'Work income',
+        'Total Income',
+        'Misc Spending',
+        'Groceries',
+        'Fast Food',
+        'Food',
+        'Housing costs',
+        'Transport costs',
+        'Gambling',
+        'School costs',
+        'Total Spending'
+      ];
+
+      return order.map(metric => [
+        metric,
+        `${formatMoney(windowSet.selected.averages[metric] || 0)}`,
+        `${formatMoney(windowSet.last30.averages[metric] || 0)}`,
+        `${formatMoney(windowSet.last90.averages[metric] || 0)}`,
+        `${formatMoney(windowSet.last180.averages[metric] || 0)}`,
+        `${formatMoney(windowSet.last365.averages[metric] || 0)}`
+      ]);
+    }
+
+    function downloadPdfStatement() {
+      if (!currentComputed || !window.jspdf?.jsPDF) {
+        showStatus('PDF export is not available right now.', true);
+        return;
+      }
+
+      const windowSet = buildWindowSet(lastTransactions, currentComputed);
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const rangeText = currentComputed.rangeLabel || 'No Data';
+      const marginX = 40;
+      let y = 42;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text('Money Tracker Statement', marginX, y);
+      y += 22;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`Range: ${rangeText}`, marginX, y);
+      y += 14;
+      doc.text(`Generated: ${new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date())}`, marginX, y);
+      y += 24;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Summary', marginX, y);
+      y += 10;
+
+      doc.autoTable({
+        startY: y,
+        margin: { left: marginX, right: marginX },
+        head: [['Metric', 'Value']],
+        body: [
+          ['Tracked Days', String(currentComputed.trackedDays || 0)],
+          ['Entries', String(filteredTransactions.length || 0)],
+          ['Total Income', formatMoney(currentComputed.totalIncome)],
+          ['Total Spending', formatMoney(currentComputed.totalSpending)],
+          ['Food Total', formatMoney(currentComputed.foodTotal)],
+          ['Net', formatMoney((currentComputed.totalIncome || 0) - (currentComputed.totalSpending || 0))]
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [176, 11, 85] },
+        styles: { font: 'helvetica', fontSize: 10, textColor: [20, 20, 20] }
+      });
+
+      y = doc.lastAutoTable.finalY + 22;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Averages', marginX, y);
+
+      doc.autoTable({
+        startY: y + 10,
+        margin: { left: marginX, right: marginX },
+        head: [['Category', 'Selected Range', 'Last Month', 'Last 3 Months', 'Last 6 Months', 'Last Year']],
+        body: buildAverageRowsForPdf(windowSet),
+        theme: 'grid',
+        headStyles: { fillColor: [176, 11, 85] },
+        styles: { font: 'helvetica', fontSize: 8.5, textColor: [20, 20, 20] }
+      });
+
+      y = doc.lastAutoTable.finalY + 22;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Transactions', marginX, y);
+
+      const transactionRows = [...filteredTransactions]
+        .sort((a, b) => a.date.localeCompare(b.date) || a.category.localeCompare(b.category))
+        .map(tx => [tx.date, tx.category, tx.type, formatMoney(tx.amount)]);
+
+      doc.autoTable({
+        startY: y + 10,
+        margin: { left: marginX, right: marginX },
+        head: [['Date', 'Category', 'Type', 'Amount']],
+        body: transactionRows.length ? transactionRows : [['-', 'No transactions in this range', '-', '-']],
+        theme: 'grid',
+        headStyles: { fillColor: [176, 11, 85] },
+        styles: { font: 'helvetica', fontSize: 9, textColor: [20, 20, 20] },
+        columnStyles: {
+          0: { cellWidth: 80 },
+          1: { cellWidth: 180 },
+          2: { cellWidth: 80 },
+          3: { cellWidth: 100, halign: 'right' }
+        }
+      });
+
+      const safeStart = currentComputed.rangeStart || 'full';
+      const safeEnd = currentComputed.rangeEnd || 'range';
+      doc.save(`money-statement-${safeStart}-to-${safeEnd}.pdf`);
+      showStatus('PDF downloaded.');
+    }
+
+    async function loadTransactions(successMessage = null) {
+      showStatus('Loading data...');
+      const q = query(collection(db, TRANSACTIONS_COLLECTION), orderBy('date', 'asc'));
+      const snapshot = await getDocs(q);
+      const transactions = snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          date: data.date,
+          category: data.category,
+          amount: Number(data.amount || 0),
+          type: data.type || (INCOME_CATEGORIES.has(data.category) ? 'income' : 'spending')
+        };
+      });
+
+      lastTransactions = transactions;
+
+      if (transactions.length && !rangeStartInput.value && !rangeEndInput.value) {
+        const firstDate = transactions[0].date;
+        const lastDate = transactions[transactions.length - 1].date;
+        rangeStartInput.min = firstDate;
+        rangeStartInput.max = lastDate;
+        rangeEndInput.min = firstDate;
+        rangeEndInput.max = formatDateInputValue(new Date());
+      }
+
+      refreshActiveView();
+      showStatus(successMessage || `Loaded ${transactions.length} entr${transactions.length === 1 ? 'y' : 'ies'}.`);
+    }
+
+    amountInput.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return;
+      const amount = Number(amountInput.value);
+      if (Number.isFinite(amount) && amount === 0) {
+        event.preventDefault();
+        advanceDateByOneDay();
+        amountInput.value = '';
+        amountInput.focus();
+        showStatus(`Moved to ${dateInput.value}.`);
+      }
+    });
+
+    cancelEditButton.addEventListener('click', () => {
+      resetForm();
+      showStatus('Edit cancelled.');
+    });
+
+    applyRangeButton.addEventListener('click', applyRangeFilter);
+    clearRangeButton.addEventListener('click', clearRangeFilter);
+    downloadPdfButton.addEventListener('click', downloadPdfStatement);
+
+    entryForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const date = dateInput.value;
+      const category = categoryInput.value;
+      const amount = Number(amountInput.value);
+
+      if (!date || !category || !Number.isFinite(amount) || amount <= 0) {
+        showStatus('Enter a valid date, category, and positive amount.', true);
+        return;
+      }
+
+      const type = INCOME_CATEGORIES.has(category) ? 'income' : 'spending';
 
       try {
-        if (state.editingId) {
-          const txRef = doc(db, COLLECTION_NAME, state.editingId);
-          await updateDoc(txRef, {
-            date: data.date,
-            category: data.category,
-            type: data.type,
-            amount: data.amount,
-            note: data.note,
-            merchant: data.merchant,
-            paymentMethod: data.paymentMethod,
-            tags: data.tags,
+        if (editingId) {
+          showStatus('Saving changes...');
+          await updateDoc(doc(db, TRANSACTIONS_COLLECTION, editingId), {
+            date,
+            category,
+            amount,
+            type,
             updatedAt: serverTimestamp()
           });
-          showNotice("Transaction updated.", "success");
+          resetForm({ keepDate: false });
+          await loadTransactions('Entry updated.');
         } else {
-          await addDoc(collection(db, COLLECTION_NAME), {
-            date: data.date,
-            category: data.category,
-            type: data.type,
-            amount: data.amount,
-            note: data.note,
-            merchant: data.merchant,
-            paymentMethod: data.paymentMethod,
-            tags: data.tags,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
+          showStatus('Saving entry...');
+          await addDoc(collection(db, TRANSACTIONS_COLLECTION), {
+            date,
+            category,
+            amount,
+            type,
+            createdAt: serverTimestamp()
           });
-          showNotice("Transaction saved.", "success");
+          amountInput.value = '';
+          amountInput.focus();
+          await loadTransactions('Entry saved.');
         }
-
-        const currentCategory = els.txCategory.value;
-        resetForm({ preserveCategory: true });
-        els.txCategory.value = currentCategory;
-        await loadTransactions();
-      } catch (err) {
-        console.error(err);
-        showNotice("Failed to save transaction.", "error");
+      } catch (error) {
+        console.error(error);
+        showStatus('Could not save changes. Check Firestore rules and that your database exists.', true);
       }
-    }
-
-    function handleAmountKeyDown(e) {
-      if (e.key !== "Enter") return;
-      const amount = Number(els.txAmount.value || 0);
-      if (amount === 0) {
-        e.preventDefault();
-        const current = parseDateLocal(els.txDate.value || formatDateValue(new Date()));
-        els.txDate.value = formatDateValue(addDays(current, 1));
-        els.txAmount.select?.();
-      }
-    }
-
-    async function handleTransactionActionClick(e) {
-      const editBtn = e.target.closest("[data-edit-id]");
-      const deleteBtn = e.target.closest("[data-delete-id]");
-
-      if (editBtn) {
-        const id = editBtn.getAttribute("data-edit-id");
-        if (!requirePassword("edit")) return;
-        const tx = state.transactions.find(t => t.id === id);
-        if (!tx) return;
-        loadTransactionIntoForm(tx);
-      }
-
-      if (deleteBtn) {
-        const id = deleteBtn.getAttribute("data-delete-id");
-        if (!requirePassword("delete")) return;
-        const tx = state.transactions.find(t => t.id === id);
-        if (!tx) return;
-        const confirmed = confirm(`Delete transaction on ${tx.date} for ${formatCurrency(tx.amount)}?`);
-        if (!confirmed) return;
-        try {
-          await deleteDoc(doc(db, COLLECTION_NAME, id));
-          if (state.editingId === id) resetForm({ preserveCategory: true });
-          await loadTransactions();
-        } catch (err) {
-          console.error(err);
-          alert("Failed to delete transaction.");
-        }
-      }
-    }
-
-    function handleToggleChanges(e) {
-      const lineKey = e.target.getAttribute("data-line-key");
-      const spendingKey = e.target.getAttribute("data-spending-key");
-      const colorKey = e.target.getAttribute("data-color-key");
-
-      if (lineKey) {
-        state.visibleLines[lineKey] = e.target.checked;
-        renderAll();
-      }
-
-      if (spendingKey) {
-        state.includedInTotalSpending[spendingKey] = e.target.checked;
-        renderAll();
-      }
-
-      if (colorKey) {
-        state.lineColors[colorKey] = e.target.value;
-        renderAll();
-      }
-    }
-
-    function applyCustomRange() {
-      const startVal = els.startDate.value;
-      const endVal = els.endDate.value;
-
-      if (startVal && endVal && startVal > endVal) {
-        alert("Start date cannot be after end date.");
-        return;
-      }
-
-      state.selectedRange = {
-        start: startVal || null,
-        end: endVal || null
-      };
-      els.rangePreset.value = "custom";
-      renderAll();
-    }
-
-    function resetRange() {
-      els.rangePreset.value = "all";
-      applyPresetRange("all");
-      renderAll();
-    }
-
-    function handlePresetChange() {
-      const preset = els.rangePreset.value;
-      if (preset !== "custom") {
-        applyPresetRange(preset);
-        renderAll();
-      }
-    }
-
-    async function downloadPdf() {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
-
-      const selected = getCurrentSelectedTransactions();
-      const rolling = getRollingWindowMetrics();
-      const selectedMetrics = calcRangeMetrics(selected.transactions, selected.start, selected.end);
-
-      const title = "Money Tracker Summary";
-      const rangeText = `${formatDateValue(selected.start)} to ${formatDateValue(selected.end)}`;
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      pdf.setFillColor(176, 11, 85);
-      pdf.rect(0, 0, pageWidth, 58, "F");
-      pdf.setTextColor(255,255,255);
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(20);
-      pdf.text(title, 24, 34);
-      pdf.setFontSize(11);
-      pdf.text(`Selected Range: ${rangeText}`, 24, 50);
-
-      pdf.setTextColor(25,25,25);
-      pdf.setFontSize(11);
-
-      let y = 84;
-      const summaryRows = [
-        ["Total Spending", formatCurrency(selectedMetrics.totalSpending)],
-        ["Total Income", formatCurrency(selectedMetrics.totalIncome)],
-        ["Net", formatCurrency(selectedMetrics.net)],
-        ["Avg Spending / Day", formatPerDay(selectedMetrics.avgSpendingPerDay)],
-        ["Avg Income / Day", formatPerDay(selectedMetrics.avgIncomePerDay)],
-        ["Avg Net / Day", formatPerDay(selectedMetrics.avgNetPerDay)],
-        ["Food / Day", formatPerDay(selectedMetrics.foodSpending / selectedMetrics.days)],
-        ["Non-Food / Day", formatPerDay(selectedMetrics.nonFoodSpending / selectedMetrics.days)],
-        ["Transactions", String(selectedMetrics.txCount)],
-        ["Days", String(selectedMetrics.days)]
-      ];
-
-      pdf.autoTable({
-        startY: y,
-        head: [["Summary", "Value"]],
-        body: summaryRows,
-        theme: "grid",
-        headStyles: { fillColor: [176, 11, 85] },
-        styles: { fontSize: 9, cellPadding: 5 },
-        margin: { left: 24, right: 24 }
-      });
-
-      y = pdf.lastAutoTable.finalY + 14;
-
-      const quickRows = [
-        ["Last Month Spending / Day", formatPerDay(rolling.month.avgSpendingPerDay)],
-        ["Last 3 Months Spending / Day", formatPerDay(rolling.threeMonths.avgSpendingPerDay)],
-        ["Last 6 Months Spending / Day", formatPerDay(rolling.sixMonths.avgSpendingPerDay)],
-        ["Last Year Spending / Day", formatPerDay(rolling.year.avgSpendingPerDay)],
-        ["Last Month Income / Day", formatPerDay(rolling.month.avgIncomePerDay)],
-        ["Last 3 Months Income / Day", formatPerDay(rolling.threeMonths.avgIncomePerDay)],
-        ["Last 6 Months Income / Day", formatPerDay(rolling.sixMonths.avgIncomePerDay)],
-        ["Last Year Income / Day", formatPerDay(rolling.year.avgIncomePerDay)],
-        ["Average Grocery Bill", formatCurrency(selectedMetrics.avgGroceryBill)],
-        ["Average Fast Food Bill", formatCurrency(selectedMetrics.avgFastFoodBill)],
-        ["Projected Food / Year", formatCurrency(selectedMetrics.projectedFoodPerYear)],
-        ["Projected Non-Food / Year", formatCurrency(selectedMetrics.projectedNonFoodPerYear)]
-      ];
-
-      pdf.autoTable({
-        startY: y,
-        head: [["Quick Stats", "Value"]],
-        body: quickRows,
-        theme: "grid",
-        headStyles: { fillColor: [176, 11, 85] },
-        styles: { fontSize: 9, cellPadding: 5 },
-        margin: { left: 24, right: 24 }
-      });
-
-      y = pdf.lastAutoTable.finalY + 14;
-
-      const avgRows = CATEGORIES.map(cat => [
-        cat,
-        formatPerDay((selectedMetrics.categoryTotals[cat] || 0) / selectedMetrics.days),
-        formatPerDay((rolling.month.categoryTotals[cat] || 0) / rolling.month.days),
-        formatPerDay((rolling.threeMonths.categoryTotals[cat] || 0) / rolling.threeMonths.days),
-        formatPerDay((rolling.sixMonths.categoryTotals[cat] || 0) / rolling.sixMonths.days),
-        formatPerDay((rolling.year.categoryTotals[cat] || 0) / rolling.year.days)
-      ]);
-
-      pdf.autoTable({
-        startY: y,
-        head: [["Category", "Selected", "1M", "3M", "6M", "1Y"]],
-        body: avgRows,
-        theme: "grid",
-        headStyles: { fillColor: [176, 11, 85] },
-        styles: { fontSize: 8, cellPadding: 4 },
-        margin: { left: 24, right: 24 }
-      });
-
-      y = pdf.lastAutoTable.finalY + 18;
-
-      if (y > 360) {
-        pdf.addPage();
-        y = 24;
-      }
-
-      const mainChartImage = document.getElementById("mainChart").toDataURL("image/png", 1.0);
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(12);
-      pdf.text("Main Chart", 24, y);
-      pdf.addImage(mainChartImage, "PNG", 24, y + 8, 520, 220);
-
-      const pieChartImage = document.getElementById("pieChart").toDataURL("image/png", 1.0);
-      pdf.text(`Pie Chart (${els.pieDate.value || "Selected Day"})`, 570, y);
-      pdf.addImage(pieChartImage, "PNG", 570, y + 8, 220, 220);
-
-      pdf.addPage();
-
-      const txRows = [...state.transactions]
-        .sort((a,b) => (b.date || "").localeCompare(a.date || ""))
-        .map(tx => [
-          tx.id || "",
-          tx.date || "",
-          tx.category || "",
-          tx.type || "",
-          formatCurrency(tx.amount || 0),
-          tx.note || "",
-          tx.merchant || "",
-          tx.paymentMethod || "",
-          (tx.tags || []).join(", "),
-          timestampToString(tx.createdAt),
-          timestampToString(tx.updatedAt)
-        ]);
-
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(14);
-      pdf.text("Full Transactions", 24, 28);
-
-      pdf.autoTable({
-        startY: 40,
-        head: [[
-          "ID", "Date", "Category", "Type", "Amount", "Note",
-          "Merchant", "Payment", "Tags", "Created", "Updated"
-        ]],
-        body: txRows,
-        theme: "grid",
-        headStyles: { fillColor: [176, 11, 85] },
-        styles: { fontSize: 7, cellPadding: 3, overflow: "linebreak" },
-        margin: { left: 18, right: 18 }
-      });
-
-      pdf.save(`money-tracker-${formatDateValue(new Date())}.pdf`);
-    }
-
-    function bindEvents() {
-      els.form.addEventListener("submit", handleSubmit);
-      els.txAmount.addEventListener("keydown", handleAmountKeyDown);
-
-      els.cancelEditBtn.addEventListener("click", () => resetForm({ preserveCategory: true }));
-      els.transactionsTableBody.addEventListener("click", handleTransactionActionClick);
-      els.mobileCards.addEventListener("click", handleTransactionActionClick);
-      els.lineToggleGroup.addEventListener("change", handleToggleChanges);
-      els.lineToggleGroup.addEventListener("input", handleToggleChanges);
-      els.spendingCountToggleGroup.addEventListener("change", handleToggleChanges);
-
-      els.applyRangeBtn.addEventListener("click", applyCustomRange);
-      els.resetRangeBtn.addEventListener("click", resetRange);
-      els.rangePreset.addEventListener("change", handlePresetChange);
-      els.pieDate.addEventListener("change", () => {
-        state.pieDate = els.pieDate.value;
-        renderAll();
-      });
-      els.refreshBtn.addEventListener("click", loadTransactions);
-      els.downloadPdfBtn.addEventListener("click", downloadPdf);
-    }
-
-    async function init() {
-      populateCategories();
-      initializeDefaults();
-      applyPresetRange("all");
-      bindEvents();
-      await loadTransactions();
-    }
-
-    init().catch(err => {
-      console.error(err);
-      alert("Failed to initialize app.");
     });
+
+    averagesBody.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-move]');
+      if (!button) return;
+      moveAverageRow(button.dataset.metric, button.dataset.move);
+    });
+
+    entriesTableBody.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const action = button.dataset.action;
+      const id = button.dataset.id;
+      if (action === 'edit') {
+        startEditTransaction(id);
+      } else if (action === 'delete') {
+        deleteTransaction(id);
+      }
+    });
+
+    buildLineToggleControls();
+    buildSpendingIncludeControls();
+    resetForm({ keepDate: false });
+
+    try {
+      await loadTransactions();
+    } catch (error) {
+      console.error(error);
+      showStatus('Could not load data. Make sure Firestore exists and your rules allow reads.', true);
+      refreshActiveView();
+      renderEntriesTable([]);
+      renderSpendingPieChart([]);
+    }
   </script>
 </body>
 </html>
