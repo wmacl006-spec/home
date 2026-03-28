@@ -11,9 +11,9 @@
     :root {
       --bg: #090a0f;
       --bg-2: #0f1118;
-      --panel: rgba(18, 20, 31, 0.92);
-      --panel-2: rgba(24, 27, 40, 0.95);
-      --panel-3: rgba(29, 33, 48, 0.95);
+      --panel: rgba(18, 20, 31, 0.94);
+      --panel-2: rgba(24, 27, 40, 0.96);
+      --panel-3: rgba(29, 33, 48, 0.98);
       --text: #f4f1f5;
       --muted: #9ca3b5;
       --accent: #b00b55;
@@ -37,14 +37,14 @@
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(176, 11, 85, 0.23), transparent 23%),
+        radial-gradient(circle at top right, rgba(176, 11, 85, 0.22), transparent 23%),
         radial-gradient(circle at bottom left, rgba(176, 11, 85, 0.12), transparent 28%),
         linear-gradient(180deg, #090a0f 0%, #0b0d14 100%);
     }
 
     .wrap {
-      width: min(1680px, calc(100% - 28px));
-      margin: 20px auto 32px;
+      width: min(1680px, calc(100% - 24px));
+      margin: 12px auto 28px;
     }
 
     .topbar {
@@ -52,17 +52,17 @@
       justify-content: space-between;
       align-items: center;
       gap: 16px;
-      padding: 24px 28px;
+      padding: 22px 24px;
       border: 1px solid var(--border);
       border-radius: var(--radius-xl);
       background: linear-gradient(145deg, rgba(176, 11, 85, 0.16), rgba(255,255,255,0.03));
       box-shadow: var(--shadow);
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .topbar h1 {
       margin: 0;
-      font-size: clamp(1.6rem, 3vw, 2.7rem);
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
       letter-spacing: -0.04em;
       font-weight: 800;
     }
@@ -82,14 +82,14 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
-    .card,
-    .panel {
+    .card, .panel {
       border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      background: linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0.01));
       box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
     }
 
     .card {
@@ -99,7 +99,7 @@
 
     .label {
       color: var(--muted);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       margin-bottom: 10px;
@@ -107,15 +107,16 @@
     }
 
     .value {
-      font-size: clamp(1.35rem, 2vw, 2rem);
+      font-size: clamp(1.25rem, 2vw, 2rem);
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1.1;
+      word-break: break-word;
     }
 
     .panel {
       border-radius: var(--radius-xl);
-      padding: 18px;
+      padding: 16px;
     }
 
     .panel-head {
@@ -124,11 +125,12 @@
       align-items: center;
       gap: 12px;
       margin-bottom: 14px;
+      flex-wrap: wrap;
     }
 
     .panel-head h2 {
       margin: 0;
-      font-size: 1.06rem;
+      font-size: 1.03rem;
       letter-spacing: -0.02em;
     }
 
@@ -138,25 +140,70 @@
       font-weight: 600;
     }
 
-    .main-layout {
+    .dashboard-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.75fr) minmax(320px, 0.9fr);
-      gap: 18px;
+      grid-template-columns: minmax(0, 1.8fr) minmax(320px, 0.95fr);
+      gap: 16px;
       align-items: start;
     }
 
-    .left-stack,
-    .right-stack {
+    .left-stack, .right-stack {
       display: grid;
-      gap: 18px;
+      gap: 16px;
     }
 
     .chart-shell {
-      height: 700px;
+      height: 560px;
       border-radius: var(--radius-lg);
       border: 1px solid var(--border);
       background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
-      padding: 14px;
+      padding: 12px;
+    }
+
+    .chart-shell.compact {
+      height: 340px;
+    }
+
+    .chart-top-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .chart-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .range-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .small-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.035);
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
     }
 
     form {
@@ -166,7 +213,8 @@
 
     .form-row,
     .range-row,
-    .button-row {
+    .button-row,
+    .pie-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
@@ -174,6 +222,10 @@
 
     .button-row.three {
       grid-template-columns: repeat(3, 1fr);
+    }
+
+    .button-row.four {
+      grid-template-columns: repeat(4, 1fr);
     }
 
     label.input-label {
@@ -271,19 +323,6 @@
       border-radius: 8px;
     }
 
-    .range-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      color: var(--muted);
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
     .quick-table-wrap,
     .avg-table-wrap,
     .table-wrap {
@@ -330,13 +369,7 @@
     }
 
     .avg-table th:first-child,
-    .avg-table td:first-child {
-      position: sticky;
-      left: 0;
-      z-index: 1;
-      background: rgba(18,20,31,0.98);
-    }
-
+    .avg-table td:first-child,
     .quick-table th:first-child,
     .quick-table td:first-child {
       position: sticky;
@@ -421,31 +454,69 @@
       line-height: 1.2;
     }
 
-    .footer-space { height: 6px; }
+    .pie-legend-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pie-legend-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.92rem;
+      padding: 9px 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .pie-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+    }
+
+    .section-spacer {
+      height: 4px;
+    }
 
     @media (max-width: 1280px) {
       .stats-grid { grid-template-columns: repeat(3, 1fr); }
-      .main-layout { grid-template-columns: 1fr; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .mini-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
     @media (max-width: 900px) {
-      .chart-shell { height: 540px; }
-    }
-
-    @media (max-width: 980px) {
-      .mini-stats-grid { grid-template-columns: 1fr 1fr; }
+      .chart-shell { height: 470px; }
+      .chart-shell.compact { height: 320px; }
     }
 
     @media (max-width: 760px) {
-      .wrap { width: min(100% - 16px, 1680px); }
-      .topbar { padding: 20px; }
+      .wrap { width: min(100% - 12px, 1680px); margin-top: 8px; }
+      .topbar { padding: 18px; }
       .stats-grid { grid-template-columns: 1fr 1fr; }
       .form-row,
       .range-row,
       .button-row,
-      .button-row.three { grid-template-columns: 1fr; }
-      .chart-shell { height: 420px; }
+      .button-row.three,
+      .button-row.four,
+      .pie-row {
+        grid-template-columns: 1fr;
+      }
+      .chart-shell { height: 360px; padding: 10px; }
+      .chart-shell.compact { height: 290px; }
       .mini-stats-grid { grid-template-columns: 1fr; }
+      .panel { padding: 14px; border-radius: 18px; }
+      .value { font-size: 1.18rem; }
+      th, td { padding: 12px 10px; }
+    }
+
+    @media (max-width: 520px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .topbar { align-items: flex-start; }
+      .topbar .tag { width: 100%; text-align: center; }
     }
   </style>
 </head>
@@ -453,6 +524,7 @@
   <div class="wrap">
     <section class="topbar">
       <h1>Money Tracker</h1>
+      <div class="tag">Clean view · mobile friendly · detailed PDF</div>
     </section>
 
     <section class="stats-grid">
@@ -478,7 +550,7 @@
       </div>
     </section>
 
-    <section class="panel" style="margin-bottom: 18px;">
+    <section class="panel" style="margin-bottom: 16px;">
       <div class="panel-head">
         <h2>Quick Stats</h2>
         <div class="panel-subtle">Selected range plus rolling averages</div>
@@ -502,12 +574,14 @@
       </div>
     </section>
 
-    <section class="main-layout">
+    <section class="dashboard-grid">
       <div class="left-stack">
         <section class="panel">
-          <div class="panel-head">
-            <h2>Average Per Day</h2>
-            <div class="range-pill" id="activeRangeLabel">Full Range</div>
+          <div class="chart-top-row">
+            <div class="chart-badges">
+              <div class="range-pill" id="activeRangeLabel">Full Range</div>
+              <div class="small-pill">Average per day over time</div>
+            </div>
           </div>
           <div class="chart-shell">
             <canvas id="moneyChart"></canvas>
@@ -516,8 +590,8 @@
 
         <section class="panel">
           <div class="panel-head">
-            <h2>Range</h2>
-            <div class="panel-subtle">Controls moved under the graph</div>
+            <h2>Range & Export</h2>
+            <div class="panel-subtle">Use a custom date range or export everything in view</div>
           </div>
 
           <div class="range-row">
@@ -531,10 +605,101 @@
             </label>
           </div>
 
-          <div class="button-row three" style="margin-top:12px;">
+          <div class="button-row three" style="margin-top: 12px;">
             <button type="button" class="primary-btn" id="applyRangeButton">Apply Range</button>
             <button type="button" class="ghost-btn" id="clearRangeButton">Clear Range</button>
             <button type="button" class="ghost-btn" id="downloadPdfButton">Download PDF</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Averages By Category</h2>
+            <div class="panel-subtle">Daily averages across multiple lookback windows</div>
+          </div>
+          <div class="avg-table-wrap">
+            <table class="avg-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Selected Range</th>
+                  <th>Last Month</th>
+                  <th>Last 3 Months</th>
+                  <th>Last 6 Months</th>
+                  <th>Last Year</th>
+                </tr>
+              </thead>
+              <tbody id="averagesBody">
+                <tr><td colspan="6" style="color: var(--muted);">No data yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Extra Stats</h2>
+            <div class="panel-subtle">Average bills and yearly projections</div>
+          </div>
+          <div class="mini-stats-grid" id="extraStatsGrid">
+            <div class="mini-stat"><div class="mini-label">Average Grocery Bill</div><div class="mini-value">$0.00</div></div>
+            <div class="mini-stat"><div class="mini-label">Average Fast Food Bill</div><div class="mini-value">$0.00</div></div>
+            <div class="mini-stat"><div class="mini-label">Projected Food / Year</div><div class="mini-value">$0.00</div></div>
+            <div class="mini-stat"><div class="mini-label">Projected Non-Food / Year</div><div class="mini-value">$0.00</div></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2 id="formHeading">Add Transaction</h2>
+            <div class="panel-subtle">Edit and delete are password protected</div>
+          </div>
+
+          <form id="entryForm">
+            <div class="form-row">
+              <label class="input-label">
+                Date
+                <input type="date" id="dateInput" required />
+              </label>
+              <label class="input-label">
+                Category
+                <select id="categoryInput" required></select>
+              </label>
+            </div>
+
+            <label class="input-label">
+              Amount
+              <input type="number" id="amountInput" required min="0" step="0.01" placeholder="25.00" />
+            </label>
+
+            <div class="form-row">
+              <button type="submit" class="primary-btn" id="submitButton">Add Entry</button>
+              <button type="button" class="ghost-btn" id="cancelEditButton" style="display:none;">Cancel Edit</button>
+            </div>
+          </form>
+
+          <div class="status" id="statusText"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2 id="entriesTitle">Transactions</h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="entriesTableBody">
+                <tr><td colspan="5" style="color: var(--muted);">No data yet.</td></tr>
+              </tbody>
+            </table>
           </div>
         </section>
       </div>
@@ -542,7 +707,42 @@
       <div class="right-stack">
         <section class="panel">
           <div class="panel-head">
+            <h2>Daily Spending Pie</h2>
+            <div class="panel-subtle">Spending split by category for one day</div>
+          </div>
+
+          <div class="pie-row">
+            <label class="input-label">
+              Pie Chart Day
+              <input type="date" id="pieDateInput" />
+            </label>
+            <label class="input-label">
+              Quick Pick
+              <select id="pieDatePreset">
+                <option value="current">Current Pie Day</option>
+                <option value="latest">Latest Day With Spending</option>
+                <option value="range-end">Range End</option>
+                <option value="today">Today</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="button-row" style="margin-top: 12px;">
+            <button type="button" class="primary-btn" id="applyPieDateButton">Update Pie</button>
+            <button type="button" class="ghost-btn" id="latestPieDateButton">Latest Spending Day</button>
+          </div>
+
+          <div class="chart-shell compact" style="margin-top: 12px;">
+            <canvas id="pieChart"></canvas>
+          </div>
+
+          <div class="pie-legend-list" id="pieLegendList"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
             <h2>Line Visibility</h2>
+            <div class="panel-subtle">Pick what shows on the main chart</div>
           </div>
           <div class="controls-wrap" id="toggleGrid"></div>
         </section>
@@ -550,104 +750,14 @@
         <section class="panel">
           <div class="panel-head">
             <h2>Total Spending Includes</h2>
+            <div class="panel-subtle">These categories build the total spending line</div>
           </div>
           <div class="controls-wrap" id="spendingIncludeGrid"></div>
         </section>
       </div>
     </section>
 
-    <section class="panel" style="margin-top: 18px;">
-      <div class="panel-head">
-        <h2>Averages By Category</h2>
-        <div class="panel-subtle">Daily averages across multiple lookback windows</div>
-      </div>
-      <div class="avg-table-wrap">
-        <table class="avg-table">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Selected Range</th>
-              <th>Last Month</th>
-              <th>Last 3 Months</th>
-              <th>Last 6 Months</th>
-              <th>Last Year</th>
-            </tr>
-          </thead>
-          <tbody id="averagesBody">
-            <tr><td colspan="6" style="color: var(--muted);">No data yet.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="panel" style="margin-top: 18px;">
-      <div class="panel-head">
-        <h2>Extra Stats</h2>
-        <div class="panel-subtle">Average bills and yearly projections</div>
-      </div>
-      <div class="mini-stats-grid" id="extraStatsGrid">
-        <div class="mini-stat"><div class="mini-label">Average Grocery Bill</div><div class="mini-value">$0.00</div></div>
-        <div class="mini-stat"><div class="mini-label">Average Fast Food Bill</div><div class="mini-value">$0.00</div></div>
-        <div class="mini-stat"><div class="mini-label">Projected Food / Year</div><div class="mini-value">$0.00</div></div>
-        <div class="mini-stat"><div class="mini-label">Projected Non-Food / Year</div><div class="mini-value">$0.00</div></div>
-      </div>
-    </section>
-
-    <section class="panel" style="margin-top: 18px;">
-      <div class="panel-head">
-        <h2 id="formHeading">Add Transaction</h2>
-        <div class="panel-subtle">Edit and delete are password protected</div>
-      </div>
-
-      <form id="entryForm">
-        <div class="form-row">
-          <label class="input-label">
-            Date
-            <input type="date" id="dateInput" required />
-          </label>
-          <label class="input-label">
-            Category
-            <select id="categoryInput" required></select>
-          </label>
-        </div>
-
-        <label class="input-label">
-          Amount
-          <input type="number" id="amountInput" required min="0" step="0.01" placeholder="25.00" />
-        </label>
-
-        <div class="form-row">
-          <button type="submit" class="primary-btn" id="submitButton">Add Entry</button>
-          <button type="button" class="ghost-btn" id="cancelEditButton" style="display:none;">Cancel Edit</button>
-        </div>
-      </form>
-
-      <div class="status" id="statusText"></div>
-    </section>
-
-    <section class="panel" style="margin-top: 18px;">
-      <div class="panel-head">
-        <h2 id="entriesTitle">Transactions</h2>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Category</th>
-              <th>Type</th>
-              <th>Amount</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="entriesTableBody">
-            <tr><td colspan="5" style="color: var(--muted);">No data yet.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <div class="footer-space"></div>
+    <div class="section-spacer"></div>
   </div>
 
   <script type="module">
@@ -684,6 +794,7 @@
 
     const TRANSACTIONS_COLLECTION = 'transactions';
     const EDIT_PASSWORD = 'mmed2025';
+
     const CATEGORIES = [
       'Misc Income',
       'Misc Spending',
@@ -729,7 +840,16 @@
       'Total Spending': '#ff8fab'
     };
 
-    const defaultVisible = new Set(['Groceries', 'Fast Food', 'Food', 'Total Income', 'Total Spending']);
+    const defaultVisible = new Set([
+      'Groceries',
+      'Fast Food',
+      'Food',
+      'Housing costs',
+      'Transport costs',
+      'Total Income',
+      'Total Spending'
+    ]);
+
     const WINDOW_DEFS = [
       { key: 'selected', label: 'Selected Range' },
       { key: 'last30', label: 'Last Month', days: 30 },
@@ -781,13 +901,21 @@
     const spendingValue = document.getElementById('spendingValue');
     const foodValue = document.getElementById('foodValue');
 
+    const pieDateInput = document.getElementById('pieDateInput');
+    const pieDatePreset = document.getElementById('pieDatePreset');
+    const applyPieDateButton = document.getElementById('applyPieDateButton');
+    const latestPieDateButton = document.getElementById('latestPieDateButton');
+    const pieLegendList = document.getElementById('pieLegendList');
+
     let chart;
+    let pieChart;
     let lastTransactions = [];
     let filteredTransactions = [];
     let editingId = null;
     let activeRange = { start: '', end: '' };
     let currentComputed = null;
     let editSessionUnlocked = false;
+    let activePieDate = '';
 
     dateInput.value = new Date().toISOString().slice(0, 10);
 
@@ -837,6 +965,15 @@
       }).format(date);
     }
 
+    function hexToRgba(hex, alpha) {
+      const safeHex = hex.replace('#', '');
+      const bigint = parseInt(safeHex, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
     function showStatus(message, isError = false) {
       statusText.textContent = message;
       statusText.style.color = isError ? 'var(--danger)' : 'var(--muted)';
@@ -858,14 +995,17 @@
       const currentDate = dateInput.value;
       const currentCategory = categoryInput.value;
       entryForm.reset();
+
       if (keepDate && currentDate) {
         dateInput.value = currentDate;
       } else if (!dateInput.value) {
         dateInput.value = formatDateInputValue(new Date());
       }
+
       if (currentCategory) {
         categoryInput.value = currentCategory;
       }
+
       editingId = null;
       formHeading.textContent = 'Add Transaction';
       submitButton.textContent = 'Add Entry';
@@ -894,6 +1034,7 @@
       if (!requireEditPassword()) return;
       const tx = lastTransactions.find(item => item.id === id);
       if (!tx) return;
+
       editingId = id;
       formHeading.textContent = 'Edit Transaction';
       submitButton.textContent = 'Save Changes';
@@ -904,13 +1045,15 @@
       amountInput.focus();
       amountInput.select();
       showStatus(`Editing ${tx.category} on ${tx.date}`);
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+      // no forced scrolling
     }
 
     async function deleteTransaction(id) {
       if (!requireEditPassword()) return;
       const tx = lastTransactions.find(item => item.id === id);
       if (!tx) return;
+
       const confirmed = window.confirm(`Delete ${tx.category} on ${tx.date} for ${formatMoney(tx.amount)}?`);
       if (!confirmed) return;
 
@@ -980,7 +1123,6 @@
         const amount = document.createElement('span');
         amount.style.color = 'var(--muted)';
         amount.style.fontSize = '0.88rem';
-        amount.textContent = '';
 
         row.appendChild(checkbox);
         row.appendChild(text);
@@ -1025,7 +1167,7 @@
       };
     }
 
-    function getEndReferenceDate(allTransactions) {
+    function getEndReferenceDate() {
       if (activeRange.end) return parseDateAsLocal(activeRange.end);
       const today = new Date();
       return new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -1037,6 +1179,7 @@
 
       for (const tx of transactions) {
         totals[tx.category] = (totals[tx.category] || 0) + tx.amount;
+
         if (INCOME_CATEGORIES.has(tx.category)) {
           totals['Total Income'] += tx.amount;
         } else if (spendingIncludedState[tx.category]) {
@@ -1047,7 +1190,6 @@
       totals['Food'] = (totals['Groceries'] || 0) + (totals['Fast Food'] || 0);
       return totals;
     }
-
 
     function getNonFoodTotalFromTotals(totals) {
       return (totals['Total Spending'] || 0) - (totals['Food'] || 0);
@@ -1075,14 +1217,17 @@
       const end = new Date(endDate);
       const start = new Date(end);
       start.setDate(end.getDate() - (windowDays - 1));
+
       const startKey = formatDateInputValue(start);
       const endKey = formatDateInputValue(end);
       const txs = allTransactions.filter(tx => tx.date >= startKey && tx.date <= endKey);
       const totals = buildMetricTotals(txs);
       const averages = {};
+
       Object.entries(totals).forEach(([metric, total]) => {
         averages[metric] = windowDays ? total / windowDays : 0;
       });
+
       return {
         start,
         end,
@@ -1097,7 +1242,7 @@
     }
 
     function buildWindowSet(allTransactions, computed) {
-      const endReference = getEndReferenceDate(allTransactions);
+      const endReference = getEndReferenceDate();
       return {
         selected: {
           label: computed.rangeLabel,
@@ -1115,10 +1260,12 @@
 
     function computeMetricSeries(transactions) {
       const bounds = getRangeBounds(transactions);
+
       if (!bounds) {
         return {
           labels: [],
           seriesMap: {},
+          categorySeriesMap: {},
           trackedDays: 0,
           totalIncome: 0,
           totalSpending: 0,
@@ -1142,9 +1289,14 @@
 
       const cumulative = {};
       DISPLAY_METRICS.forEach(metric => cumulative[metric] = 0);
+      CATEGORIES.forEach(category => cumulative[category] = cumulative[category] || 0);
 
       const seriesMap = {};
       DISPLAY_METRICS.forEach(metric => seriesMap[metric] = []);
+
+      const categorySeriesMap = {};
+      SPENDING_CATEGORIES.forEach(category => categorySeriesMap[category] = []);
+
       const labels = [];
 
       let totalIncome = 0;
@@ -1168,16 +1320,21 @@
           }
         }
 
-        const groceriesToday = dayData['Groceries'] || 0;
-        const fastFoodToday = dayData['Fast Food'] || 0;
-        foodTotal += groceriesToday + fastFoodToday;
+        foodTotal += (dayData['Groceries'] || 0) + (dayData['Fast Food'] || 0);
+
         cumulative['Food'] = foodTotal;
         cumulative['Total Income'] = totalIncome;
         cumulative['Total Spending'] = totalSpending;
 
         labels.push(dateKey);
+
         DISPLAY_METRICS.forEach(metric => {
           seriesMap[metric].push(Number((cumulative[metric] / dayNumber).toFixed(2)));
+        });
+
+        SPENDING_CATEGORIES.forEach(category => {
+          const cumulativeCategory = spendingIncludedState[category] ? cumulative[category] : 0;
+          categorySeriesMap[category].push(Number((cumulativeCategory / dayNumber).toFixed(2)));
         });
       }
 
@@ -1204,6 +1361,7 @@
       return {
         labels,
         seriesMap,
+        categorySeriesMap,
         trackedDays,
         totalIncome,
         totalSpending,
@@ -1216,14 +1374,51 @@
       };
     }
 
-    function buildDatasets(seriesMap) {
+    function buildDatasets(seriesMap, categorySeriesMap) {
       const datasets = [];
 
-      DISPLAY_METRICS.forEach(metric => {
+      const stackedSpendingCategories = [
+        'Misc Spending',
+        'Groceries',
+        'Fast Food',
+        'Housing costs',
+        'Transport costs',
+        'Gambling',
+        'School costs'
+      ];
+
+      stackedSpendingCategories.forEach((metric, index) => {
         if (!visibleMetricState[metric]) return;
+        if (!spendingIncludedState[metric] && SPENDING_CATEGORIES.includes(metric)) return;
+
+        const color = colors[metric] || '#ffffff';
+        const values = categorySeriesMap[metric] || seriesMap[metric] || [];
+        if (!values.length) return;
+
+        datasets.push({
+          label: metric,
+          data: values,
+          borderColor: color,
+          backgroundColor: hexToRgba(color, 0.14),
+          tension: 0.24,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHitRadius: 14,
+          borderWidth: 2.1,
+          fill: index === 0 ? 'origin' : '-1',
+          stack: 'spending-stack',
+          order: 2
+        });
+      });
+
+      ['Misc Income', 'Work income', 'Food', 'Total Income', 'Total Spending'].forEach(metric => {
+        if (!visibleMetricState[metric]) return;
+
         const color = colors[metric] || '#ffffff';
         const values = seriesMap[metric] || [];
         if (!values.length) return;
+
+        const isMain = metric === 'Total Spending' || metric === 'Total Income' || metric === 'Food';
 
         datasets.push({
           label: metric,
@@ -1235,8 +1430,9 @@
           pointHoverRadius: 5,
           pointHitRadius: 14,
           pointHoverBorderWidth: 2,
-          borderWidth: metric === 'Total Spending' || metric === 'Total Income' || metric === 'Food' ? 3.2 : 2.2,
-          fill: false
+          borderWidth: isMain ? 3.2 : 2.2,
+          fill: false,
+          order: 1
         });
 
         const finalValue = values[values.length - 1];
@@ -1246,11 +1442,12 @@
           borderColor: color,
           backgroundColor: color,
           borderDash: [8, 8],
-          borderWidth: 1.2,
+          borderWidth: 1.15,
           pointRadius: 0,
           pointHoverRadius: 0,
           tension: 0,
-          fill: false
+          fill: false,
+          order: 10
         });
       });
 
@@ -1298,7 +1495,6 @@
         </tr>
       `).join('');
     }
-
 
     function renderExtraStats(windowSet) {
       const selectedTransactions = windowSet.selected.transactions || [];
@@ -1368,6 +1564,138 @@
       entriesTitle.textContent = activeRange.start || activeRange.end ? 'Transactions in Range' : 'Transactions';
     }
 
+    function getDailySpendingBreakdown(dateString) {
+      if (!dateString) return [];
+
+      const spendingTotals = {};
+      for (const category of SPENDING_CATEGORIES) {
+        if (spendingIncludedState[category]) spendingTotals[category] = 0;
+      }
+
+      for (const tx of lastTransactions) {
+        if (tx.date !== dateString) continue;
+        if (!SPENDING_CATEGORIES.includes(tx.category)) continue;
+        if (!spendingIncludedState[tx.category]) continue;
+        spendingTotals[tx.category] = (spendingTotals[tx.category] || 0) + tx.amount;
+      }
+
+      return Object.entries(spendingTotals)
+        .filter(([, amount]) => amount > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([category, amount]) => ({
+          category,
+          amount,
+          color: colors[category] || '#ffffff'
+        }));
+    }
+
+    function getLatestSpendingDate() {
+      const spendingDates = [...new Set(
+        lastTransactions
+          .filter(tx => SPENDING_CATEGORIES.includes(tx.category) && tx.amount > 0)
+          .map(tx => tx.date)
+      )].sort();
+
+      return spendingDates.length ? spendingDates[spendingDates.length - 1] : '';
+    }
+
+    function pickPieDateFromPreset() {
+      const preset = pieDatePreset.value;
+      const today = formatDateInputValue(new Date());
+
+      if (preset === 'today') return today;
+      if (preset === 'range-end') return activeRange.end || currentComputed?.rangeEnd || getLatestSpendingDate() || today;
+      if (preset === 'latest') return getLatestSpendingDate() || today;
+      return pieDateInput.value || activePieDate || getLatestSpendingDate() || today;
+    }
+
+    function renderPieLegend(items, dateString) {
+      if (!items.length) {
+        pieLegendList.innerHTML = `
+          <div class="pie-legend-row">
+            <div class="pie-dot" style="background: #444;"></div>
+            <div>No spending on ${dateString ? formatDisplayDate(dateString) : 'this day'}</div>
+            <div>${formatMoney(0)}</div>
+          </div>
+        `;
+        return;
+      }
+
+      const total = items.reduce((sum, item) => sum + item.amount, 0);
+
+      pieLegendList.innerHTML = items.map(item => {
+        const pct = total > 0 ? (item.amount / total) * 100 : 0;
+        return `
+          <div class="pie-legend-row">
+            <div class="pie-dot" style="background: ${item.color};"></div>
+            <div>${item.category} · ${pct.toFixed(1)}%</div>
+            <div>${formatMoney(item.amount)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function refreshPieChart() {
+      const fallbackDate = getLatestSpendingDate() || currentComputed?.rangeEnd || formatDateInputValue(new Date());
+      activePieDate = pieDateInput.value || activePieDate || fallbackDate;
+      pieDateInput.value = activePieDate;
+
+      const items = getDailySpendingBreakdown(activePieDate);
+      renderPieLegend(items, activePieDate);
+
+      const data = {
+        labels: items.map(item => item.category),
+        datasets: [{
+          data: items.map(item => item.amount),
+          backgroundColor: items.map(item => item.color),
+          borderColor: '#0b0d14',
+          borderWidth: 2
+        }]
+      };
+
+      if (pieChart) {
+        pieChart.data = data;
+        pieChart.options.plugins.title.text = activePieDate
+          ? `Spending on ${formatDisplayDate(activePieDate)}`
+          : 'Daily Spending';
+        pieChart.update();
+      } else {
+        pieChart = new Chart(document.getElementById('pieChart'), {
+          type: 'pie',
+          data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: activePieDate ? `Spending on ${formatDisplayDate(activePieDate)}` : 'Daily Spending',
+                color: '#f4f1f5',
+                font: { size: 14, weight: '700' },
+                padding: { bottom: 10 }
+              },
+              legend: {
+                display: false
+              },
+              tooltip: {
+                backgroundColor: 'rgba(13,16,24,0.96)',
+                borderColor: 'rgba(255,255,255,0.08)',
+                borderWidth: 1,
+                callbacks: {
+                  label: (ctx) => {
+                    const total = ctx.dataset.data.reduce((sum, val) => sum + val, 0);
+                    const value = ctx.raw || 0;
+                    const pct = total > 0 ? (value / total) * 100 : 0;
+                    return `${ctx.label}: ${formatMoney(value)} (${pct.toFixed(1)}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+
     function refreshActiveView() {
       filteredTransactions = getFilteredTransactions(lastTransactions);
       const computed = computeMetricSeries(filteredTransactions);
@@ -1388,7 +1716,7 @@
 
       const data = {
         labels: computed.labels,
-        datasets: buildDatasets(computed.seriesMap)
+        datasets: buildDatasets(computed.seriesMap, computed.categorySeriesMap)
       };
 
       if (chart) {
@@ -1434,7 +1762,7 @@
               x: {
                 ticks: {
                   color: '#9ca3b5',
-                  maxTicksLimit: 10,
+                  maxTicksLimit: 9,
                   callback: function(value) {
                     const label = this.getLabelForValue(value);
                     return formatDisplayDate(label);
@@ -1443,6 +1771,7 @@
                 grid: { color: 'rgba(255,255,255,0.05)' }
               },
               y: {
+                stacked: false,
                 ticks: {
                   color: '#9ca3b5',
                   callback: (value) => formatMoney(value)
@@ -1453,6 +1782,12 @@
           }
         });
       }
+
+      if (!activePieDate) {
+        activePieDate = getLatestSpendingDate() || computed.rangeEnd || formatDateInputValue(new Date());
+        pieDateInput.value = activePieDate;
+      }
+      refreshPieChart();
     }
 
     function validateRangeInputs() {
@@ -1517,6 +1852,38 @@
       ]);
     }
 
+    function buildQuickStatsRowsForPdf(windowSet) {
+      return [
+        ['Income / Day', formatMoney(windowSet.selected.averages['Total Income'] || 0)],
+        ['Spending / Day', formatMoney(windowSet.selected.averages['Total Spending'] || 0)],
+        ['Food / Day', formatMoney(windowSet.selected.averages['Food'] || 0)],
+        ['Non-Food Spending / Day', formatMoney(getNonFoodTotalFromTotals(windowSet.selected.totals || {}) / (windowSet.selected.days || 1))],
+        ['Net / Day', formatMoney((windowSet.selected.averages['Total Income'] || 0) - (windowSet.selected.averages['Total Spending'] || 0))]
+      ];
+    }
+
+    function addChartImageToPdf(doc, canvas, title, startY) {
+      if (!canvas) return startY;
+      const imageData = canvas.toDataURL('image/png', 1.0);
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const marginX = 40;
+      const usableWidth = pageWidth - marginX * 2;
+      const ratio = canvas.height / canvas.width;
+      const imageHeight = usableWidth * ratio;
+
+      if (startY + 24 + imageHeight > doc.internal.pageSize.getHeight() - 40) {
+        doc.addPage();
+        startY = 42;
+      }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(title, marginX, startY);
+      startY += 10;
+      doc.addImage(imageData, 'PNG', marginX, startY, usableWidth, imageHeight);
+      return startY + imageHeight + 20;
+    }
+
     function downloadPdfStatement() {
       if (!currentComputed || !window.jspdf?.jsPDF) {
         showStatus('PDF export is not available right now.', true);
@@ -1538,6 +1905,8 @@
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
       doc.text(`Range: ${rangeText}`, marginX, y);
+      y += 14;
+      doc.text(`Pie Day: ${activePieDate ? formatDisplayDate(activePieDate) : 'N/A'}`, marginX, y);
       y += 14;
       doc.text(`Generated: ${new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date())}`, marginX, y);
       y += 24;
@@ -1564,7 +1933,31 @@
         styles: { font: 'helvetica', fontSize: 10, textColor: [20, 20, 20] }
       });
 
-      y = doc.lastAutoTable.finalY + 22;
+      y = doc.lastAutoTable.finalY + 20;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Quick Stats', marginX, y);
+
+      doc.autoTable({
+        startY: y + 10,
+        margin: { left: marginX, right: marginX },
+        head: [['Metric', 'Selected Range']],
+        body: buildQuickStatsRowsForPdf(windowSet),
+        theme: 'grid',
+        headStyles: { fillColor: [176, 11, 85] },
+        styles: { font: 'helvetica', fontSize: 9.5, textColor: [20, 20, 20] }
+      });
+
+      y = doc.lastAutoTable.finalY + 20;
+      y = addChartImageToPdf(doc, document.getElementById('moneyChart'), 'Main Chart', y);
+      y = addChartImageToPdf(doc, document.getElementById('pieChart'), 'Daily Spending Pie', y);
+
+      if (y > doc.internal.pageSize.getHeight() - 220) {
+        doc.addPage();
+        y = 42;
+      }
+
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12);
       doc.text('Averages', marginX, y);
@@ -1614,6 +2007,7 @@
       showStatus('Loading data...');
       const q = query(collection(db, TRANSACTIONS_COLLECTION), orderBy('date', 'asc'));
       const snapshot = await getDocs(q);
+
       const transactions = snapshot.docs.map(docSnap => {
         const data = docSnap.data();
         return {
@@ -1627,13 +2021,21 @@
 
       lastTransactions = transactions;
 
-      if (transactions.length && !rangeStartInput.value && !rangeEndInput.value) {
+      if (transactions.length) {
         const firstDate = transactions[0].date;
         const lastDate = transactions[transactions.length - 1].date;
+
         rangeStartInput.min = firstDate;
         rangeStartInput.max = lastDate;
         rangeEndInput.min = firstDate;
         rangeEndInput.max = formatDateInputValue(new Date());
+
+        pieDateInput.min = firstDate;
+        pieDateInput.max = formatDateInputValue(new Date());
+
+        if (!pieDateInput.value) {
+          pieDateInput.value = getLatestSpendingDate() || lastDate;
+        }
       }
 
       refreshActiveView();
@@ -1660,6 +2062,27 @@
     applyRangeButton.addEventListener('click', applyRangeFilter);
     clearRangeButton.addEventListener('click', clearRangeFilter);
     downloadPdfButton.addEventListener('click', downloadPdfStatement);
+
+    applyPieDateButton.addEventListener('click', () => {
+      activePieDate = pickPieDateFromPreset();
+      pieDateInput.value = activePieDate;
+      refreshPieChart();
+      showStatus(`Pie chart updated for ${activePieDate}.`);
+    });
+
+    latestPieDateButton.addEventListener('click', () => {
+      activePieDate = getLatestSpendingDate() || currentComputed?.rangeEnd || formatDateInputValue(new Date());
+      pieDateInput.value = activePieDate;
+      pieDatePreset.value = 'latest';
+      refreshPieChart();
+      showStatus(`Pie chart updated for ${activePieDate}.`);
+    });
+
+    pieDateInput.addEventListener('change', () => {
+      activePieDate = pieDateInput.value;
+      pieDatePreset.value = 'current';
+      refreshPieChart();
+    });
 
     entryForm.addEventListener('submit', async (event) => {
       event.preventDefault();
