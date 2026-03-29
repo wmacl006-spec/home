@@ -19,6 +19,7 @@
       --accent-soft:rgba(176,11,85,.16);
       --good:#83efb3;
       --bad:#ff6b87;
+      --warn:#ffb86b;
       --radius:22px;
     }
     *{box-sizing:border-box}
@@ -95,15 +96,31 @@
       color:#fff;
       cursor:pointer;
       font-weight:700;
+      transition:.16s ease;
     }
+    .btn:hover{transform:translateY(-1px)}
     .btn.ghost{
       background:#0d0d13;
       color:#fff;
       border:1px solid var(--line);
     }
+    .btn.danger{
+      background:#3a111d;
+      border:1px solid rgba(255,107,135,.25);
+      color:#ffd7df;
+    }
+    .btn.warn{
+      background:#2d2112;
+      border:1px solid rgba(255,184,107,.22);
+      color:#ffe2bf;
+    }
     .grid{
       display:grid;
       grid-template-columns:1.15fr .85fr;
+      gap:18px;
+    }
+    .stackGrid{
+      display:grid;
       gap:18px;
     }
     .card{
@@ -170,6 +187,7 @@
       display:flex;
       gap:10px;
       flex-wrap:wrap;
+      align-items:center;
     }
     .empty{
       padding:18px;
@@ -184,6 +202,11 @@
       font-size:.84rem;
       color:var(--muted);
       min-height:20px;
+    }
+    .tiny{
+      font-size:.74rem;
+      color:var(--muted);
+      margin-top:6px;
     }
     @media (max-width: 900px){
       .grid{grid-template-columns:1fr}
@@ -270,9 +293,18 @@
         <div class="msg" id="createMsg"></div>
       </div>
 
-      <div class="card">
-        <h2>Your Debts</h2>
-        <div class="list" id="debtsList"></div>
+      <div class="stackGrid">
+        <div class="card">
+          <h2>Your Debts</h2>
+          <div class="list" id="debtsList"></div>
+          <div class="tiny">This shows money both directions.</div>
+        </div>
+
+        <div class="card">
+          <h2>Debts Owed To You</h2>
+          <div class="list" id="owedToYouList"></div>
+          <div class="tiny">Only debts where someone owes you money can be forgiven.</div>
+        </div>
       </div>
     </div>
 
@@ -303,9 +335,9 @@
       getDocs,
       query,
       where,
-      orderBy,
       setDoc,
       updateDoc,
+      deleteDoc,
       serverTimestamp,
       addDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -328,6 +360,7 @@
     const welcome = document.getElementById("welcome");
     const chipStack = document.getElementById("chipStack");
     const debtsList = document.getElementById("debtsList");
+    const owedToYouList = document.getElementById("owedToYouList");
     const waitingGames = document.getElementById("waitingGames");
     const myGames = document.getElementById("myGames");
     const createMsg = document.getElementById("createMsg");
@@ -350,26 +383,100 @@
 
     async function loadDebts(profile){
       debtsList.innerHTML = "";
+      owedToYouList.innerHTML = "";
+
       const debts = profile.debts || {};
       const entries = Object.entries(debts);
 
       if (!entries.length) {
         debtsList.innerHTML = `<div class="empty">No debts right now.</div>`;
+        owedToYouList.innerHTML = `<div class="empty">Nobody owes you anything right now.</div>`;
         return;
       }
 
-      for (const [otherUid, amount] of entries) {
+      let hasPositiveDebt = false;
+
+      for (const [otherUid, rawAmount] of entries) {
+        const amount = Number(rawAmount || 0);
         const other = await getUserProfile(otherUid);
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `
+
+        const allDebtDiv = document.createElement("div");
+        allDebtDiv.className = "item";
+        allDebtDiv.innerHTML = `
           <div>
             <div class="title">${other.username}</div>
             <div class="meta">${amount >= 0 ? "They owe you" : "You owe them"}</div>
           </div>
-          <div class="money ${amount >= 0 ? "good":"bad"}">${amount >= 0 ? "+" : ""}${Number(amount).toFixed(2)}</div>
+          <div class="money ${amount >= 0 ? "good":"bad"}">${amount >= 0 ? "+" : ""}${amount.toFixed(2)}</div>
         `;
-        debtsList.appendChild(div);
+        debtsList.appendChild(allDebtDiv);
+
+        if (amount > 0) {
+          hasPositiveDebt = true;
+          const owedDiv = document.createElement("div");
+          owedDiv.className = "item";
+          owedDiv.innerHTML = `
+            <div>
+              <div class="title">${other.username}</div>
+              <div class="meta">Owes you ${amount.toFixed(2)}</div>
+            </div>
+            <div class="splitBtns">
+              <div class="money good">+${amount.toFixed(2)}</div>
+              <button class="btn warn" data-forgive-uid="${otherUid}" data-forgive-name="${other.username}">Forgive Debt</button>
+            </div>
+          `;
+          owedToYouList.appendChild(owedDiv);
+        }
+      }
+
+      if (!entries.length) {
+        debtsList.innerHTML = `<div class="empty">No debts right now.</div>`;
+      }
+
+      if (!hasPositiveDebt) {
+        owedToYouList.innerHTML = `<div class="empty">Nobody owes you anything right now.</div>`;
+      }
+
+      owedToYouList.querySelectorAll("[data-forgive-uid]").forEach(btn => {
+        btn.onclick = async () => {
+          const otherUid = btn.dataset.forgiveUid;
+          const otherName = btn.dataset.forgiveName || "this player";
+          const ok = confirm(`Forgive ${otherName}'s debt? This only clears the debt they owe you.`);
+          if (!ok) return;
+          await forgiveDebt(otherUid);
+        };
+      });
+    }
+
+    async function forgiveDebt(otherUid){
+      try{
+        const userRef = doc(db, "users", currentUser.uid);
+        const freshSnap = await getDoc(userRef);
+        if(!freshSnap.exists()) throw new Error("User profile not found.");
+
+        const freshProfile = freshSnap.data();
+        const debts = { ...(freshProfile.debts || {}) };
+        const amount = Number(debts[otherUid] || 0);
+
+        if (amount <= 0) {
+          throw new Error("You can only forgive debts owed to you.");
+        }
+
+        delete debts[otherUid];
+
+        await updateDoc(userRef, {
+          debts,
+          updatedAt: serverTimestamp()
+        });
+
+        currentProfile = {
+          ...freshProfile,
+          debts
+        };
+
+        await refreshAll();
+      }catch(err){
+        alert(err.message || "Unable to forgive debt.");
       }
     }
 
@@ -378,9 +485,11 @@
       return `${players} player${players===1?"":"s"} • ${g.settings?.gameMode || "regular"} • buy-in ${g.settings?.buyIn ?? "-"} • blinds ${g.settings?.smallBlind ?? "-"}/${g.settings?.bigBlind ?? "-"}`;
     }
 
-    function gameActions(gameId, status, canJoin=false){
+    function gameActions(gameId, gameData, canJoin=false){
+      const isHost = currentUser && gameData?.hostId === currentUser.uid;
       let html = `<button class="btn ghost" onclick="location.href='./pokergame.html?gameId=${gameId}'">Open</button>`;
       if(canJoin) html += ` <button class="btn" onclick="joinGame('${gameId}')">Join</button>`;
+      if(isHost) html += ` <button class="btn danger" onclick="deleteHostedGame('${gameId}')">Delete Game</button>`;
       return html;
     }
 
@@ -407,7 +516,7 @@
             <div class="title">${host.username}'s table</div>
             <div class="meta">${gameMeta(g)}</div>
           </div>
-          <div class="splitBtns">${gameActions(d.id, g.status, canJoin)}</div>
+          <div class="splitBtns">${gameActions(d.id, g, canJoin)}</div>
         `;
         waitingGames.appendChild(div);
       }
@@ -417,11 +526,10 @@
       myGames.innerHTML = "";
       const q = query(collection(db, "games"), where("playerIds", "array-contains", uid));
       const snap = await getDocs(q);
-      const docs = snap.docs
-        .filter(d => {
-          const s = d.data().status;
-          return s === "waiting" || s === "active" || s === "showdown";
-        });
+      const docs = snap.docs.filter(d => {
+        const s = d.data().status;
+        return s === "waiting" || s === "active" || s === "showdown";
+      });
 
       if (!docs.length) {
         myGames.innerHTML = `<div class="empty">No ongoing games.</div>`;
@@ -437,7 +545,7 @@
             <div class="title">Game ${d.id.slice(0,8)}</div>
             <div class="meta">${gameMeta(g)} • status: ${g.status} • street: ${g.street || "waiting"}</div>
           </div>
-          <div class="splitBtns">${gameActions(d.id, g.status)}</div>
+          <div class="splitBtns">${gameActions(d.id, g, false)}</div>
         `;
         myGames.appendChild(div);
       }
@@ -532,7 +640,7 @@
         const players = { ...(g.players || {}) };
 
         if(playerIds.includes(currentUser.uid)){
-          location.href = `./game.html?gameId=${gameId}`;
+          location.href = `./pokergame.html?gameId=${gameId}`;
           return;
         }
         if((playerIds.length) >= (g.settings?.maxPlayers || 6)){
@@ -578,8 +686,40 @@
       }
     };
 
+    window.deleteHostedGame = async function(gameId){
+      try{
+        const ok = confirm("Delete this game? This removes it from the lobby list.");
+        if(!ok) return;
+
+        const ref = doc(db, "games", gameId);
+        const snap = await getDoc(ref);
+        if(!snap.exists()) throw new Error("Game not found.");
+
+        const game = snap.data();
+        if(game.hostId !== currentUser.uid){
+          throw new Error("Only the host can delete this game.");
+        }
+
+        const privatePlayersSnap = await getDocs(collection(db, "games", gameId, "privatePlayers"));
+        for (const privateDoc of privatePlayersSnap.docs) {
+          await deleteDoc(privateDoc.ref);
+        }
+
+        await deleteDoc(ref);
+        await refreshAll();
+      }catch(err){
+        alert(err.message || "Unable to delete game.");
+      }
+    };
+
     async function refreshAll(){
-      if(!currentUser || !currentProfile) return;
+      if(!currentUser) return;
+
+      const freshProfileSnap = await getDoc(doc(db, "users", currentUser.uid));
+      if(!freshProfileSnap.exists()) return;
+
+      currentProfile = freshProfileSnap.data();
+
       welcome.textContent = `Signed in as ${currentProfile.username}`;
       chipStack.textContent = currentProfile.stats?.winningsNet?.toFixed?.(0) ?? "0";
       await loadDebts(currentProfile);
