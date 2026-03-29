@@ -591,18 +591,18 @@
     document.getElementById("refreshBtn").onclick = refreshAll;
     document.getElementById("signOutBtn").onclick = async () => {
       await signOut(auth);
-      location.href = "./auth.html";
+      location.href = "./pokerlogin.html";
     };
 
     onAuthStateChanged(auth, async (user) => {
       if(!user){
-        location.href = "./auth.html";
+        location.href = "./pokerlogin.html";
         return;
       }
       currentUser = user;
       const profileSnap = await getDoc(doc(db, "users", user.uid));
       if(!profileSnap.exists()){
-        location.href = "./auth.html";
+        location.href = "./pokerlogin.html";
         return;
       }
       currentProfile = profileSnap.data();
