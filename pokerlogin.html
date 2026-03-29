@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#09090b;
+      --panel:#121218;
+      --panel2:#181821;
+      --text:#f5f5f7;
+      --muted:#9a9aa5;
+      --line:#23232f;
+      --accent:#b00b55;
+      --accent-soft:rgba(176,11,85,.16);
+      --danger:#ff4d6d;
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:"Comfortaa",system-ui,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(176,11,85,.12), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(176,11,85,.08), transparent 24%),
+        var(--bg);
+      color:var(--text);
+      display:grid;
+      place-items:center;
+      padding:20px;
+    }
+    .wrap{
+      width:min(100%,420px);
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:24px;
+      box-shadow:0 30px 60px rgba(0,0,0,.35);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin-bottom:20px;
+    }
+    .chip{
+      width:58px;
+      height:58px;
+      position:relative;
+      flex:0 0 58px;
+    }
+    .chip img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      filter:drop-shadow(0 8px 18px rgba(176,11,85,.2));
+    }
+    .chip .stack{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      font-weight:700;
+      font-size:14px;
+      color:white;
+      text-shadow:0 2px 10px rgba(0,0,0,.65);
+      pointer-events:none;
+    }
+    h1{
+      font-size:1.2rem;
+      margin:0 0 6px;
+    }
+    .sub{
+      color:var(--muted);
+      font-size:.86rem;
+      line-height:1.5;
+      margin-bottom:18px;
+    }
+    .tabs{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:18px;
+    }
+    .tab{
+      border:none;
+      background:#0d0d13;
+      color:var(--muted);
+      border-radius:16px;
+      padding:12px;
+      font-family:inherit;
+      font-size:.9rem;
+      cursor:pointer;
+      border:1px solid var(--line);
+    }
+    .tab.active{
+      background:var(--accent-soft);
+      color:#fff;
+      border-color:rgba(176,11,85,.45);
+    }
+    form{
+      display:grid;
+      gap:12px;
+    }
+    .hidden{display:none}
+    label{
+      font-size:.82rem;
+      color:var(--muted);
+      display:grid;
+      gap:8px;
+    }
+    input{
+      width:100%;
+      border:none;
+      outline:none;
+      padding:14px 14px;
+      border-radius:16px;
+      background:#0d0d13;
+      color:#fff;
+      font-family:inherit;
+      border:1px solid var(--line);
+    }
+    input:focus{
+      border-color:rgba(176,11,85,.55);
+      box-shadow:0 0 0 4px rgba(176,11,85,.12);
+    }
+    .btn{
+      margin-top:6px;
+      border:none;
+      border-radius:16px;
+      padding:14px 16px;
+      background:var(--accent);
+      color:#fff;
+      font-family:inherit;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .btn.secondary{
+      background:#0d0d13;
+      border:1px solid var(--line);
+      color:#fff;
+    }
+    .msg{
+      margin-top:14px;
+      min-height:22px;
+      color:var(--muted);
+      font-size:.85rem;
+    }
+    .msg.error{color:var(--danger)}
+    .msg.success{color:#8df0b1}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <div class="chip">
+        <img src="/cards/chip.png" alt="chip">
+        <div class="stack">100</div>
+      </div>
+      <div>
+        <h1>Friends Poker</h1>
+        <div class="sub">Minimal Firebase auth with username, email and password.</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" id="signInTab">Sign In</button>
+      <button class="tab" id="signUpTab">Sign Up</button>
+    </div>
+
+    <form id="signInForm">
+      <label>
+        Email
+        <input id="siEmail" type="email" autocomplete="email" required />
+      </label>
+      <label>
+        Password
+        <input id="siPassword" type="password" autocomplete="current-password" required />
+      </label>
+      <button class="btn" type="submit">Sign In</button>
+    </form>
+
+    <form id="signUpForm" class="hidden">
+      <label>
+        Username
+        <input id="suUsername" type="text" minlength="3" maxlength="20" required />
+      </label>
+      <label>
+        Email
+        <input id="suEmail" type="email" autocomplete="email" required />
+      </label>
+      <label>
+        Password
+        <input id="suPassword" type="password" minlength="6" autocomplete="new-password" required />
+      </label>
+      <button class="btn" type="submit">Create Account</button>
+    </form>
+
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      serverTimestamp,
+      query,
+      collection,
+      where,
+      getDocs,
+      limit
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBYFdh01-yNDMI5QrNmb-hoH7yXMOKqHfg",
+      authDomain: "poker-2e9be.firebaseapp.com",
+      projectId: "poker-2e9be",
+      storageBucket: "poker-2e9be.firebasestorage.app",
+      messagingSenderId: "80287671054",
+      appId: "1:80287671054:web:de1ca6c3a932772486ad5f",
+      measurementId: "G-SDN3YSEL8X"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const signInTab = document.getElementById("signInTab");
+    const signUpTab = document.getElementById("signUpTab");
+    const signInForm = document.getElementById("signInForm");
+    const signUpForm = document.getElementById("signUpForm");
+    const msg = document.getElementById("msg");
+
+    function setMsg(text, type=""){
+      msg.className = "msg" + (type ? " " + type : "");
+      msg.textContent = text;
+    }
+
+    function showSignIn(){
+      signInTab.classList.add("active");
+      signUpTab.classList.remove("active");
+      signInForm.classList.remove("hidden");
+      signUpForm.classList.add("hidden");
+      setMsg("");
+    }
+
+    function showSignUp(){
+      signUpTab.classList.add("active");
+      signInTab.classList.remove("active");
+      signUpForm.classList.remove("hidden");
+      signInForm.classList.add("hidden");
+      setMsg("");
+    }
+
+    signInTab.onclick = showSignIn;
+    signUpTab.onclick = showSignUp;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          username: user.displayName || "Player",
+          email: user.email,
+          debts: {},
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      }
+      location.href = "./lobby.html";
+    });
+
+    signInForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setMsg("Signing in...");
+      try {
+        const email = document.getElementById("siEmail").value.trim();
+        const password = document.getElementById("siPassword").value;
+        await signInWithEmailAndPassword(auth, email, password);
+        setMsg("Signed in.", "success");
+        location.href = "./lobby.html";
+      } catch (err) {
+        setMsg(err.message, "error");
+      }
+    });
+
+    signUpForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setMsg("Creating account...");
+      try {
+        const username = document.getElementById("suUsername").value.trim();
+        const email = document.getElementById("suEmail").value.trim();
+        const password = document.getElementById("suPassword").value;
+
+        if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+          throw new Error("Username must be 3-20 characters using letters, numbers or _");
+        }
+
+        const q = query(collection(db, "users"), where("usernameLower", "==", username.toLowerCase()), limit(1));
+        const existing = await getDocs(q);
+        if (!existing.empty) throw new Error("That username is already taken.");
+
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: username });
+
+        await setDoc(doc(db, "users", cred.user.uid), {
+          username,
+          usernameLower: username.toLowerCase(),
+          email,
+          debts: {},
+          stats: {
+            gamesPlayed: 0,
+            handsPlayed: 0,
+            winningsNet: 0
+          },
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        setMsg("Account created.", "success");
+        location.href = "./lobby.html";
+      } catch (err) {
+        setMsg(err.message, "error");
+      }
+    });
+  </script>
+</body>
+</html>
