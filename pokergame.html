@@ -2,1379 +2,1333 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Private Poker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Private Poker — Game</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#080810;
-      --panel:#10101a;
-      --panel2:#141420;
-      --line:#1e1e2e;
-      --text:#f0f0f8;
-      --muted:#6666a0;
-      --accent:#c0144e;
-      --accent2:#e8185e;
-      --good:#4ade80;
-      --bad:#f87171;
-      --warn:#fbbf24;
-      --r:18px;
+      --bg:#09090b;
+      --panel:#121218;
+      --panel2:#181821;
+      --panel3:#0f0f15;
+      --text:#f5f5f7;
+      --muted:#9a9aa5;
+      --line:#252533;
+      --accent:#b00b55;
+      --accent2:#da1b72;
+      --good:#83efb3;
+      --bad:#ff6b87;
+      --warn:#ffb86b;
+      --radius:22px;
+      --shadow:0 18px 50px rgba(0,0,0,.35);
     }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:"Sora",sans-serif;min-height:100vh;overscroll-behavior:none}
-    button,input,select{font:inherit}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:
+      radial-gradient(circle at top, rgba(176,11,85,.12), transparent 30%),
+      radial-gradient(circle at bottom right, rgba(176,11,85,.08), transparent 24%),
+      var(--bg);color:var(--text);font-family:"Comfortaa",system-ui,sans-serif}
+    button,input{font:inherit}
+    body{min-height:100vh}
+    .page{width:min(1450px,100%);margin:0 auto;padding:16px;display:grid;gap:16px}
+    .bar,.panel{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .bar{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(176,11,85,.24))}
+    .title{font-size:1.08rem;font-weight:700}
+    .sub{font-size:.8rem;color:var(--muted);margin-top:4px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;background:#101017;color:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;font-weight:700;cursor:pointer;transition:.18s ease}
+    .btn:hover{transform:translateY(-1px);border-color:rgba(176,11,85,.45)}
+    .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .btn.primary{background:linear-gradient(180deg,var(--accent2),var(--accent));border-color:transparent}
+    .btn.good{background:#113122;border-color:rgba(131,239,179,.18);color:#d8ffe8}
+    .btn.bad{background:#34111b;border-color:rgba(255,107,135,.18);color:#ffd9e1}
+    .btn.warn{background:#2a2114;border-color:rgba(255,184,107,.18);color:#ffe2bf}
 
-    /* ── TOP BAR ── */
-    #topBar{
-      position:sticky;top:0;z-index:100;
-      background:rgba(8,8,16,.92);backdrop-filter:blur(14px);
-      border-bottom:1px solid var(--line);
-      display:flex;align-items:center;justify-content:space-between;
-      padding:10px 14px;gap:10px;
-    }
-    #topBar .left{display:flex;align-items:center;gap:10px}
-    #topBar .title{font-size:.9rem;font-weight:700;line-height:1.2}
-    #topBar .sub{font-size:.7rem;color:var(--muted)}
-    #topBar .right{display:flex;gap:8px}
+    .layout{display:grid;grid-template-columns:320px minmax(0,1fr) 320px;gap:16px;align-items:start}
+    .panel{padding:16px}
+    .panel h2{margin:0 0 14px;font-size:1rem}
+    .muted{color:var(--muted)}
+    .tiny{font-size:.74rem}
+    .small{font-size:.84rem}
+    .statGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .stat{background:var(--panel3);border:1px solid var(--line);border-radius:18px;padding:12px}
+    .stat .k{font-size:.72rem;color:var(--muted);margin-bottom:6px}
+    .stat .v{font-size:1rem;font-weight:700;line-height:1.3;word-break:break-word}
+    .divider{height:1px;background:var(--line);margin:14px 0}
 
-    .btn{border:none;border-radius:12px;padding:9px 13px;font-weight:600;font-size:.8rem;cursor:pointer;transition:.15s ease;white-space:nowrap}
-    .btn:active{transform:scale(.96)}
-    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-    .btn-ghost{background:var(--panel);border:1px solid var(--line);color:var(--text)}
-    .btn-primary{background:linear-gradient(160deg,var(--accent2),var(--accent));color:#fff;border:none}
-    .btn-good{background:#0d2d1a;border:1px solid rgba(74,222,128,.2);color:#86efac}
-    .btn-bad{background:#2d0d0d;border:1px solid rgba(248,113,113,.2);color:#fca5a5}
-    .btn-warn{background:#2d1f00;border:1px solid rgba(251,191,36,.2);color:#fde68a}
-    .btn-lg{padding:14px 18px;font-size:.9rem;border-radius:14px}
-    .btn-full{width:100%}
-
-    /* ── MAIN LAYOUT ── */
-    #main{display:flex;flex-direction:column;gap:0;padding-bottom:env(safe-area-inset-bottom)}
-
-    /* ── PLAYER LIST ── */
-    #playerSection{padding:10px 12px;display:grid;gap:6px}
-    .player-row{
-      display:flex;align-items:center;gap:10px;
-      background:var(--panel);border:1px solid var(--line);
-      border-radius:14px;padding:10px 12px;
-      transition:.2s ease;position:relative;overflow:hidden;
-    }
-    .player-row.is-turn{
-      border-color:rgba(224,24,94,.55);
-      background:rgba(224,24,94,.08);
-    }
-    .player-row.is-turn::before{
-      content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
-      background:linear-gradient(180deg,var(--accent2),var(--accent));
-      border-radius:3px 0 0 3px;
-    }
-    .player-row.is-me{border-color:rgba(255,255,255,.15)}
-    .player-row.is-folded{opacity:.5}
-    .player-row.is-winner{border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.06)}
-    .pr-avatar{
-      width:36px;height:36px;border-radius:50%;flex-shrink:0;
-      background:linear-gradient(135deg,var(--accent2),#60099c);
-      display:grid;place-items:center;font-weight:700;font-size:.9rem;
-    }
-    .pr-info{flex:1;min-width:0}
-    .pr-name{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .pr-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:2px}
-    .badge{font-size:.6rem;padding:2px 7px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);font-weight:600}
-    .badge-d{border-color:rgba(251,191,36,.3);color:#fde68a;background:rgba(251,191,36,.08)}
-    .badge-sb{border-color:rgba(96,165,250,.3);color:#93c5fd;background:rgba(96,165,250,.08)}
-    .badge-bb{border-color:rgba(167,139,250,.3);color:#c4b5fd;background:rgba(167,139,250,.08)}
-    .badge-allin{border-color:rgba(248,113,113,.3);color:#fca5a5;background:rgba(248,113,113,.08)}
-    .badge-win{border-color:rgba(74,222,128,.3);color:#86efac;background:rgba(74,222,128,.08)}
-    .badge-turn{border-color:rgba(224,24,94,.4);color:#f472b6;background:rgba(224,24,94,.1);animation:pulseBadge 1.2s infinite}
-    @keyframes pulseBadge{0%,100%{opacity:1}50%{opacity:.55}}
-    .pr-right{text-align:right;flex-shrink:0}
-    .pr-stack{font-size:.88rem;font-weight:700}
-    .pr-action{font-size:.65rem;color:var(--muted);margin-top:2px}
-    .pr-cards{display:flex;gap:4px;margin-top:6px}
-
-    /* ── POT + BOARD AREA ── */
-    #tableSection{
-      margin:0 12px;
-      background:linear-gradient(180deg,rgba(224,24,94,.07),rgba(224,24,94,.02));
-      border:1px solid var(--line);border-radius:18px;
+    .tableWrap{
+      position:relative;
+      min-height:760px;
       padding:14px;
+      overflow:hidden;
+      background:linear-gradient(180deg,rgba(176,11,85,.06),rgba(176,11,85,0));
     }
-    #streetRow{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    #streetLabel{font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-    #potLabel{font-size:1.4rem;font-weight:800;color:var(--text)}
-    #boardCards{display:flex;justify-content:center;gap:7px;margin-top:8px;flex-wrap:wrap}
-    #boardMsg{font-size:.7rem;color:var(--muted);text-align:center;margin-top:6px;min-height:16px}
+    .tableRing{position:absolute;inset:18px;border:1px solid rgba(255,255,255,.06);border-radius:999px;pointer-events:none}
+    .felt{position:absolute;inset:72px 50px 110px;border-radius:999px;background:
+      radial-gradient(circle at 50% 35%, rgba(176,11,85,.11), transparent 28%),
+      radial-gradient(circle at 50% 50%, #20202a 0%, #14141c 68%, #0d0d12 100%);
+      border:1px solid rgba(255,255,255,.06);box-shadow:inset 0 0 90px rgba(0,0,0,.5)}
 
-    /* ── CARDS ── */
-    .card{
-      width:52px;height:74px;border-radius:10px;
-      background:#fff;border:1px solid rgba(0,0,0,.1);
-      display:grid;place-items:center;overflow:hidden;
-      box-shadow:0 6px 16px rgba(0,0,0,.35);
-      flex-shrink:0;
-    }
+    .centerPot{position:absolute;top:43%;left:50%;transform:translate(-50%,-50%);z-index:3;width:min(460px,72%);text-align:center}
+    .street{font-size:.78rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
+    .pot{font-size:1.9rem;font-weight:700;margin-bottom:12px}
+    .board{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;min-height:102px}
+
+    .seat{position:absolute;width:178px;background:rgba(14,14,20,.94);border:1px solid var(--line);border-radius:22px;padding:12px;z-index:2;overflow:hidden}
+    .seat.me{background:rgba(176,11,85,.11);border-color:rgba(176,11,85,.35)}
+    .seat.active{outline:2px solid rgba(176,11,85,.6)}
+    .seat.folded{opacity:.6}
+    .seat .row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .seatName{font-size:.84rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+    .badge{font-size:.64rem;padding:5px 8px;border-radius:999px;background:#171722;border:1px solid var(--line);white-space:nowrap}
+    .cardsMini{display:flex;gap:6px;margin:10px 0 8px}
+    .stack{font-size:.98rem;font-weight:700}
+    .bet{font-size:.75rem;color:var(--muted);margin-top:6px;line-height:1.35}
+    .seat-0{top:12px;left:50%;transform:translateX(-50%)}
+    .seat-1{top:128px;right:0}
+    .seat-2{top:400px;right:0}
+    .seat-3{bottom:8px;left:50%;transform:translateX(-50%)}
+    .seat-4{top:400px;left:0}
+    .seat-5{top:128px;left:0}
+
+    .card{width:70px;height:98px;border-radius:12px;overflow:hidden;background:#fff;border:1px solid rgba(255,255,255,.1);box-shadow:0 12px 24px rgba(0,0,0,.28)}
     .card img{width:100%;height:100%;object-fit:cover;display:block}
-    .card-back{
-      background:linear-gradient(145deg,#181828,#0c0c18) !important;
-      color:var(--accent2);font-size:1.2rem;
-    }
-    .card-empty{background:rgba(255,255,255,.04) !important;border-style:dashed;box-shadow:none;border-color:rgba(255,255,255,.1)}
-    .card-sm{width:36px;height:52px;border-radius:8px}
-    .card-sm.card-back{font-size:.85rem}
+    .card.back{display:grid;place-items:center;background:linear-gradient(135deg,#1b1b25,#0d0d14);color:var(--accent2);font-size:1.35rem;font-weight:700;border-color:rgba(176,11,85,.28)}
+    .card.empty{background:rgba(255,255,255,.03);border-style:dashed;box-shadow:none}
+    .cardsMini .card{width:42px;height:60px;border-radius:10px}
 
-    /* ── MY CARDS ── */
-    #myCardsSection{
-      margin:10px 12px;
-      background:rgba(224,24,94,.06);
-      border:1px solid rgba(224,24,94,.2);
-      border-radius:18px;padding:14px;
-    }
-    #myCardsSection h3{margin:0 0 10px;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-    #myCardsRow{display:flex;align-items:center;gap:12px}
-    #myCards{display:flex;gap:10px}
-    .my-card{width:68px;height:96px;border-radius:12px}
-    #handStrength{flex:1;min-width:0}
-    #handName{font-size:.95rem;font-weight:700;margin-bottom:3px}
-    #winOdds{font-size:.75rem;color:var(--muted)}
+    .controls{display:grid;gap:12px}
+    .betBox{padding:14px;background:var(--panel3);border:1px solid var(--line);border-radius:20px}
+    .betTop{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+    .betValue{font-size:1.35rem;font-weight:700}
+    input[type="range"]{width:100%;accent-color:var(--accent)}
+    .actionGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 
-    /* ── CONTROLS ── */
-    #controlsSection{padding:10px 12px;display:grid;gap:10px}
-    #turnStatusBar{
-      background:var(--panel);border:1px solid var(--line);
-      border-radius:14px;padding:10px 14px;
-      font-size:.8rem;font-weight:600;text-align:center;
-    }
-    #turnStatusBar.is-my-turn{
-      border-color:rgba(224,24,94,.4);
-      background:rgba(224,24,94,.08);
-      color:var(--accent2);
-    }
-    #betSection{
-      background:var(--panel);border:1px solid var(--line);
-      border-radius:14px;padding:12px;
-    }
-    #betRow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    #betValue{font-size:1.1rem;font-weight:800}
-    #betHint{font-size:.68rem;color:var(--muted);margin-top:6px}
-    input[type="range"]{width:100%;accent-color:var(--accent);height:4px}
-    #actionGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    #actionGrid .btn-full-row{grid-column:1/-1}
-
-    /* ── SETTINGS POPUP ── */
-    #settingsOverlay{
-      display:none;position:fixed;inset:0;z-index:200;
-      background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
-    }
-    #settingsOverlay.open{display:flex;align-items:flex-end;justify-content:center}
-    #settingsSheet{
-      background:var(--panel);border:1px solid var(--line);
-      border-radius:24px 24px 0 0;padding:20px;width:100%;max-width:500px;
-      padding-bottom:calc(20px + env(safe-area-inset-bottom));
-    }
-    #settingsSheet h3{margin:0 0 16px;font-size:1rem;font-weight:700}
-    .settings-close{float:right;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;line-height:1;padding:2px 6px}
-    .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-    .stat-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px}
-    .stat-k{font-size:.65rem;color:var(--muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-    .stat-v{font-size:.88rem;font-weight:700}
-
-    /* ── ODDS POPUP ── */
-    #oddsOverlay{
-      display:none;position:fixed;inset:0;z-index:200;
-      background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
-    }
-    #oddsOverlay.open{display:flex;align-items:flex-end;justify-content:center}
-    #oddsSheet{
-      background:var(--panel);border:1px solid var(--line);
-      border-radius:24px 24px 0 0;padding:20px;width:100%;max-width:500px;
-      padding-bottom:calc(20px + env(safe-area-inset-bottom));
-    }
-    #oddsSheet h3{margin:0 0 16px;font-size:1rem;font-weight:700}
-    .odds-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
-    .odds-row:last-child{border:none}
-
-    /* ── BOTTOM TOOLBAR ── */
-    #bottomBar{
-      position:sticky;bottom:0;z-index:100;
-      background:rgba(8,8,16,.92);backdrop-filter:blur(14px);
-      border-top:1px solid var(--line);
-      display:flex;gap:8px;padding:10px 12px;
-      padding-bottom:calc(10px + env(safe-area-inset-bottom));
-    }
-
-    /* ── WINNER TOAST ── */
-    #winnerToast{
-      display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);
-      z-index:150;background:linear-gradient(135deg,#0d3320,#092a1c);
-      border:1px solid rgba(74,222,128,.4);border-radius:16px;
-      padding:12px 20px;text-align:center;
-      box-shadow:0 20px 50px rgba(0,0,0,.5);min-width:200px;
-    }
-    #winnerToast.show{display:block;animation:slideDown .3s ease}
-    @keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-    #winnerToastText{font-size:.9rem;font-weight:700;color:#86efac}
-
-    /* ── RESPONSIVE ── */
-    @media(min-width:600px){
-      #main{max-width:480px;margin:0 auto}
-      #bottomBar{max-width:480px;margin:0 auto}
-      .board .card{width:66px;height:92px}
-    }
-    @media(min-width:900px){
-      body{display:grid;grid-template-rows:auto 1fr auto;min-height:100vh}
-      #main{max-width:520px;margin:0 auto;width:100%}
-      #bottomBar{max-width:520px;margin:0 auto;width:100%}
-    }
-
+    .list{display:grid;gap:10px}
+    .item{background:var(--panel3);border:1px solid var(--line);border-radius:18px;padding:12px}
+    .playerRow{display:flex;justify-content:space-between;gap:10px;align-items:center}
     .good{color:var(--good)}
     .bad{color:var(--bad)}
-    .warn{color:var(--warn)}
-    .muted{color:var(--muted)}
+    .warnTxt{color:var(--warn)}
+
+    @media (max-width:1200px){
+      .layout{grid-template-columns:1fr}
+      .tableWrap{min-height:1020px}
+    }
+    @media (max-width:760px){
+      .page{padding:10px}
+      .statGrid{grid-template-columns:repeat(2,1fr)}
+      .tableWrap{min-height:1100px;padding:10px}
+      .felt{inset:100px 8px 200px}
+      .centerPot{top:46%;width:95%}
+      .seat{width:148px;padding:10px}
+      .seat-0{top:8px}
+      .seat-1{top:126px;right:0}
+      .seat-2{top:418px;right:0}
+      .seat-3{bottom:8px}
+      .seat-4{top:418px;left:0}
+      .seat-5{top:126px;left:0}
+      .card{width:56px;height:80px}
+      .cardsMini .card{width:36px;height:52px}
+      .actionGrid{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
-
-<!-- TOP BAR -->
-<div id="topBar">
-  <div class="left">
-    <div>
-      <div class="title" id="topTitle">Private Poker</div>
-      <div class="sub" id="topSub">Loading…</div>
-    </div>
-  </div>
-  <div class="right">
-    <button class="btn btn-ghost" id="settingsBtn">⚙</button>
-    <button class="btn btn-ghost" id="oddsBtn" style="display:none">📊</button>
-  </div>
-</div>
-
-<!-- WINNER TOAST -->
-<div id="winnerToast"><div id="winnerToastText"></div></div>
-
-<!-- MAIN SCROLL AREA -->
-<div id="main">
-
-  <!-- PLAYER LIST -->
-  <div id="playerSection"></div>
-
-  <!-- POT + BOARD -->
-  <div id="tableSection">
-    <div id="streetRow">
-      <div id="streetLabel">Waiting</div>
-      <div id="potLabel">$0</div>
-    </div>
-    <div id="boardCards"></div>
-    <div id="boardMsg"></div>
-  </div>
-
-  <!-- MY HOLE CARDS -->
-  <div id="myCardsSection" style="display:none">
-    <h3>Your Hand</h3>
-    <div id="myCardsRow">
-      <div id="myCards"></div>
-      <div id="handStrength">
-        <div id="handName">—</div>
-        <div id="winOdds" class="muted"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CONTROLS -->
-  <div id="controlsSection">
-    <div id="turnStatusBar">Waiting for game data…</div>
-
-    <div id="betSection" style="display:none">
-      <div id="betRow">
+  <div class="page">
+    <div class="bar">
+      <div class="brand">
+        <img src="/cards/chip.png" alt="chip" />
         <div>
-          <div style="font-size:.65rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Bet / Raise</div>
-          <div id="betValue">$0</div>
+          <div class="title">Private Poker</div>
+          <div class="sub" id="tableSub">Loading game…</div>
         </div>
-        <button class="btn btn-ghost" id="potBtn" style="font-size:.75rem;padding:7px 11px">Pot</button>
       </div>
-      <input id="betSlider" type="range" min="0" max="0" step="1" value="0" />
-      <div id="betHint" class="muted"></div>
+      <div class="actions">
+        <button class="btn" id="backBtn">Lobby</button>
+        <button class="btn warn" id="leaveBtn">Leave Game</button>
+        <button class="btn primary" id="startBtn">Start / Next Hand</button>
+      </div>
     </div>
 
-    <div id="actionGrid">
-      <button class="btn btn-bad btn-lg" id="foldBtn" disabled>Fold</button>
-      <button class="btn btn-good btn-lg" id="callBtn" disabled>Check</button>
-      <button class="btn btn-primary btn-lg btn-full-row" id="raiseBtn" disabled>Bet / Raise</button>
-      <button class="btn btn-ghost btn-lg btn-full-row" id="revealBtn" disabled style="font-size:.78rem">Reveal My Cards</button>
+    <div class="layout">
+      <aside class="panel">
+        <h2>Game</h2>
+        <div class="statGrid">
+          <div class="stat"><div class="k">Mode</div><div class="v" id="modeText">-</div></div>
+          <div class="stat"><div class="k">Buy-in</div><div class="v" id="buyInText">-</div></div>
+          <div class="stat"><div class="k">Blinds</div><div class="v" id="blindText">-</div></div>
+          <div class="stat"><div class="k">Turn Time</div><div class="v" id="turnTimeText">-</div></div>
+          <div class="stat"><div class="k">Round Delay</div><div class="v" id="roundDelayText">-</div></div>
+          <div class="stat"><div class="k">Reveal</div><div class="v" id="revealText">-</div></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Your controls</h2>
+        <div class="controls">
+          <div class="betBox">
+            <div class="betTop">
+              <div>
+                <div class="small muted">Bet / Raise</div>
+                <div class="betValue" id="betValue">$0</div>
+              </div>
+              <button class="btn" id="potBtn">Pot</button>
+            </div>
+            <input id="betSlider" type="range" min="0" max="0" step="1" value="0" />
+            <div class="small muted" id="betHint">Waiting for action…</div>
+          </div>
+
+          <div class="actionGrid">
+            <button class="btn bad" id="foldBtn">Fold</button>
+            <button class="btn good" id="callBtn">Check / Call</button>
+            <button class="btn primary" id="raiseBtn">Bet / Raise</button>
+            <button class="btn" id="revealBtn">Reveal Cards</button>
+          </div>
+
+          <div class="item small" id="turnStatus">Waiting for game data…</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Your hand strength</h2>
+        <div class="list" id="myOddsList">
+          <div class="item muted">Waiting for cards…</div>
+        </div>
+      </aside>
+
+      <main class="panel tableWrap">
+        <div class="tableRing"></div>
+        <div class="felt"></div>
+        <div class="centerPot">
+          <div class="street" id="streetText">WAITING</div>
+          <div class="pot" id="potText">$0</div>
+          <div class="board" id="board"></div>
+          <div class="small muted" id="boardHint">The host starts the hand.</div>
+        </div>
+        <div id="seats"></div>
+      </main>
+
+      <aside class="panel">
+        <h2>Players</h2>
+        <div class="list" id="playersList"></div>
+
+        <div class="divider"></div>
+
+        <h2>Showdown odds</h2>
+        <div class="list" id="publicOddsList">
+          <div class="item muted">Public odds show when all active hands are visible.</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2>Action log</h2>
+        <div class="list" id="logList"></div>
+      </aside>
     </div>
   </div>
 
-</div><!-- /main -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      onSnapshot,
+      collection,
+      addDoc,
+      serverTimestamp,
+      runTransaction,
+      writeBatch,
+      increment,
+      deleteDoc,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-<!-- BOTTOM BAR -->
-<div id="bottomBar">
-  <button class="btn btn-ghost" id="backBtn" style="flex:0 0 auto">← Lobby</button>
-  <button class="btn btn-warn" id="leaveBtn" style="flex:0 0 auto">Leave</button>
-  <button class="btn btn-primary" id="startBtn" disabled style="flex:1;display:none">Start Hand</button>
-</div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBYFdh01-yNDMI5QrNmb-hoH7yXMOKqHfg",
+      authDomain: "poker-2e9be.firebaseapp.com",
+      projectId: "poker-2e9be",
+      storageBucket: "poker-2e9be.firebasestorage.app",
+      messagingSenderId: "80287671054",
+      appId: "1:80287671054:web:de1ca6c3a932772486ad5f",
+      measurementId: "G-SDN3YSEL8X"
+    };
 
-<!-- SETTINGS SHEET -->
-<div id="settingsOverlay">
-  <div id="settingsSheet">
-    <h3>Game Settings <button class="settings-close" id="settingsClose">✕</button></h3>
-    <div class="stat-grid" id="settingsGrid">
-      <div class="stat-item"><div class="stat-k">Mode</div><div class="stat-v" id="s-mode">—</div></div>
-      <div class="stat-item"><div class="stat-k">Buy-in</div><div class="stat-v" id="s-buyin">—</div></div>
-      <div class="stat-item"><div class="stat-k">Blinds</div><div class="stat-v" id="s-blinds">—</div></div>
-      <div class="stat-item"><div class="stat-k">Turn Time</div><div class="stat-v" id="s-turntime">—</div></div>
-      <div class="stat-item"><div class="stat-k">Round Delay</div><div class="stat-v" id="s-rounddelay">—</div></div>
-      <div class="stat-item"><div class="stat-k">Reveal</div><div class="stat-v" id="s-reveal">—</div></div>
-    </div>
-  </div>
-</div>
+    const app = initializeApp(firebaseConfig);
+    getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-<!-- ODDS SHEET -->
-<div id="oddsOverlay">
-  <div id="oddsSheet">
-    <h3>Win Odds <button class="settings-close" id="oddsClose">✕</button></h3>
-    <div id="oddsContent"><div class="muted" style="font-size:.85rem">No odds available yet.</div></div>
-  </div>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc, setDoc, updateDoc,
-  onSnapshot, collection, addDoc, serverTimestamp,
-  runTransaction, writeBatch, increment, deleteDoc, getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBYFdh01-yNDMI5QrNmb-hoH7yXMOKqHfg",
-  authDomain: "poker-2e9be.firebaseapp.com",
-  projectId: "poker-2e9be",
-  storageBucket: "poker-2e9be.firebasestorage.app",
-  messagingSenderId: "80287671054",
-  appId: "1:80287671054:web:de1ca6c3a932772486ad5f",
-  measurementId: "G-SDN3YSEL8X"
-};
-
-const app = initializeApp(firebaseConfig);
-getAnalytics(app);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-const params = new URLSearchParams(location.search);
-const gameId = params.get("gameId");
-if (!gameId) { alert("Missing gameId."); location.href = "./poker.html"; }
-
-const SUITS = ["H","D","C","S"];
-const RANKS = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
-const CARD_ORDER = Object.fromEntries(RANKS.map((r,i) => [r, i+2]));
-const STREET_LABEL = { waiting:"Waiting", preflop:"Pre-Flop", flop:"Flop", turn:"Turn", river:"River", showdown:"Showdown", finished:"Finished" };
-
-const $ = id => document.getElementById(id);
-
-const els = {
-  topTitle: $("topTitle"), topSub: $("topSub"),
-  settingsBtn: $("settingsBtn"), settingsOverlay: $("settingsOverlay"), settingsClose: $("settingsClose"),
-  oddsBtn: $("oddsBtn"), oddsOverlay: $("oddsOverlay"), oddsClose: $("oddsClose"), oddsContent: $("oddsContent"),
-  sMode: $("s-mode"), sBuyin: $("s-buyin"), sBlinds: $("s-blinds"), sTurntime: $("s-turntime"), sRounddelay: $("s-rounddelay"), sReveal: $("s-reveal"),
-  playerSection: $("playerSection"),
-  streetLabel: $("streetLabel"), potLabel: $("potLabel"), boardCards: $("boardCards"), boardMsg: $("boardMsg"),
-  myCardsSection: $("myCardsSection"), myCards: $("myCards"), handName: $("handName"), winOdds: $("winOdds"),
-  turnStatusBar: $("turnStatusBar"), betSection: $("betSection"),
-  betValue: $("betValue"), betHint: $("betHint"), betSlider: $("betSlider"), potBtn: $("potBtn"),
-  foldBtn: $("foldBtn"), callBtn: $("callBtn"), raiseBtn: $("raiseBtn"), revealBtn: $("revealBtn"),
-  backBtn: $("backBtn"), leaveBtn: $("leaveBtn"), startBtn: $("startBtn"),
-  winnerToast: $("winnerToast"), winnerToastText: $("winnerToastText"),
-};
-
-const gameRef = doc(db, "games", gameId);
-const privateCol = collection(db, "games", gameId, "privatePlayers");
-const logsCol = collection(db, "games", gameId, "logs");
-
-let me = null, profile = null, game = null;
-let myPrivate = { holeCards: [] };
-let actionBusy = false;
-let winnerToastTimer = null;
-let lastWinnerMsg = "";
-let autoNextTimer = null;
-let autoStartTimer = null;
-let autoStartEndsAt = 0;
-
-// ─── SETTINGS POPUP ───
-els.settingsBtn.onclick = () => els.settingsOverlay.classList.add("open");
-els.settingsClose.onclick = () => els.settingsOverlay.classList.remove("open");
-els.settingsOverlay.onclick = e => { if (e.target === els.settingsOverlay) els.settingsOverlay.classList.remove("open"); };
-
-// ─── ODDS POPUP ───
-els.oddsBtn.onclick = () => { buildOdds(); els.oddsOverlay.classList.add("open"); };
-els.oddsClose.onclick = () => els.oddsOverlay.classList.remove("open");
-els.oddsOverlay.onclick = e => { if (e.target === els.oddsOverlay) els.oddsOverlay.classList.remove("open"); };
-
-// ─── ACTIONS ───
-els.backBtn.onclick = () => location.href = "./poker.html";
-els.leaveBtn.onclick = leaveGame;
-els.startBtn.onclick = startOrNextHand;
-els.foldBtn.onclick = actFold;
-els.callBtn.onclick = actCheckOrCall;
-els.raiseBtn.onclick = actRaise;
-els.revealBtn.onclick = revealCards;
-els.potBtn.onclick = setPotBet;
-els.betSlider.oninput = updateBetText;
-
-// ─── AUTH ───
-onAuthStateChanged(auth, async user => {
-  if (!user) { location.href = "./pokerlogin.html"; return; }
-  me = user;
-  const snap = await getDoc(doc(db, "users", me.uid));
-  profile = snap.exists() ? snap.data() : { username: me.email?.split("@")[0] || "Player" };
-  await ensureGameMembership();
-  subscribe();
-});
-
-async function ensureGameMembership() {
-  await runTransaction(db, async tx => {
-    const gSnap = await tx.get(gameRef);
-    if (!gSnap.exists()) throw new Error("Game not found.");
-    const g = gSnap.data();
-    const playerIds = Array.isArray(g.playerIds) ? [...g.playerIds] : [];
-    const playerOrder = Array.isArray(g.playerOrder) ? [...g.playerOrder] : [];
-    const players = { ...(g.players || {}) };
-    const buyIn = Number(g.settings?.buyIn || 0);
-
-    if (!playerIds.includes(me.uid) && g.status === "waiting" && playerIds.length < Number(g.settings?.maxPlayers || 6)) {
-      playerIds.push(me.uid);
-      playerOrder.push(me.uid);
-      players[me.uid] = buildPlayerState(buyIn);
-      tx.update(gameRef, { playerIds, playerOrder, players, updatedAt: serverTimestamp(), message: `${profile.username} joined` });
-    } else if (playerIds.includes(me.uid)) {
-      const existing = players[me.uid] || {};
-      players[me.uid] = { ...buildPlayerState(buyIn), ...existing, uid: me.uid, username: profile.username, leftGame: false };
-      tx.update(gameRef, { players, updatedAt: serverTimestamp() });
+    const params = new URLSearchParams(location.search);
+    const gameId = params.get("gameId");
+    if (!gameId) {
+      alert("Missing gameId.");
+      location.href = "./poker.html";
     }
-  });
-  await setDoc(doc(privateCol, me.uid), { holeCards: [], updatedAt: serverTimestamp() }, { merge: true });
-  await maybeAutoStartFromJoin();
-}
 
-async function maybeAutoStartFromJoin() {
-  if (!gameId || !me) return;
-  try {
-    await runTransaction(db, async tx => {
-      const gSnap = await tx.get(gameRef);
-      if (!gSnap.exists()) return;
-      const g = gSnap.data();
-      const playerIds = Array.isArray(g.playerIds) ? g.playerIds.filter(Boolean) : [];
-      const enoughPlayers = playerIds.length >= 2;
-      const isWaitingToStart = g.status === "waiting" && (g.street === "waiting" || !g.street) && !g.settlementDone;
-      if (!enoughPlayers || !isWaitingToStart) return;
-      if (!g.autoStartAt) {
-        tx.update(gameRef, {
-          autoStartAt: Date.now() + 60000,
+    const SUITS = ["H","D","C","S"];
+    const RANKS = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
+    const CARD_ORDER = Object.fromEntries(RANKS.map((r, i) => [r, i + 2]));
+    const STREET_LABEL = {
+      waiting: "Waiting",
+      preflop: "Pre-Flop",
+      flop: "Flop",
+      turn: "Turn",
+      river: "River",
+      showdown: "Showdown",
+      finished: "Finished"
+    };
+
+    const els = {
+      tableSub: document.getElementById("tableSub"),
+      modeText: document.getElementById("modeText"),
+      buyInText: document.getElementById("buyInText"),
+      blindText: document.getElementById("blindText"),
+      turnTimeText: document.getElementById("turnTimeText"),
+      roundDelayText: document.getElementById("roundDelayText"),
+      revealText: document.getElementById("revealText"),
+      streetText: document.getElementById("streetText"),
+      potText: document.getElementById("potText"),
+      board: document.getElementById("board"),
+      boardHint: document.getElementById("boardHint"),
+      seats: document.getElementById("seats"),
+      playersList: document.getElementById("playersList"),
+      publicOddsList: document.getElementById("publicOddsList"),
+      myOddsList: document.getElementById("myOddsList"),
+      logList: document.getElementById("logList"),
+      startBtn: document.getElementById("startBtn"),
+      leaveBtn: document.getElementById("leaveBtn"),
+      backBtn: document.getElementById("backBtn"),
+      foldBtn: document.getElementById("foldBtn"),
+      callBtn: document.getElementById("callBtn"),
+      raiseBtn: document.getElementById("raiseBtn"),
+      revealBtn: document.getElementById("revealBtn"),
+      turnStatus: document.getElementById("turnStatus"),
+      betSlider: document.getElementById("betSlider"),
+      betValue: document.getElementById("betValue"),
+      betHint: document.getElementById("betHint"),
+      potBtn: document.getElementById("potBtn")
+    };
+
+    const gameRef = doc(db, "games", gameId);
+    const privateCol = collection(db, "games", gameId, "privatePlayers");
+    const logsCol = collection(db, "games", gameId, "logs");
+
+    let me = null;
+    let profile = null;
+    let game = null;
+    let myPrivate = { holeCards: [] };
+    let logUnsub = null;
+    let gameUnsub = null;
+    let privateUnsub = null;
+    let actionBusy = false;
+    let logsCache = [];
+
+    els.backBtn.onclick = () => location.href = "./poker.html";
+    els.leaveBtn.onclick = leaveGame;
+    els.startBtn.onclick = startOrNextHand;
+    els.foldBtn.onclick = actFold;
+    els.callBtn.onclick = actCheckOrCall;
+    els.raiseBtn.onclick = actRaise;
+    els.revealBtn.onclick = revealCards;
+    els.potBtn.onclick = setPotBet;
+    els.betSlider.oninput = updateBetText;
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        location.href = "./pokerlogin.html";
+        return;
+      }
+      me = user;
+      const userSnap = await getDoc(doc(db, "users", me.uid));
+      profile = userSnap.exists() ? userSnap.data() : { username: me.email?.split("@")[0] || "Player" };
+      await ensureGameMembership();
+      subscribe();
+    });
+
+    async function ensureGameMembership() {
+      await runTransaction(db, async tx => {
+        const gSnap = await tx.get(gameRef);
+        if (!gSnap.exists()) throw new Error("Game not found.");
+        const g = gSnap.data();
+        const playerIds = Array.isArray(g.playerIds) ? [...g.playerIds] : [];
+        const playerOrder = Array.isArray(g.playerOrder) ? [...g.playerOrder] : [];
+        const players = { ...(g.players || {}) };
+        const buyIn = Number(g.settings?.buyIn || 0);
+
+        if (!playerIds.includes(me.uid) && g.status === "waiting" && playerIds.length < Number(g.settings?.maxPlayers || 6)) {
+          playerIds.push(me.uid);
+          playerOrder.push(me.uid);
+          players[me.uid] = buildPlayerState(buyIn);
+          tx.update(gameRef, {
+            playerIds,
+            playerOrder,
+            players,
+            updatedAt: serverTimestamp(),
+            message: `${profile.username} joined`
+          });
+        } else if (playerIds.includes(me.uid)) {
+          const existing = players[me.uid] || {};
+          const next = {
+            ...buildPlayerState(buyIn),
+            ...existing,
+            uid: me.uid,
+            username: existing.username || profile.username,
+            buyIn: buyIn,
+            stack: typeof existing.stack === "number" ? existing.stack : buyIn,
+            leftGame: false
+          };
+          players[me.uid] = next;
+          tx.update(gameRef, { players, updatedAt: serverTimestamp() });
+        }
+      });
+      await setDoc(doc(privateCol, me.uid), { holeCards: [], updatedAt: serverTimestamp() }, { merge: true });
+    }
+
+    function subscribe() {
+      gameUnsub?.(); privateUnsub?.(); logUnsub?.();
+      gameUnsub = onSnapshot(gameRef, snap => {
+        if (!snap.exists()) {
+          alert("This game no longer exists.");
+          location.href = "./poker.html";
+          return;
+        }
+        game = { id: snap.id, ...snap.data() };
+        render();
+      });
+      privateUnsub = onSnapshot(doc(privateCol, me.uid), snap => {
+        myPrivate = snap.exists() ? snap.data() : { holeCards: [] };
+        render();
+      });
+      logUnsub = onSnapshot(logsCol, snap => {
+        logsCache = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+          .slice(0, 18);
+        renderLogs();
+      });
+    }
+
+    function buildPlayerState(buyIn) {
+      return {
+        uid: me.uid,
+        username: profile.username,
+        stack: buyIn,
+        buyIn,
+        folded: false,
+        allIn: false,
+        sittingOut: false,
+        leftGame: false,
+        currentBet: 0,
+        totalCommitted: 0,
+        hasActed: false,
+        cardsRevealed: 0,
+        shownCards: [],
+        seat: null,
+        lastAction: "joined"
+      };
+    }
+
+    function getPlayers() {
+      if (!game?.players) return [];
+      const order = Array.isArray(game.playerOrder) ? game.playerOrder : Object.keys(game.players);
+      return order
+        .map(uid => ({ uid, ...(game.players[uid] || {}) }))
+        .filter(p => !p.leftGame);
+    }
+
+    function getActivePlayers() {
+      return getPlayers().filter(p => !p.sittingOut && !p.leftGame);
+    }
+
+    function getLivePlayersInHand() {
+      return getActivePlayers().filter(p => !p.folded);
+    }
+
+    function myPlayer() {
+      return game?.players?.[me?.uid] || null;
+    }
+
+    function render() {
+      if (!game) return;
+      const settings = game.settings || {};
+      const meP = myPlayer();
+      const players = getPlayers();
+
+      els.tableSub.textContent = `${game.hostUsername || "Host"}'s table • ${players.length} player${players.length === 1 ? "" : "s"}`;
+      els.modeText.textContent = cap(settings.gameMode || "regular");
+      els.buyInText.textContent = money(settings.buyIn || 0);
+      els.blindText.textContent = `${money(settings.smallBlind || 0)} / ${money(settings.bigBlind || 0)}`;
+      els.turnTimeText.textContent = `${settings.timePerTurn || 0}s`;
+      els.roundDelayText.textContent = `${settings.timeBetweenRounds || 0}s`;
+      els.revealText.textContent = settings.revealMode === "both" ? "Both" : settings.revealMode === "one" ? "One" : "Manual";
+      els.streetText.textContent = STREET_LABEL[game.street || "waiting"] || "Waiting";
+      els.potText.textContent = money(game.pot || 0);
+      renderBoard(game.communityCards || []);
+      renderSeats(players);
+      renderPlayers(players);
+      renderLogs();
+      renderMyOdds(meP);
+      renderPublicOdds(players);
+      updateControls(meP);
+      updateStartButton(players);
+    }
+
+    function renderBoard(board) {
+      els.board.innerHTML = "";
+      for (let i = 0; i < 5; i++) {
+        els.board.appendChild(createCard(board[i] || null, !!board[i]));
+      }
+      els.boardHint.textContent = game?.message || "";
+    }
+
+    function renderSeats(players) {
+      els.seats.innerHTML = "";
+      const arranged = assignSeatsForDisplay(players);
+      for (let i = 0; i < 6; i++) {
+        const p = arranged.find(x => x.displaySeat === i);
+        const seat = document.createElement("div");
+        seat.className = `seat seat-${i}`;
+        if (!p) {
+          seat.innerHTML = `<div class="muted small">Empty seat</div>`;
+          els.seats.appendChild(seat);
+          continue;
+        }
+        const isMe = p.uid === me.uid;
+        const isTurn = game.turnUid === p.uid;
+        seat.classList.toggle("me", isMe);
+        seat.classList.toggle("active", isTurn);
+        seat.classList.toggle("folded", !!p.folded);
+        const tags = [];
+        if (p.uid === game.dealerUid) tags.push("D");
+        if (p.uid === game.smallBlindUid) tags.push("SB");
+        if (p.uid === game.bigBlindUid) tags.push("BB");
+        if (p.folded) tags.push("Folded");
+        if (p.allIn) tags.push("All-in");
+        if ((game.winnerUids || []).includes(p.uid)) tags.push("Winner");
+
+        const shown = getVisibleCardsForSeat(p);
+        seat.innerHTML = `
+          <div class="row">
+            <div class="seatName">${esc(p.username || "Player")}${isMe ? " • You" : ""}</div>
+            <div class="badge">${tags.join(" · ") || "In"}</div>
+          </div>
+          <div class="cardsMini"></div>
+          <div class="stack">${money(p.stack || 0)}</div>
+          <div class="bet">Bet ${money(p.currentBet || 0)}<br>${esc(p.lastAction || "waiting")}</div>
+        `;
+        const cardsWrap = seat.querySelector(".cardsMini");
+        shown.forEach(c => cardsWrap.appendChild(createCard(c.code, c.visible)));
+        els.seats.appendChild(seat);
+      }
+    }
+
+    function renderPlayers(players) {
+      els.playersList.innerHTML = "";
+      if (!players.length) {
+        els.playersList.innerHTML = `<div class="item muted">No players.</div>`;
+        return;
+      }
+      players.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div class="playerRow">
+            <div>
+              <div style="font-weight:700">${esc(p.username || "Player")}${p.uid === me.uid ? " • You" : ""}</div>
+              <div class="tiny muted">${esc(p.lastAction || "waiting")}</div>
+            </div>
+            <div style="text-align:right">
+              <div>${money(p.stack || 0)}</div>
+              <div class="tiny muted">bet ${money(p.currentBet || 0)}</div>
+            </div>
+          </div>
+        `;
+        els.playersList.appendChild(div);
+      });
+    }
+
+    function renderLogs() {
+      els.logList.innerHTML = logsCache.length
+        ? logsCache.map(log => `<div class="item"><div>${esc(log.text || "Action")}</div><div class="tiny muted">${fmtTS(log.createdAt)}</div></div>`).join("")
+        : `<div class="item muted">No actions yet.</div>`;
+    }
+
+    function renderMyOdds(meP) {
+      if (!meP || !Array.isArray(myPrivate.holeCards) || myPrivate.holeCards.length !== 2 || meP.folded) {
+        els.myOddsList.innerHTML = `<div class="item muted">Waiting for cards…</div>`;
+        return;
+      }
+      try {
+        const board = game.communityCards || [];
+        const result = simulatePrivateOdds(myPrivate.holeCards, board, 280);
+        const rankName = handNameBest([...myPrivate.holeCards, ...board]);
+        els.myOddsList.innerHTML = `
+          <div class="item"><div class="tiny muted">Current best made hand</div><div style="font-weight:700">${esc(rankName)}</div></div>
+          <div class="item"><div class="tiny muted">Vs 1 random hand</div><div style="font-size:1.1rem;font-weight:700">${pct(result.winVsOne)}</div></div>
+          <div class="item"><div class="tiny muted">Tie chance</div><div style="font-size:1.1rem;font-weight:700">${pct(result.tieVsOne)}</div></div>
+        `;
+      } catch {
+        els.myOddsList.innerHTML = `<div class="item muted">Could not calculate right now.</div>`;
+      }
+    }
+
+    function renderPublicOdds(players) {
+      const active = players.filter(p => !p.folded && !p.leftGame && !p.sittingOut);
+      const allShown = active.length >= 2 && active.every(p => isFullyVisibleToTable(p));
+      if (!allShown || !["flop","turn","river","showdown"].includes(game.street)) {
+        els.publicOddsList.innerHTML = `<div class="item muted">Public odds show when all active players have visible hands.</div>`;
+        return;
+      }
+      try {
+        const withHole = active.map(p => ({ ...p, holeCards: getHoleForPublic(p) })).filter(p => p.holeCards.length === 2);
+        const sims = simulatePublicOdds(withHole, game.communityCards || [], 320);
+        els.publicOddsList.innerHTML = sims.map(s => `
+          <div class="item">
+            <div class="playerRow"><div>${esc(s.username)}</div><div style="font-weight:700">${pct(s.win)}</div></div>
+            <div class="tiny muted">Tie share ${pct(s.tie)}</div>
+          </div>
+        `).join("");
+      } catch {
+        els.publicOddsList.innerHTML = `<div class="item muted">Could not calculate public odds.</div>`;
+      }
+    }
+
+    function updateControls(meP) {
+      const started = ["preflop","flop","turn","river","showdown"].includes(game?.street);
+      const myTurn = game?.turnUid === me?.uid;
+      const currentBet = Number(game?.currentBet || 0);
+      const toCall = Math.max(0, currentBet - Number(meP?.currentBet || 0));
+      const stack = Number(meP?.stack || 0);
+      const minRaise = Number(game?.minimumRaise || game?.settings?.bigBlind || 0);
+      const minExtra = currentBet > 0 ? Math.max(toCall + minRaise, toCall) : Math.max(Number(game?.settings?.bigBlind || 0), 1);
+      const sliderMin = Math.min(stack, Math.max(0, minExtra));
+      els.betSlider.max = String(Math.max(0, stack));
+      els.betSlider.min = String(Math.min(sliderMin, Math.max(0, stack)));
+      if (Number(els.betSlider.value) > stack) els.betSlider.value = String(stack);
+      if (stack === 0) els.betSlider.value = "0";
+      if (Number(els.betSlider.value) < Number(els.betSlider.min || 0)) els.betSlider.value = String(Number(els.betSlider.min || 0));
+      updateBetText();
+
+      if (!meP) {
+        els.turnStatus.textContent = "Joining game…";
+      } else if (!started) {
+        els.turnStatus.textContent = "Waiting for the host to start the hand.";
+      } else if (meP.folded) {
+        els.turnStatus.textContent = "You folded this hand.";
+      } else if (meP.allIn) {
+        els.turnStatus.textContent = "You are all-in.";
+      } else if (myTurn) {
+        els.turnStatus.textContent = toCall > 0 ? `Your turn. Call ${money(toCall)} or raise.` : "Your turn. Check or bet.";
+      } else {
+        const turnName = game?.players?.[game.turnUid]?.username;
+        els.turnStatus.textContent = turnName ? `Waiting for ${turnName}.` : "Waiting for next action.";
+      }
+
+      els.callBtn.textContent = toCall > 0 ? `Call ${money(toCall)}` : "Check";
+      els.betHint.textContent = `To call ${money(toCall)} • Min extra ${money(Number(els.betSlider.min || 0))} • Stack ${money(stack)}`;
+      els.foldBtn.disabled = !myTurn || !started || !meP || meP.folded || meP.allIn || actionBusy;
+      els.callBtn.disabled = !myTurn || !started || !meP || meP.folded || meP.allIn || actionBusy;
+      els.raiseBtn.disabled = !myTurn || !started || !meP || meP.folded || meP.allIn || stack <= 0 || actionBusy;
+      els.revealBtn.disabled = !started || !meP || meP.folded || !Array.isArray(myPrivate.holeCards) || myPrivate.holeCards.length !== 2 || actionBusy;
+    }
+
+    function updateStartButton(players) {
+      const can = !!game && me?.uid === game.hostId && players.length >= 2 && !actionBusy;
+      els.startBtn.disabled = !can;
+    }
+
+    function updateBetText() {
+      els.betValue.textContent = money(Number(els.betSlider.value || 0));
+    }
+
+    function createCard(code, visible) {
+      const card = document.createElement("div");
+      card.className = "card";
+      if (!code) {
+        card.classList.add("empty");
+        return card;
+      }
+      if (!visible) {
+        card.classList.add("back");
+        card.textContent = "♠";
+        return card;
+      }
+      const img = document.createElement("img");
+      img.src = `/cards/${code}.png`;
+      img.alt = code;
+      img.onerror = () => {
+        card.innerHTML = `<div style="display:grid;place-items:center;width:100%;height:100%;background:#fff;color:#111;font-weight:700">${esc(code)}</div>`;
+      };
+      card.appendChild(img);
+      return card;
+    }
+
+    function assignSeatsForDisplay(players) {
+      const out = players.map((p, i) => ({ ...p, displaySeat: typeof p.seat === "number" ? p.seat : i }));
+      return out;
+    }
+
+    function getVisibleCardsForSeat(player) {
+      const allShown = isFullyVisibleToTable(player);
+      const hole = player.uid === me.uid ? (myPrivate.holeCards || []) : getHoleForPublic(player);
+      return [0,1].map(i => ({ code: hole[i] || null, visible: player.uid === me.uid ? !!hole[i] : allShown && !!hole[i] }));
+    }
+
+    function getHoleForPublic(player) {
+      const shown = Array.isArray(player.shownCards) ? player.shownCards : [];
+      return [shown[0] || null, shown[1] || null].filter(Boolean);
+    }
+
+    function isFullyVisibleToTable(player) {
+      return !!game?.allCardsUp || game?.street === "showdown" || ((player.shownCards || []).length === 2);
+    }
+
+    async function startOrNextHand() {
+      if (!game || me.uid !== game.hostId || actionBusy) return;
+      actionBusy = true;
+      try {
+        const players = getActivePlayers();
+        if (players.length < 2) throw new Error("Need at least 2 players.");
+
+        const settings = game.settings || {};
+        const buyIn = Number(settings.buyIn || 0);
+        const smallBlind = Number(settings.smallBlind || 0);
+        const bigBlind = Number(settings.bigBlind || 0);
+        const ordered = players.map((p, i) => ({ ...p, seat: typeof p.seat === "number" ? p.seat : i })).sort((a,b) => a.seat - b.seat);
+        const currentDealerIndex = ordered.findIndex(p => p.uid === game.dealerUid);
+        const dealerIndex = currentDealerIndex === -1 ? 0 : (currentDealerIndex + 1) % ordered.length;
+        const sbIndex = nextLiveIndex(ordered, dealerIndex);
+        const bbIndex = nextLiveIndex(ordered, sbIndex);
+        const firstToAct = nextLiveIndex(ordered, bbIndex);
+
+        const deck = buildDeck();
+        shuffle(deck);
+        const batch = writeBatch(db);
+        const nextPlayers = { ...(game.players || {}) };
+        let pot = 0;
+
+        for (let i = 0; i < ordered.length; i++) {
+          const uid = ordered[i].uid;
+          const old = { ...(nextPlayers[uid] || {}) };
+          let stack = Number(old.stack || 0);
+          if (stack <= 0 && (settings.gameMode || "regular") === "tournament") stack = buyIn;
+          if (stack <= 0 && game.handNumber === 0) stack = buyIn;
+          const hole = [deck.pop(), deck.pop()];
+          const isSB = uid === ordered[sbIndex].uid;
+          const isBB = uid === ordered[bbIndex].uid;
+          const blind = Math.min(stack, isSB ? smallBlind : isBB ? bigBlind : 0);
+          stack -= blind;
+          pot += blind;
+          nextPlayers[uid] = {
+            ...old,
+            uid,
+            username: old.username || ordered[i].username,
+            seat: ordered[i].seat,
+            stack,
+            buyIn,
+            folded: false,
+            allIn: stack === 0,
+            currentBet: blind,
+            totalCommitted: blind,
+            hasActed: false,
+            shownCards: [],
+            cardsRevealed: 0,
+            lastAction: blind > 0 ? (isSB ? `posted SB ${smallBlind}` : `posted BB ${bigBlind}`) : "dealt",
+            leftGame: false
+          };
+          batch.set(doc(privateCol, uid), { holeCards: hole, updatedAt: serverTimestamp() }, { merge: true });
+        }
+
+        batch.update(gameRef, {
+          players: nextPlayers,
+          status: "active",
+          street: "preflop",
+          communityCards: [],
+          pot,
+          currentBet: bigBlind,
+          minimumRaise: bigBlind,
+          dealerUid: ordered[dealerIndex].uid,
+          smallBlindUid: ordered[sbIndex].uid,
+          bigBlindUid: ordered[bbIndex].uid,
+          turnUid: ordered[firstToAct].uid,
+          handNumber: increment(1),
+          allCardsUp: false,
+          settlementDone: false,
+          winnerUids: [],
+          boardLocked: false,
           updatedAt: serverTimestamp(),
-          message: "2 players joined. Auto-starting in 1 minute unless the host starts early."
+          message: `New hand started. Dealer: ${ordered[dealerIndex].username}`
         });
+        await batch.commit();
+        await addLog(`New hand started. Dealer: ${ordered[dealerIndex].username}.`);
+      } catch (err) {
+        alert(err.message || "Could not start hand.");
+      } finally {
+        actionBusy = false;
       }
-    });
-  } catch (err) {
-    console.warn("Auto-start scheduling failed:", err);
-  }
-}
-
-function subscribe() {
-  onSnapshot(gameRef, snap => {
-    if (!snap.exists()) { alert("Game no longer exists."); location.href = "./poker.html"; return; }
-    game = { id: snap.id, ...snap.data() };
-    render();
-  });
-  onSnapshot(doc(privateCol, me.uid), snap => {
-    myPrivate = snap.exists() ? snap.data() : { holeCards: [] };
-    render();
-  });
-  setInterval(() => {
-    if (game?.autoStartAt && game?.street === "waiting") render();
-  }, 1000);
-}
-
-function buildPlayerState(buyIn) {
-  return {
-    uid: me.uid, username: profile.username, stack: buyIn, buyIn,
-    folded: false, allIn: false, sittingOut: false, leftGame: false,
-    currentBet: 0, totalCommitted: 0, hasActed: false, cardsRevealed: 0,
-    shownCards: [], seat: null, lastAction: "joined"
-  };
-}
-
-function getPlayers() {
-  if (!game?.players) return [];
-  const order = Array.isArray(game.playerOrder) ? game.playerOrder : Object.keys(game.players);
-  return order.map(uid => ({ uid, ...(game.players[uid] || {}) })).filter(p => !p.leftGame);
-}
-function getActivePlayers() { return getPlayers().filter(p => !p.sittingOut && !p.leftGame); }
-function myPlayer() { return game?.players?.[me?.uid] || null; }
-
-// ─── RENDER ───
-function render() {
-  if (!game) return;
-  const s = game.settings || {};
-  const meP = myPlayer();
-  const players = getPlayers();
-
-  // top bar
-  els.topSub.textContent = `${game.hostUsername || "Host"}'s table · ${players.length} player${players.length===1?"":"s"}`;
-
-  // settings values
-  els.sMode.textContent = cap(s.gameMode || "regular");
-  els.sBuyin.textContent = money(s.buyIn || 0);
-  els.sBlinds.textContent = `${money(s.smallBlind||0)} / ${money(s.bigBlind||0)}`;
-  els.sTurntime.textContent = `${s.timePerTurn||0}s`;
-  els.sRounddelay.textContent = `${s.timeBetweenRounds||0}s`;
-  els.sReveal.textContent = s.revealMode === "both" ? "Both" : s.revealMode === "one" ? "One" : "Manual";
-
-  // street + pot
-  els.streetLabel.textContent = STREET_LABEL[game.street||"waiting"] || "Waiting";
-  els.potLabel.textContent = money(game.pot || 0);
-
-  // board
-  renderBoard(game.communityCards || []);
-
-  // player list
-  renderPlayers(players);
-
-  // my cards
-  renderMyCards(meP);
-
-  // controls
-  updateControls(meP);
-
-  // host start button
-  const isHost = me?.uid === game.hostId;
-  const autoStartCountdown = getAutoStartCountdownMs();
-  els.startBtn.style.display = isHost ? "" : "none";
-  els.startBtn.disabled = !isHost || players.length < 2 || actionBusy;
-  els.startBtn.textContent = game.handNumber > 0 ? "Next Hand" : (autoStartCountdown > 0 ? `Start Now (${Math.ceil(autoStartCountdown / 1000)}s)` : "Start Hand");
-
-  // winner toast
-  const winMsg = game.message || "";
-  if (game.winnerUids?.length && winMsg !== lastWinnerMsg && game.street === "waiting") {
-    lastWinnerMsg = winMsg;
-    showWinnerToast(winMsg);
-  }
-
-  // odds button
-  const myHole = myPrivate.holeCards || [];
-  els.oddsBtn.style.display = myHole.length === 2 && meP && !meP.folded ? "" : "none";
-
-  // auto-start next hand
-  handleAutoNext();
-}
-
-function renderBoard(board) {
-  els.boardCards.innerHTML = "";
-  for (let i = 0; i < 5; i++) {
-    els.boardCards.appendChild(createCard(board[i] || null, !!board[i]));
-  }
-  const autoStartCountdown = getAutoStartCountdownMs();
-  if ((game?.street === "waiting") && autoStartCountdown > 0 && getPlayers().length >= 2) {
-    els.boardMsg.textContent = `${game?.message || "Waiting to start"} · Auto-start in ${Math.ceil(autoStartCountdown / 1000)}s`;
-  } else {
-    els.boardMsg.textContent = game?.message || "";
-  }
-}
-
-function renderPlayers(players) {
-  els.playerSection.innerHTML = "";
-  players.forEach(p => {
-    const isMe = p.uid === me.uid;
-    const isTurn = game.turnUid === p.uid;
-    const isWinner = (game.winnerUids || []).includes(p.uid);
-    const isDealer = p.uid === game.dealerUid;
-    const isSB = p.uid === game.smallBlindUid;
-    const isBB = p.uid === game.bigBlindUid;
-
-    const div = document.createElement("div");
-    div.className = "player-row" +
-      (isTurn ? " is-turn" : "") +
-      (isMe ? " is-me" : "") +
-      (p.folded ? " is-folded" : "") +
-      (isWinner ? " is-winner" : "");
-
-    const initials = (p.username || "?").charAt(0).toUpperCase();
-    const badges = [];
-    if (isTurn) badges.push(`<span class="badge badge-turn">▶ Turn</span>`);
-    if (isDealer) badges.push(`<span class="badge badge-d">D</span>`);
-    if (isSB) badges.push(`<span class="badge badge-sb">SB</span>`);
-    if (isBB) badges.push(`<span class="badge badge-bb">BB</span>`);
-    if (p.allIn) badges.push(`<span class="badge badge-allin">All-In</span>`);
-    if (isWinner) badges.push(`<span class="badge badge-win">🏆 Won</span>`);
-    if (p.folded && !isWinner) badges.push(`<span class="badge">Folded</span>`);
-
-    const visibleCards = getVisibleCardsForSeat(p);
-    const cardsHtml = visibleCards.map(c => {
-      const el = createCard(c.code, c.visible, true);
-      return el.outerHTML;
-    }).join("");
-
-    div.innerHTML = `
-      <div class="pr-avatar">${initials}</div>
-      <div class="pr-info">
-        <div class="pr-name">${esc(p.username || "Player")}${isMe ? " · You" : ""}</div>
-        <div class="pr-badges">${badges.join("")}</div>
-        ${cardsHtml ? `<div class="pr-cards">${cardsHtml}</div>` : ""}
-      </div>
-      <div class="pr-right">
-        <div class="pr-stack">${money(p.stack||0)}</div>
-        <div class="pr-action">${p.currentBet > 0 ? `bet ${money(p.currentBet)}` : esc(p.lastAction||"")}</div>
-      </div>
-    `;
-    els.playerSection.appendChild(div);
-  });
-}
-
-function renderMyCards(meP) {
-  const hole = myPrivate.holeCards || [];
-  if (!meP || hole.length !== 2) {
-    els.myCardsSection.style.display = "none";
-    return;
-  }
-  els.myCardsSection.style.display = "";
-  els.myCards.innerHTML = "";
-  hole.forEach(code => {
-    const c = createCard(code, true);
-    c.classList.add("my-card");
-    els.myCards.appendChild(c);
-  });
-
-  // hand strength
-  try {
-    const board = game.communityCards || [];
-    const rankName = handNameBest([...hole, ...board]);
-    els.handName.textContent = rankName;
-    if (!meP.folded) {
-      const odds = simulatePrivateOdds(hole, board, 200);
-      els.winOdds.textContent = `Win vs 1: ${pct(odds.winVsOne)} · Tie: ${pct(odds.tieVsOne)}`;
-    } else {
-      els.winOdds.textContent = "Folded";
     }
-  } catch {
-    els.handName.textContent = "—";
-    els.winOdds.textContent = "";
-  }
-}
 
-function updateControls(meP) {
-  const started = ["preflop","flop","turn","river","showdown"].includes(game?.street);
-  const myTurn = game?.turnUid === me?.uid;
-  const currentBet = Number(game?.currentBet || 0);
-  const toCall = Math.max(0, currentBet - Number(meP?.currentBet || 0));
-  const stack = Number(meP?.stack || 0);
-  const minRaise = Number(game?.minimumRaise || game?.settings?.bigBlind || 0);
-  const minExtra = currentBet > 0 ? Math.max(toCall + minRaise, toCall) : Math.max(Number(game?.settings?.bigBlind || 0), 1);
-  const sliderMin = Math.min(stack, Math.max(0, minExtra));
-
-  els.betSlider.max = String(Math.max(0, stack));
-  els.betSlider.min = String(Math.min(sliderMin, Math.max(0, stack)));
-  if (Number(els.betSlider.value) > stack) els.betSlider.value = String(stack);
-  if (stack === 0) els.betSlider.value = "0";
-  if (Number(els.betSlider.value) < Number(els.betSlider.min || 0)) els.betSlider.value = String(Number(els.betSlider.min || 0));
-  updateBetText();
-
-  // status
-  const bar = els.turnStatusBar;
-  bar.classList.remove("is-my-turn");
-  if (!meP) {
-    bar.textContent = "Joining game…";
-  } else if (!started) {
-    const autoStartCountdown = getAutoStartCountdownMs();
-    if (game.street === "waiting" && autoStartCountdown > 0 && getPlayers().length >= 2) {
-      bar.textContent = `Waiting for hand start · ${Math.ceil(autoStartCountdown / 1000)}s`;
-    } else {
-      bar.textContent = game.street === "waiting" ? "Waiting for the host to start." : "Hand over.";
+    async function leaveGame() {
+      if (!game || !me) return;
+      const ok = confirm("Leave this game?");
+      if (!ok) return;
+      actionBusy = true;
+      try {
+        await runTransaction(db, async tx => {
+          const gSnap = await tx.get(gameRef);
+          if (!gSnap.exists()) throw new Error("Game not found.");
+          const g = gSnap.data();
+          const players = { ...(g.players || {}) };
+          const playerIds = Array.isArray(g.playerIds) ? [...g.playerIds] : [];
+          if (!players[me.uid]) return;
+          players[me.uid] = {
+            ...players[me.uid],
+            leftGame: true,
+            folded: true,
+            sittingOut: true,
+            lastAction: "left game"
+          };
+          tx.update(gameRef, {
+            players,
+            playerIds: playerIds.filter(uid => uid !== me.uid),
+            playerOrder: (g.playerOrder || []).filter(uid => uid !== me.uid),
+            updatedAt: serverTimestamp(),
+            message: `${profile.username} left the game`
+          });
+        });
+        await addLog(`${profile.username} left the table.`);
+        await deleteDoc(doc(privateCol, me.uid)).catch(() => {});
+        location.href = "./poker.html";
+      } catch (err) {
+        alert(err.message || "Could not leave game.");
+      } finally {
+        actionBusy = false;
+      }
     }
-  } else if (meP.folded) {
-    bar.textContent = "You folded this hand.";
-  } else if (meP.allIn) {
-    bar.textContent = "You are all-in!";
-  } else if (myTurn) {
-    bar.classList.add("is-my-turn");
-    bar.textContent = toCall > 0 ? `Your turn · Call ${money(toCall)} or raise` : "Your turn · Check or bet";
-  } else {
-    const turnName = game?.players?.[game.turnUid]?.username;
-    bar.textContent = turnName ? `Waiting for ${turnName}…` : "Waiting…";
-  }
 
-  els.callBtn.textContent = toCall > 0 ? `Call ${money(toCall)}` : "Check";
-  els.betHint.textContent = `To call: ${money(toCall)} · Min raise: ${money(Number(els.betSlider.min||0))} · Stack: ${money(stack)}`;
+    async function actFold() {
+      if (!canAct()) return;
+      actionBusy = true;
+      try {
+        await runTransaction(db, async tx => {
+          const gSnap = await tx.get(gameRef);
+          const g = gSnap.data();
+          if (g.turnUid !== me.uid) throw new Error("Not your turn.");
+          const players = { ...(g.players || {}) };
+          players[me.uid] = { ...players[me.uid], folded: true, hasActed: true, lastAction: "folded" };
+          tx.update(gameRef, { players, updatedAt: serverTimestamp(), message: `${players[me.uid].username} folded` });
+        });
+        await addLog(`${profile.username} folded.`);
+        await advanceAfterAction();
+      } catch (err) {
+        alert(err.message || "Could not fold.");
+      } finally {
+        actionBusy = false;
+      }
+    }
 
-  const canAct = myTurn && started && !!meP && !meP.folded && !meP.allIn && !actionBusy;
-  els.foldBtn.disabled = !canAct;
-  els.callBtn.disabled = !canAct;
-  els.raiseBtn.disabled = !canAct || stack <= 0;
-  els.revealBtn.disabled = !started || !meP || !(myPrivate.holeCards||[]).length || actionBusy;
+    async function actCheckOrCall() {
+      if (!canAct()) return;
+      actionBusy = true;
+      try {
+        await runTransaction(db, async tx => {
+          const gSnap = await tx.get(gameRef);
+          const g = gSnap.data();
+          if (g.turnUid !== me.uid) throw new Error("Not your turn.");
+          const players = { ...(g.players || {}) };
+          const p = { ...(players[me.uid] || {}) };
+          const toCall = Math.max(0, Number(g.currentBet || 0) - Number(p.currentBet || 0));
+          const paid = Math.min(toCall, Number(p.stack || 0));
+          const newStack = Math.max(0, Number(p.stack || 0) - paid);
+          players[me.uid] = {
+            ...p,
+            stack: newStack,
+            currentBet: Number(p.currentBet || 0) + paid,
+            totalCommitted: Number(p.totalCommitted || 0) + paid,
+            allIn: newStack === 0,
+            hasActed: true,
+            lastAction: toCall > 0 ? `called ${paid}` : "checked"
+          };
+          tx.update(gameRef, {
+            players,
+            pot: increment(paid),
+            updatedAt: serverTimestamp(),
+            message: toCall > 0 ? `${p.username} called ${paid}` : `${p.username} checked`
+          });
+        });
+        await addLog(`${profile.username} ${Math.max(0, Number(game.currentBet || 0) - Number(myPlayer()?.currentBet || 0)) > 0 ? "called" : "checked"}.`);
+        await advanceAfterAction();
+      } catch (err) {
+        alert(err.message || "Could not act.");
+      } finally {
+        actionBusy = false;
+      }
+    }
 
-  // show bet section only on your turn in an active hand
-  els.betSection.style.display = (canAct && stack > 0) ? "" : "none";
-}
-
-function buildOdds() {
-  const players = getPlayers();
-  const active = players.filter(p => !p.folded && !p.leftGame && !p.sittingOut);
-  const allShown = active.length >= 2 && active.every(p => isFullyVisibleToTable(p));
-  const street = game?.street;
-  let html = "";
-
-  const hole = myPrivate.holeCards || [];
-  const board = game?.communityCards || [];
-
-  if (hole.length === 2 && myPlayer() && !myPlayer().folded) {
-    try {
-      const odds = simulatePrivateOdds(hole, board, 280);
-      const rankName = handNameBest([...hole, ...board]);
-      html += `<div class="odds-row"><span style="font-weight:600">${esc(rankName)}</span><span class="muted" style="font-size:.75rem">Your hand</span></div>`;
-      html += `<div class="odds-row"><span>Win vs 1 random</span><span style="font-weight:700">${pct(odds.winVsOne)}</span></div>`;
-      html += `<div class="odds-row"><span>Tie chance</span><span style="font-weight:700">${pct(odds.tieVsOne)}</span></div>`;
-    } catch {}
-  }
-
-  if (allShown && ["flop","turn","river","showdown"].includes(street)) {
-    try {
-      const withHole = active.map(p => ({ ...p, holeCards: getHoleForPublic(p) })).filter(p => p.holeCards.length === 2);
-      const sims = simulatePublicOdds(withHole, board, 280);
-      html += `<div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding-top:10px;margin-top:4px;border-top:1px solid var(--line)">Showdown Odds</div>`;
-      sims.forEach(s => {
-        html += `<div class="odds-row"><span>${esc(s.username)}</span><span style="font-weight:700">${pct(s.win)}</span></div>`;
-      });
-    } catch {}
-  }
-
-  els.oddsContent.innerHTML = html || `<div class="muted" style="font-size:.85rem">No odds available yet.</div>`;
-}
-
-function showWinnerToast(msg) {
-  if (winnerToastTimer) clearTimeout(winnerToastTimer);
-  els.winnerToastText.textContent = "🏆 " + msg;
-  els.winnerToast.classList.add("show");
-  winnerToastTimer = setTimeout(() => els.winnerToast.classList.remove("show"), 5000);
-}
-
-// ─── AUTO-START / AUTO-NEXT HAND ───
-function getAutoStartCountdownMs() {
-  const target = Number(game?.autoStartAt || 0);
-  return target > Date.now() ? target - Date.now() : 0;
-}
-
-function clearAutoStartTimer() {
-  if (autoStartTimer) {
-    clearTimeout(autoStartTimer);
-    autoStartTimer = null;
-  }
-  autoStartEndsAt = 0;
-}
-
-function handleAutoNext() {
-  if (!game || !me) return;
-  const isHost = me.uid === game.hostId;
-  const delayMs = Number(game.settings?.timeBetweenRounds || 5) * 1000;
-  const isOver = game.street === "waiting" && game.handNumber > 0 && game.settlementDone;
-  const waitingToStart = game.street === "waiting" && !game.settlementDone;
-  const players = getActivePlayers();
-  const canStart = players.length >= 2;
-
-  if (isHost && waitingToStart && canStart) {
-    const countdownMs = getAutoStartCountdownMs();
-    if (countdownMs > 0) {
-      if (!autoStartTimer || autoStartEndsAt !== Number(game.autoStartAt || 0)) {
-        clearAutoStartTimer();
-        autoStartEndsAt = Number(game.autoStartAt || 0);
-        autoStartTimer = setTimeout(async () => {
-          clearAutoStartTimer();
-          const latestSnap = await getDoc(gameRef);
-          if (!latestSnap.exists()) return;
-          const latest = latestSnap.data();
-          const latestPlayers = listPlayersFromGame(latest).filter(p => !p.leftGame && !p.sittingOut);
-          const stillWaiting = latest.street === "waiting" && !latest.settlementDone;
-          if (stillWaiting && latestPlayers.length >= 2 && !actionBusy) {
-            await startOrNextHand();
+    async function actRaise() {
+      if (!canAct()) return;
+      const extra = Number(els.betSlider.value || 0);
+      if (extra <= 0) return;
+      actionBusy = true;
+      try {
+        await runTransaction(db, async tx => {
+          const gSnap = await tx.get(gameRef);
+          const g = gSnap.data();
+          if (g.turnUid !== me.uid) throw new Error("Not your turn.");
+          const players = { ...(g.players || {}) };
+          const p = { ...(players[me.uid] || {}) };
+          const stack = Number(p.stack || 0);
+          const currentBet = Number(g.currentBet || 0);
+          const toCall = Math.max(0, currentBet - Number(p.currentBet || 0));
+          const amount = Math.min(extra, stack);
+          if (amount < toCall) throw new Error("That does not cover the call.");
+          const newPlayerBet = Number(p.currentBet || 0) + amount;
+          const raiseSize = newPlayerBet - currentBet;
+          const minRaise = Number(g.minimumRaise || g.settings?.bigBlind || 0);
+          const isAllIn = amount === stack;
+          if (!isAllIn && currentBet > 0 && raiseSize < minRaise) {
+            throw new Error(`Minimum raise is ${money(minRaise)} more.`);
           }
-        }, countdownMs);
+
+          Object.keys(players).forEach(uid => {
+            if (uid !== me.uid && !players[uid].folded && !players[uid].allIn && !players[uid].leftGame && !players[uid].sittingOut) {
+              players[uid] = { ...players[uid], hasActed: false };
+            }
+          });
+
+          const newStack = stack - amount;
+          players[me.uid] = {
+            ...p,
+            stack: newStack,
+            currentBet: newPlayerBet,
+            totalCommitted: Number(p.totalCommitted || 0) + amount,
+            allIn: newStack === 0,
+            hasActed: true,
+            lastAction: currentBet > 0 ? `raised to ${newPlayerBet}` : `bet ${newPlayerBet}`
+          };
+
+          tx.update(gameRef, {
+            players,
+            pot: increment(amount),
+            currentBet: Math.max(currentBet, newPlayerBet),
+            minimumRaise: raiseSize > 0 ? raiseSize : minRaise,
+            updatedAt: serverTimestamp(),
+            message: currentBet > 0 ? `${p.username} raised` : `${p.username} bet`
+          });
+        });
+        await addLog(`${profile.username} bet/raised ${money(extra)}.`);
+        await advanceAfterAction();
+      } catch (err) {
+        alert(err.message || "Could not raise.");
+      } finally {
+        actionBusy = false;
       }
-    } else if (Number(game.autoStartAt || 0) > 0 && !actionBusy) {
-      clearAutoStartTimer();
-      startOrNextHand();
-    }
-  } else {
-    clearAutoStartTimer();
-  }
-
-  if (isHost && isOver && canStart) {
-    if (autoNextTimer) return;
-    autoNextTimer = setTimeout(async () => {
-      autoNextTimer = null;
-      if (!actionBusy) await startOrNextHand();
-    }, delayMs);
-  } else {
-    if (autoNextTimer) { clearTimeout(autoNextTimer); autoNextTimer = null; }
-  }
-}
-
-
-// ─── ACTIONS ───
-async function startOrNextHand() {
-  if (!game || me.uid !== game.hostId || actionBusy) return;
-  actionBusy = true;
-  try {
-    const players = getActivePlayers();
-    if (players.length < 2) throw new Error("Need at least 2 players.");
-    const s = game.settings || {};
-    const buyIn = Number(s.buyIn || 0);
-    const smallBlind = Number(s.smallBlind || 0);
-    const bigBlind = Number(s.bigBlind || 0);
-    const ordered = players.map((p,i) => ({ ...p, seat: typeof p.seat==="number" ? p.seat : i })).sort((a,b) => a.seat - b.seat);
-    const currentDealerIndex = ordered.findIndex(p => p.uid === game.dealerUid);
-    const dealerIndex = currentDealerIndex === -1 ? 0 : (currentDealerIndex + 1) % ordered.length;
-    const sbIndex = nextLiveIndex(ordered, dealerIndex);
-    const bbIndex = nextLiveIndex(ordered, sbIndex);
-    const firstToAct = nextLiveIndex(ordered, bbIndex);
-
-    const deck = buildDeck(); shuffle(deck);
-    const batch = writeBatch(db);
-    const nextPlayers = { ...(game.players || {}) };
-    let pot = 0;
-
-    for (let i = 0; i < ordered.length; i++) {
-      const uid = ordered[i].uid;
-      const old = { ...(nextPlayers[uid] || {}) };
-      let stack = Number(old.stack || 0);
-      if (stack <= 0 && (s.gameMode||"regular") === "tournament") stack = buyIn;
-      if (stack <= 0 && game.handNumber === 0) stack = buyIn;
-      const hole = [deck.pop(), deck.pop()];
-      const isSB = uid === ordered[sbIndex].uid;
-      const isBB = uid === ordered[bbIndex].uid;
-      const blind = Math.min(stack, isSB ? smallBlind : isBB ? bigBlind : 0);
-      stack -= blind; pot += blind;
-      nextPlayers[uid] = {
-        ...old, uid, username: old.username||ordered[i].username, seat: ordered[i].seat,
-        stack, buyIn, folded: false, allIn: stack===0, currentBet: blind, totalCommitted: blind,
-        hasActed: false, shownCards: [], cardsRevealed: 0, leftGame: false,
-        lastAction: blind > 0 ? (isSB ? `posted SB ${smallBlind}` : `posted BB ${bigBlind}`) : "dealt"
-      };
-      batch.set(doc(privateCol, uid), { holeCards: hole, updatedAt: serverTimestamp() }, { merge: true });
     }
 
-    batch.update(gameRef, {
-      players: nextPlayers, status: "active", street: "preflop", communityCards: [],
-      pot, currentBet: bigBlind, minimumRaise: bigBlind,
-      dealerUid: ordered[dealerIndex].uid, smallBlindUid: ordered[sbIndex].uid,
-      bigBlindUid: ordered[bbIndex].uid, turnUid: ordered[firstToAct].uid,
-      handNumber: increment(1), allCardsUp: false, settlementDone: false,
-      winnerUids: [], boardLocked: false, autoStartAt: null, updatedAt: serverTimestamp(),
-      message: `New hand started. Dealer: ${ordered[dealerIndex].username}`
-    });
-    await batch.commit();
-    await addLog(`New hand started. Dealer: ${ordered[dealerIndex].username}.`);
-  } catch (err) { alert(err.message || "Could not start hand."); }
-  finally { actionBusy = false; }
-}
+    async function revealCards() {
+      if (!game || !myPlayer() || !Array.isArray(myPrivate.holeCards) || myPrivate.holeCards.length !== 2) return;
+      const mode = game.settings?.revealMode || "none";
+      let shown = [...myPrivate.holeCards];
+      if (mode === "one") {
+        const first = confirm("Reveal your first card? Press Cancel to reveal your second card instead.");
+        shown = first ? [myPrivate.holeCards[0]] : [myPrivate.holeCards[1]];
+      }
+      if (mode === "none") {
+        const both = confirm("Reveal both cards? Press Cancel to reveal only your first card.");
+        shown = both ? [...myPrivate.holeCards] : [myPrivate.holeCards[0]];
+      }
+      actionBusy = true;
+      try {
+        await runTransaction(db, async tx => {
+          const gSnap = await tx.get(gameRef);
+          const g = gSnap.data();
+          const players = { ...(g.players || {}) };
+          const p = { ...(players[me.uid] || {}) };
+          players[me.uid] = {
+            ...p,
+            shownCards: shown,
+            cardsRevealed: shown.length,
+            lastAction: shown.length === 2 ? "revealed both cards" : "revealed one card"
+          };
+          tx.update(gameRef, { players, updatedAt: serverTimestamp(), message: `${p.username} revealed cards` });
+        });
+        await addLog(`${profile.username} revealed ${shown.length === 2 ? "both cards" : "one card"}.`);
+      } catch (err) {
+        alert(err.message || "Could not reveal cards.");
+      } finally {
+        actionBusy = false;
+      }
+    }
 
-async function leaveGame() {
-  if (!game || !me) return;
-  if (!confirm("Leave this game?")) return;
-  actionBusy = true;
-  try {
-    await runTransaction(db, async tx => {
-      const gSnap = await tx.get(gameRef);
-      if (!gSnap.exists()) throw new Error("Game not found.");
-      const g = gSnap.data();
-      const players = { ...(g.players || {}) };
-      const playerIds = Array.isArray(g.playerIds) ? [...g.playerIds] : [];
-      if (!players[me.uid]) return;
-      players[me.uid] = { ...players[me.uid], leftGame: true, folded: true, sittingOut: true, lastAction: "left game" };
-      const remainingIds = playerIds.filter(u => u !== me.uid);
-      tx.update(gameRef, {
-        players, playerIds: remainingIds,
-        playerOrder: (g.playerOrder||[]).filter(u => u !== me.uid),
-        autoStartAt: remainingIds.length >= 2 ? (g.autoStartAt || null) : null,
-        updatedAt: serverTimestamp(), message: `${profile.username} left the game`
-      });
-    });
-    await addLog(`${profile.username} left the table.`);
-    await deleteDoc(doc(privateCol, me.uid)).catch(()=>{});
-    // update debts
-    await settleDebtsOnLeave();
-    location.href = "./poker.html";
-  } catch (err) { alert(err.message || "Could not leave."); }
-  finally { actionBusy = false; }
-}
+    function canAct() {
+      const p = myPlayer();
+      return !!game && !!p && game.turnUid === me.uid && ["preflop","flop","turn","river"].includes(game.street) && !p.folded && !p.allIn;
+    }
 
-async function settleDebtsOnLeave() {
-  // Debts are already settled via the game's winner logic, but we ensure the lobby sees them
-  try {
-    const gSnap = await getDoc(gameRef);
-    if (!gSnap.exists()) return;
-    await updateDoc(gameRef, { updatedAt: serverTimestamp() });
-  } catch {}
-}
+    async function advanceAfterAction() {
+      const freshSnap = await getDoc(gameRef);
+      if (!freshSnap.exists()) return;
+      const g = freshSnap.data();
+      const active = listPlayersFromGame(g).filter(p => !p.folded && !p.leftGame && !p.sittingOut);
+      const canActPlayers = active.filter(p => !p.allIn);
 
-async function actFold() {
-  if (!canAct()) return;
-  actionBusy = true;
-  try {
-    await runTransaction(db, async tx => {
-      const gSnap = await tx.get(gameRef);
-      const g = gSnap.data();
-      if (g.turnUid !== me.uid) throw new Error("Not your turn.");
-      const players = { ...(g.players||{}) };
-      players[me.uid] = { ...players[me.uid], folded: true, hasActed: true, lastAction: "folded" };
-      tx.update(gameRef, { players, updatedAt: serverTimestamp(), message: `${players[me.uid].username} folded` });
-    });
-    await addLog(`${profile.username} folded.`);
-    await advanceAfterAction();
-  } catch (err) { alert(err.message || "Could not fold."); }
-  finally { actionBusy = false; }
-}
+      if (active.length <= 1) {
+        await settleWinners(g, active.map(p => p.uid), "Everyone else folded.");
+        return;
+      }
 
-async function actCheckOrCall() {
-  if (!canAct()) return;
-  actionBusy = true;
-  try {
-    await runTransaction(db, async tx => {
-      const gSnap = await tx.get(gameRef);
-      const g = gSnap.data();
-      if (g.turnUid !== me.uid) throw new Error("Not your turn.");
-      const players = { ...(g.players||{}) };
-      const p = { ...(players[me.uid]||{}) };
-      const toCall = Math.max(0, Number(g.currentBet||0) - Number(p.currentBet||0));
-      const paid = Math.min(toCall, Number(p.stack||0));
-      const newStack = Math.max(0, Number(p.stack||0) - paid);
-      players[me.uid] = {
-        ...p, stack: newStack, currentBet: Number(p.currentBet||0) + paid,
-        totalCommitted: Number(p.totalCommitted||0) + paid,
-        allIn: newStack === 0, hasActed: true,
-        lastAction: toCall > 0 ? `called ${paid}` : "checked"
-      };
-      tx.update(gameRef, { players, pot: increment(paid), updatedAt: serverTimestamp(), message: toCall > 0 ? `${p.username} called ${paid}` : `${p.username} checked` });
-    });
-    await addLog(`${profile.username} ${Math.max(0, Number(game.currentBet||0) - Number(myPlayer()?.currentBet||0)) > 0 ? "called" : "checked"}.`);
-    await advanceAfterAction();
-  } catch (err) { alert(err.message || "Could not act."); }
-  finally { actionBusy = false; }
-}
+      const everyoneDone = canActPlayers.every(p => p.hasActed && Number(p.currentBet || 0) === Number(g.currentBet || 0));
+      if (everyoneDone) {
+        await advanceStreet(g);
+        return;
+      }
 
-async function actRaise() {
-  if (!canAct()) return;
-  const extra = Number(els.betSlider.value || 0);
-  if (extra <= 0) return;
-  actionBusy = true;
-  try {
-    await runTransaction(db, async tx => {
-      const gSnap = await tx.get(gameRef);
-      const g = gSnap.data();
-      if (g.turnUid !== me.uid) throw new Error("Not your turn.");
-      const players = { ...(g.players||{}) };
-      const p = { ...(players[me.uid]||{}) };
-      const stack = Number(p.stack||0);
-      const currentBet = Number(g.currentBet||0);
-      const toCall = Math.max(0, currentBet - Number(p.currentBet||0));
-      const amount = Math.min(extra, stack);
-      if (amount < toCall) throw new Error("That does not cover the call.");
-      const newPlayerBet = Number(p.currentBet||0) + amount;
-      const raiseSize = newPlayerBet - currentBet;
-      const minRaise = Number(g.minimumRaise||g.settings?.bigBlind||0);
-      const isAllIn = amount === stack;
-      if (!isAllIn && currentBet > 0 && raiseSize < minRaise) throw new Error(`Minimum raise is ${money(minRaise)} more.`);
+      const nextUid = nextTurnUid(g, g.turnUid);
+      await updateDoc(gameRef, { turnUid: nextUid, updatedAt: serverTimestamp() });
+    }
 
-      Object.keys(players).forEach(uid => {
-        if (uid !== me.uid && !players[uid].folded && !players[uid].allIn && !players[uid].leftGame && !players[uid].sittingOut) {
-          players[uid] = { ...players[uid], hasActed: false };
+    async function advanceStreet(g) {
+      const delayMs = Number(g.settings?.timeBetweenRounds || 0) * 1000;
+      if (delayMs > 0) await sleep(delayMs);
+      const players = listPlayersFromGame(g);
+      const active = players.filter(p => !p.folded && !p.leftGame && !p.sittingOut);
+      if (active.length <= 1) {
+        await settleWinners(g, active.map(p => p.uid), "Everyone else folded.");
+        return;
+      }
+
+      const nextStreet = g.street === "preflop" ? "flop" : g.street === "flop" ? "turn" : g.street === "turn" ? "river" : "showdown";
+      if (nextStreet === "showdown") {
+        const playersMap = { ...(g.players || {}) };
+        const batch = writeBatch(db);
+        if (g.settings?.revealMode === "both") {
+          for (const p of active) {
+            const snap = await getDoc(doc(privateCol, p.uid));
+            const hole = snap.exists() ? (snap.data().holeCards || []) : [];
+            playersMap[p.uid] = { ...playersMap[p.uid], shownCards: hole.slice(0,2), cardsRevealed: 2 };
+          }
+        } else if (g.settings?.revealMode === "one") {
+          for (const p of active) {
+            const snap = await getDoc(doc(privateCol, p.uid));
+            const hole = snap.exists() ? (snap.data().holeCards || []) : [];
+            playersMap[p.uid] = { ...playersMap[p.uid], shownCards: hole.length ? [hole[0]] : [], cardsRevealed: hole.length ? 1 : 0 };
+          }
         }
-      });
-
-      const newStack = stack - amount;
-      players[me.uid] = {
-        ...p, stack: newStack, currentBet: newPlayerBet,
-        totalCommitted: Number(p.totalCommitted||0) + amount,
-        allIn: newStack === 0, hasActed: true,
-        lastAction: currentBet > 0 ? `raised to ${newPlayerBet}` : `bet ${newPlayerBet}`
-      };
-      tx.update(gameRef, {
-        players, pot: increment(amount), currentBet: Math.max(currentBet, newPlayerBet),
-        minimumRaise: raiseSize > 0 ? raiseSize : minRaise,
-        updatedAt: serverTimestamp(), message: currentBet > 0 ? `${p.username} raised` : `${p.username} bet`
-      });
-    });
-    await addLog(`${profile.username} bet/raised ${money(extra)}.`);
-    await advanceAfterAction();
-  } catch (err) { alert(err.message || "Could not raise."); }
-  finally { actionBusy = false; }
-}
-
-async function revealCards() {
-  if (!game || !myPlayer() || !(myPrivate.holeCards||[]).length) return;
-  const mode = game.settings?.revealMode || "none";
-  let shown = [...myPrivate.holeCards];
-  if (mode === "one") {
-    const first = confirm("Reveal your first card? Cancel = second card.");
-    shown = first ? [myPrivate.holeCards[0]] : [myPrivate.holeCards[1]];
-  }
-  if (mode === "none") {
-    const both = confirm("Reveal both cards? Cancel = first card only.");
-    shown = both ? [...myPrivate.holeCards] : [myPrivate.holeCards[0]];
-  }
-  actionBusy = true;
-  try {
-    await runTransaction(db, async tx => {
-      const gSnap = await tx.get(gameRef);
-      const g = gSnap.data();
-      const players = { ...(g.players||{}) };
-      const p = { ...(players[me.uid]||{}) };
-      players[me.uid] = { ...p, shownCards: shown, cardsRevealed: shown.length, lastAction: shown.length===2 ? "revealed both cards" : "revealed one card" };
-      tx.update(gameRef, { players, updatedAt: serverTimestamp(), message: `${p.username} revealed cards` });
-    });
-    await addLog(`${profile.username} revealed ${shown.length===2?"both cards":"one card"}.`);
-  } catch (err) { alert(err.message || "Could not reveal."); }
-  finally { actionBusy = false; }
-}
-
-function canAct() {
-  const p = myPlayer();
-  return !!game && !!p && game.turnUid === me.uid && ["preflop","flop","turn","river"].includes(game.street) && !p.folded && !p.allIn;
-}
-
-async function advanceAfterAction() {
-  const freshSnap = await getDoc(gameRef);
-  if (!freshSnap.exists()) return;
-  const g = freshSnap.data();
-  const active = listPlayersFromGame(g).filter(p => !p.folded && !p.leftGame && !p.sittingOut);
-  const canActPlayers = active.filter(p => !p.allIn);
-
-  if (active.length <= 1) { await settleWinners(g, active.map(p => p.uid), "Everyone else folded."); return; }
-
-  const everyoneDone = canActPlayers.every(p => p.hasActed && Number(p.currentBet||0) === Number(g.currentBet||0));
-  if (everyoneDone) { await advanceStreet(g); return; }
-
-  const nextUid = nextTurnUid(g, g.turnUid);
-  await updateDoc(gameRef, { turnUid: nextUid, updatedAt: serverTimestamp() });
-}
-
-async function advanceStreet(g) {
-  const delayMs = Number(g.settings?.timeBetweenRounds || 0) * 1000;
-  if (delayMs > 0) await sleep(delayMs);
-  const players = listPlayersFromGame(g);
-  const active = players.filter(p => !p.folded && !p.leftGame && !p.sittingOut);
-  if (active.length <= 1) { await settleWinners(g, active.map(p => p.uid), "Everyone else folded."); return; }
-
-  const nextStreet = g.street==="preflop" ? "flop" : g.street==="flop" ? "turn" : g.street==="turn" ? "river" : "showdown";
-  if (nextStreet === "showdown") {
-    const playersMap = { ...(g.players||{}) };
-    const batch = writeBatch(db);
-    if (g.settings?.revealMode === "both") {
-      for (const p of active) {
-        const snap = await getDoc(doc(privateCol, p.uid));
-        const hole = snap.exists() ? (snap.data().holeCards||[]) : [];
-        playersMap[p.uid] = { ...playersMap[p.uid], shownCards: hole.slice(0,2), cardsRevealed: 2 };
+        batch.update(gameRef, {
+          players: playersMap,
+          street: "showdown",
+          allCardsUp: true,
+          turnUid: null,
+          updatedAt: serverTimestamp(),
+          message: "Showdown"
+        });
+        await batch.commit();
+        await addLog("Showdown.");
+        const winnerUids = await findWinnerUidsFromGame({ ...g, players: playersMap, allCardsUp: true, street: "showdown" });
+        await settleWinners({ ...g, players: playersMap, allCardsUp: true, street: "showdown" }, winnerUids, "Hand complete.");
+        return;
       }
-    } else if (g.settings?.revealMode === "one") {
-      for (const p of active) {
+
+      const board = [...(g.communityCards || [])];
+      const used = new Set(board);
+      const privateCards = {};
+      for (const p of players) {
         const snap = await getDoc(doc(privateCol, p.uid));
-        const hole = snap.exists() ? (snap.data().holeCards||[]) : [];
-        playersMap[p.uid] = { ...playersMap[p.uid], shownCards: hole.length ? [hole[0]] : [], cardsRevealed: hole.length ? 1 : 0 };
+        privateCards[p.uid] = snap.exists() ? (snap.data().holeCards || []) : [];
+        for (const c of privateCards[p.uid]) used.add(c);
       }
+      const deck = buildDeck().filter(c => !used.has(c));
+      shuffle(deck);
+      if (nextStreet === "flop") board.push(deck.pop(), deck.pop(), deck.pop());
+      if (nextStreet === "turn") board.push(deck.pop());
+      if (nextStreet === "river") board.push(deck.pop());
+
+      const nextPlayers = { ...(g.players || {}) };
+      Object.keys(nextPlayers).forEach(uid => {
+        nextPlayers[uid] = { ...nextPlayers[uid], currentBet: 0, hasActed: false };
+      });
+      const nextUid = firstToActPostflop(g, nextPlayers);
+      await updateDoc(gameRef, {
+        players: nextPlayers,
+        communityCards: board,
+        street: nextStreet,
+        currentBet: 0,
+        minimumRaise: Number(g.settings?.bigBlind || 0),
+        turnUid: nextUid,
+        updatedAt: serverTimestamp(),
+        message: `${STREET_LABEL[nextStreet]} dealt`
+      });
+      await addLog(`${STREET_LABEL[nextStreet]} dealt.`);
     }
-    batch.update(gameRef, { players: playersMap, street: "showdown", allCardsUp: true, turnUid: null, updatedAt: serverTimestamp(), message: "Showdown" });
-    await batch.commit();
-    await addLog("Showdown.");
-    const winnerUids = await findWinnerUidsFromGame({ ...g, players: playersMap, allCardsUp: true, street: "showdown" });
-    await settleWinners({ ...g, players: playersMap, allCardsUp: true, street: "showdown" }, winnerUids, "Hand complete.");
-    return;
-  }
 
-  const board = [...(g.communityCards||[])];
-  const used = new Set(board);
-  const privateCards = {};
-  for (const p of players) {
-    const snap = await getDoc(doc(privateCol, p.uid));
-    privateCards[p.uid] = snap.exists() ? (snap.data().holeCards||[]) : [];
-    for (const c of privateCards[p.uid]) used.add(c);
-  }
-  const deck = buildDeck().filter(c => !used.has(c)); shuffle(deck);
-  if (nextStreet === "flop") board.push(deck.pop(), deck.pop(), deck.pop());
-  if (nextStreet === "turn") board.push(deck.pop());
-  if (nextStreet === "river") board.push(deck.pop());
+    async function settleWinners(g, winnerUids, reason) {
+      const winners = [...new Set(winnerUids.filter(Boolean))];
+      if (!winners.length) return;
+      const pot = Number(g.pot || 0);
+      const share = Math.floor(pot / winners.length);
+      const remainder = pot - share * winners.length;
+      const nextPlayers = { ...(g.players || {}) };
+      winners.forEach((uid, index) => {
+        const add = share + (index === 0 ? remainder : 0);
+        nextPlayers[uid] = {
+          ...nextPlayers[uid],
+          stack: Number(nextPlayers[uid].stack || 0) + add,
+          lastAction: `won ${add}`
+        };
+      });
+      Object.keys(nextPlayers).forEach(uid => {
+        nextPlayers[uid] = {
+          ...nextPlayers[uid],
+          currentBet: 0,
+          totalCommitted: 0,
+          hasActed: false,
+          folded: false,
+          shownCards: nextPlayers[uid].shownCards || []
+        };
+      });
 
-  const nextPlayers = { ...(g.players||{}) };
-  Object.keys(nextPlayers).forEach(uid => { nextPlayers[uid] = { ...nextPlayers[uid], currentBet: 0, hasActed: false }; });
-  const nextUid = firstToActPostflop(g, nextPlayers);
-  await updateDoc(gameRef, {
-    players: nextPlayers, communityCards: board, street: nextStreet,
-    currentBet: 0, minimumRaise: Number(g.settings?.bigBlind||0),
-    turnUid: nextUid, updatedAt: serverTimestamp(), message: `${STREET_LABEL[nextStreet]} dealt`
-  });
-  await addLog(`${STREET_LABEL[nextStreet]} dealt.`);
-}
-
-async function settleWinners(g, winnerUids, reason) {
-  const winners = [...new Set(winnerUids.filter(Boolean))];
-  if (!winners.length) return;
-  const pot = Number(g.pot||0);
-  const share = Math.floor(pot / winners.length);
-  const remainder = pot - share * winners.length;
-  const nextPlayers = { ...(g.players||{}) };
-  winners.forEach((uid, i) => {
-    const add = share + (i === 0 ? remainder : 0);
-    nextPlayers[uid] = { ...nextPlayers[uid], stack: Number(nextPlayers[uid].stack||0) + add, lastAction: `won ${add}` };
-  });
-  Object.keys(nextPlayers).forEach(uid => {
-    nextPlayers[uid] = { ...nextPlayers[uid], currentBet: 0, totalCommitted: 0, hasActed: false, folded: false, shownCards: nextPlayers[uid].shownCards||[] };
-  });
-
-  let status = "waiting", street = "waiting";
-  if ((g.settings?.gameMode||"regular") === "tournament") {
-    const alive = Object.values(nextPlayers).filter(p => !p.leftGame && !p.sittingOut && Number(p.stack||0) > 0);
-    if (alive.length <= 1) { status = "finished"; street = "finished"; }
-  }
-
-  await updateDoc(gameRef, {
-    players: nextPlayers, pot: 0, currentBet: 0, minimumRaise: Number(g.settings?.bigBlind||0),
-    turnUid: null, winnerUids: winners, settlementDone: true, status, street,
-    allCardsUp: true, updatedAt: serverTimestamp(),
-    message: `${winners.map(uid => nextPlayers[uid]?.username||"Player").join(", ")} won ${money(pot)}`
-  });
-  await addLog(`${winners.map(uid => nextPlayers[uid]?.username||"Player").join(", ")} won ${money(pot)}. ${reason}`);
-
-  // Update debts in user profiles
-  await updateDebts(g, nextPlayers, winners, pot, share, remainder);
-}
-
-async function updateDebts(g, nextPlayers, winners, pot, share, remainder) {
-  try {
-    const players = listPlayersFromGame(g);
-    // Each non-winner lost their totalCommitted to the pot
-    // Winners gained (pot / winners.length) - their committed
-    for (const uid of winners) {
-      const idx = winners.indexOf(uid);
-      const gained = share + (idx === 0 ? remainder : 0);
-      const committed = Number(g.players?.[uid]?.totalCommitted || 0);
-      const netGain = gained - committed;
-      if (netGain === 0) continue;
-      // Update debts between winner and each loser proportionally
-      // Simple approach: track net change in user doc
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) continue;
-      const userData = userSnap.data();
-      const debts = { ...(userData.debts || {}) };
-      // For each loser, assign debt
-      const losers = players.filter(p => !winners.includes(p.uid));
-      for (const loser of losers) {
-        const loserCommitted = Number(g.players?.[loser.uid]?.totalCommitted || 0);
-        const loserShare = pot > 0 ? (loserCommitted / pot) * gained : 0;
-        const loserRounded = Math.floor(loserShare);
-        if (loserRounded <= 0) continue;
-        debts[loser.uid] = (Number(debts[loser.uid] || 0)) + loserRounded;
-        // Update loser's debts too
-        const loserRef = doc(db, "users", loser.uid);
-        const loserSnap = await getDoc(loserRef);
-        if (loserSnap.exists()) {
-          const loserDebts = { ...(loserSnap.data().debts || {}) };
-          loserDebts[uid] = (Number(loserDebts[uid] || 0)) - loserRounded;
-          await updateDoc(loserRef, { debts: loserDebts, updatedAt: serverTimestamp() });
+      let status = "waiting";
+      let street = "waiting";
+      if ((g.settings?.gameMode || "regular") === "tournament") {
+        const alive = Object.values(nextPlayers).filter(p => !p.leftGame && !p.sittingOut && Number(p.stack || 0) > 0);
+        if (alive.length <= 1) {
+          status = "finished";
+          street = "finished";
         }
       }
-      const oldStats = userData.stats || {};
-      const statsUpdate = {
-        winningsNet: (Number(oldStats.winningsNet || 0)) + netGain,
-        handsWon: (Number(oldStats.handsWon || 0)) + 1,
-        handsPlayed: (Number(oldStats.handsPlayed || 0)) + 1,
-      };
-      await updateDoc(userRef, { debts, stats: statsUpdate, updatedAt: serverTimestamp() });
-    }
-    // Update stats for losers
-    for (const p of players) {
-      if (winners.includes(p.uid)) continue;
-      const committed = Number(g.players?.[p.uid]?.totalCommitted || 0);
-      if (committed <= 0) continue;
-      const userRef = doc(db, "users", p.uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) continue;
-      const userData = userSnap.data();
-      const oldStats = userData.stats || {};
-      await updateDoc(userRef, {
-        stats: {
-          winningsNet: (Number(oldStats.winningsNet || 0)) - committed,
-          handsPlayed: (Number(oldStats.handsPlayed || 0)) + 1,
-        },
-        updatedAt: serverTimestamp()
+
+      await updateDoc(gameRef, {
+        players: nextPlayers,
+        pot: 0,
+        currentBet: 0,
+        minimumRaise: Number(g.settings?.bigBlind || 0),
+        turnUid: null,
+        winnerUids: winners,
+        settlementDone: true,
+        status,
+        street,
+        allCardsUp: true,
+        updatedAt: serverTimestamp(),
+        message: `${winners.map(uid => nextPlayers[uid]?.username || "Player").join(", ")} won ${money(pot)}`
       });
+      await addLog(`${winners.map(uid => nextPlayers[uid]?.username || "Player").join(", ")} won ${money(pot)}. ${reason}`);
     }
-  } catch (e) { console.warn("Debt update failed:", e); }
-}
 
-// ─── HELPERS ───
-function listPlayersFromGame(g) {
-  const order = Array.isArray(g.playerOrder) ? g.playerOrder : Object.keys(g.players||{});
-  return order.map(uid => ({ uid, ...(g.players?.[uid]||{}) })).filter(p => !p.leftGame);
-}
-function nextTurnUid(g, currentUid) {
-  const order = listPlayersFromGame(g).filter(p => !p.folded && !p.leftGame && !p.sittingOut && !p.allIn);
-  if (!order.length) return null;
-  const idx = order.findIndex(p => p.uid === currentUid);
-  return order[(idx === -1 ? 0 : (idx + 1) % order.length)].uid;
-}
-function firstToActPostflop(g, playersMap) {
-  const order = (g.playerOrder||[]).map(uid => ({ uid, ...(playersMap[uid]||{}) }))
-    .filter(p => !p.leftGame && !p.sittingOut && !p.folded && !p.allIn);
-  if (!order.length) return null;
-  const dealerIndex = order.findIndex(p => p.uid === g.dealerUid);
-  return order[(dealerIndex === -1 ? 0 : (dealerIndex + 1) % order.length)].uid;
-}
-function nextLiveIndex(arr, fromIndex) {
-  for (let step = 1; step <= arr.length; step++) {
-    const idx = (fromIndex + step) % arr.length;
-    const p = arr[idx];
-    if (p && !p.leftGame && !p.sittingOut) return idx;
-  }
-  return 0;
-}
-function setPotBet() {
-  const p = myPlayer();
-  if (!p) return;
-  const amount = Math.min(Number(game?.pot||0), Number(p.stack||0));
-  els.betSlider.value = String(amount);
-  updateBetText();
-}
-function updateBetText() { els.betValue.textContent = money(Number(els.betSlider.value||0)); }
-
-// ─── CARD RENDERING ───
-function createCard(code, visible, small = false) {
-  const card = document.createElement("div");
-  card.className = "card" + (small ? " card-sm" : "");
-  if (!code) { card.classList.add("card-empty"); return card; }
-  if (!visible) { card.classList.add("card-back"); card.textContent = "♠"; return card; }
-  const img = document.createElement("img");
-  img.src = `/cards/${code}.png`;
-  img.alt = code;
-  img.onerror = () => {
-    card.innerHTML = `<div style="width:100%;height:100%;display:grid;place-items:center;background:#fff;color:#111;font-weight:700;font-size:.75rem">${esc(code)}</div>`;
-  };
-  card.appendChild(img);
-  return card;
-}
-
-function getVisibleCardsForSeat(player) {
-  const allShown = isFullyVisibleToTable(player);
-  const hole = player.uid === me.uid ? (myPrivate.holeCards||[]) : getHoleForPublic(player);
-  return [0,1].map(i => ({ code: hole[i]||null, visible: player.uid === me.uid ? !!hole[i] : allShown && !!hole[i] }));
-}
-function getHoleForPublic(player) {
-  const shown = Array.isArray(player.shownCards) ? player.shownCards : [];
-  return [shown[0]||null, shown[1]||null].filter(Boolean);
-}
-function isFullyVisibleToTable(player) {
-  return !!game?.allCardsUp || game?.street === "showdown" || ((player.shownCards||[]).length === 2);
-}
-
-// ─── WINNER FINDING ───
-async function findWinnerUidsFromGame(g) {
-  const players = listPlayersFromGame(g).filter(p => !p.folded && !p.leftGame && !p.sittingOut);
-  const withHoles = [];
-  for (const p of players) {
-    const snap = await getDoc(doc(privateCol, p.uid));
-    const hole = snap.exists() ? (snap.data().holeCards||[]) : [];
-    if (hole.length === 2) withHoles.push({ uid: p.uid, username: p.username, hole });
-  }
-  const board = g.communityCards||[];
-  const ranked = withHoles.map(p => ({ uid: p.uid, rank: evaluateSeven([...p.hole, ...board]) }));
-  ranked.sort((a,b) => compareRanks(b.rank, a.rank));
-  const best = ranked[0]?.rank;
-  return ranked.filter(r => compareRanks(r.rank, best) === 0).map(r => r.uid);
-}
-
-// ─── POKER MATH ───
-function buildDeck() { const d=[]; for(const s of SUITS) for(const r of RANKS) d.push(`${r}${s}`); return d; }
-function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
-
-function simulatePrivateOdds(hole, board, iterations=250) {
-  const used = new Set([...hole,...board]);
-  const deck = buildDeck().filter(c=>!used.has(c));
-  let win=0, tie=0;
-  for(let i=0;i<iterations;i++){
-    const sim=[...deck]; shuffle(sim);
-    const opp=[sim.pop(),sim.pop()];
-    const fullBoard=[...board];
-    while(fullBoard.length<5) fullBoard.push(sim.pop());
-    const mine=evaluateSeven([...hole,...fullBoard]);
-    const theirs=evaluateSeven([...opp,...fullBoard]);
-    const cmp=compareRanks(mine,theirs);
-    if(cmp>0) win++; else if(cmp===0) tie++;
-  }
-  return { winVsOne: win/iterations, tieVsOne: tie/iterations };
-}
-
-function simulatePublicOdds(players, board, iterations=280) {
-  const used=new Set([...board,...players.flatMap(p=>p.holeCards||[])]);
-  const deck=buildDeck().filter(c=>!used.has(c));
-  const stats=Object.fromEntries(players.map(p=>[p.uid,{username:p.username,win:0,tie:0}]));
-  for(let i=0;i<iterations;i++){
-    const sim=[...deck]; shuffle(sim);
-    const fullBoard=[...board];
-    while(fullBoard.length<5) fullBoard.push(sim.pop());
-    const ranked=players.map(p=>({uid:p.uid,rank:evaluateSeven([...(p.holeCards||[]),...fullBoard])}));
-    ranked.sort((a,b)=>compareRanks(b.rank,a.rank));
-    const best=ranked[0].rank;
-    const winners=ranked.filter(r=>compareRanks(r.rank,best)===0);
-    if(winners.length===1) stats[winners[0].uid].win+=1;
-    else winners.forEach(w=>stats[w.uid].tie+=1/winners.length);
-  }
-  return Object.entries(stats).map(([uid,s])=>({uid,username:s.username,win:s.win/iterations,tie:s.tie/iterations})).sort((a,b)=>b.win-a.win||b.tie-a.tie);
-}
-
-function evaluateSeven(cards) {
-  const combos=combinations(cards,5); let best=null;
-  for(const combo of combos){const score=evaluateFive(combo);if(!best||compareRanks(score,best)>0)best=score;}
-  return best||[0];
-}
-function handNameBest(cards) {
-  if(cards.length<5) return "High card / drawing";
-  const rank=evaluateSeven(cards);
-  return ["High Card","Pair","Two Pair","Three of a Kind","Straight","Flush","Full House","Four of a Kind","Straight Flush"][rank[0]]||"Hand";
-}
-function evaluateFive(cards) {
-  const ranks=cards.map(cardRank).sort((a,b)=>b-a);
-  const suits=cards.map(c=>c.slice(-1));
-  const counts={};
-  ranks.forEach(r=>counts[r]=(counts[r]||0)+1);
-  const groups=Object.entries(counts).map(([rank,count])=>({rank:Number(rank),count})).sort((a,b)=>b.count-a.count||b.rank-a.rank);
-  const flush=suits.every(s=>s===suits[0]);
-  const straightHigh=getStraightHigh(ranks);
-  if(flush&&straightHigh) return [8,straightHigh];
-  if(groups[0].count===4) return [7,groups[0].rank,groups[1].rank];
-  if(groups[0].count===3&&groups[1].count===2) return [6,groups[0].rank,groups[1].rank];
-  if(flush) return [5,...ranks];
-  if(straightHigh) return [4,straightHigh];
-  if(groups[0].count===3) return [3,groups[0].rank,...groups.filter(g=>g.count===1).map(g=>g.rank).sort((a,b)=>b-a)];
-  if(groups[0].count===2&&groups[1].count===2){const pairs=groups.filter(g=>g.count===2).map(g=>g.rank).sort((a,b)=>b-a);const kicker=groups.find(g=>g.count===1).rank;return [2,...pairs,kicker];}
-  if(groups[0].count===2) return [1,groups[0].rank,...groups.filter(g=>g.count===1).map(g=>g.rank).sort((a,b)=>b-a)];
-  return [0,...ranks];
-}
-function getStraightHigh(ranks) {
-  const uniq=[...new Set(ranks)].sort((a,b)=>b-a);
-  if(uniq[0]===14) uniq.push(1);
-  for(let i=0;i<=uniq.length-5;i++){
-    if(uniq[i]-1===uniq[i+1]&&uniq[i+1]-1===uniq[i+2]&&uniq[i+2]-1===uniq[i+3]&&uniq[i+3]-1===uniq[i+4]){
-      return uniq[i]===1?5:uniq[i];
+    function listPlayersFromGame(g) {
+      const order = Array.isArray(g.playerOrder) ? g.playerOrder : Object.keys(g.players || {});
+      return order.map(uid => ({ uid, ...(g.players?.[uid] || {}) })).filter(p => !p.leftGame);
     }
-  }
-  return 0;
-}
-function combinations(arr,k){const out=[];const walk=(start,chosen)=>{if(chosen.length===k){out.push([...chosen]);return;}for(let i=start;i<=arr.length-(k-chosen.length);i++){chosen.push(arr[i]);walk(i+1,chosen);chosen.pop();}};walk(0,[]);return out;}
-function cardRank(code){return CARD_ORDER[code.slice(0,-1)]||0;}
-function compareRanks(a,b){const len=Math.max(a.length,b.length);for(let i=0;i<len;i++){const av=a[i]||0;const bv=b[i]||0;if(av>bv)return 1;if(av<bv)return -1;}return 0;}
 
-function addLog(text) { return addDoc(logsCol, { text, createdAt: serverTimestamp() }); }
-function money(n) { return new Intl.NumberFormat("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:0}).format(Number(n||0)); }
-function pct(x) { return `${(Number(x||0)*100).toFixed(1)}%`; }
-function cap(s="") { return s ? s.charAt(0).toUpperCase()+s.slice(1) : ""; }
-function esc(s="") { return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;"); }
-function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
-</script>
+    function nextTurnUid(g, currentUid) {
+      const order = listPlayersFromGame(g).filter(p => !p.folded && !p.leftGame && !p.sittingOut && !p.allIn);
+      if (!order.length) return null;
+      const currentIndex = order.findIndex(p => p.uid === currentUid);
+      if (currentIndex === -1) return order[0].uid;
+      return order[(currentIndex + 1) % order.length].uid;
+    }
+
+    function firstToActPostflop(g, playersMap) {
+      const order = (g.playerOrder || []).map(uid => ({ uid, ...(playersMap[uid] || {}) }))
+        .filter(p => !p.leftGame && !p.sittingOut && !p.folded && !p.allIn);
+      if (!order.length) return null;
+      const dealerIndex = order.findIndex(p => p.uid === g.dealerUid);
+      if (dealerIndex === -1) return order[0].uid;
+      return order[(dealerIndex + 1) % order.length].uid;
+    }
+
+    async function findWinnerUidsFromGame(g) {
+      const players = listPlayersFromGame(g).filter(p => !p.folded && !p.leftGame && !p.sittingOut);
+      const withHoles = [];
+      for (const p of players) {
+        const snap = await getDoc(doc(privateCol, p.uid));
+        const hole = snap.exists() ? (snap.data().holeCards || []) : [];
+        if (hole.length === 2) withHoles.push({ uid: p.uid, username: p.username, hole });
+      }
+      const board = g.communityCards || [];
+      const ranked = withHoles.map(p => ({ uid: p.uid, rank: evaluateSeven([...p.hole, ...board]) }));
+      ranked.sort((a,b) => compareRanks(b.rank, a.rank));
+      const best = ranked[0]?.rank;
+      return ranked.filter(r => compareRanks(r.rank, best) === 0).map(r => r.uid);
+    }
+
+    function nextLiveIndex(arr, fromIndex) {
+      for (let step = 1; step <= arr.length; step++) {
+        const idx = (fromIndex + step) % arr.length;
+        const p = arr[idx];
+        if (p && !p.leftGame && !p.sittingOut) return idx;
+      }
+      return 0;
+    }
+
+    function setPotBet() {
+      const p = myPlayer();
+      if (!p) return;
+      const amount = Math.min(Number(game?.pot || 0), Number(p.stack || 0));
+      els.betSlider.value = String(amount);
+      updateBetText();
+    }
+
+    async function addLog(text) {
+      await addDoc(logsCol, { text, createdAt: serverTimestamp() });
+    }
+
+    function buildDeck() {
+      const deck = [];
+      for (const s of SUITS) for (const r of RANKS) deck.push(`${r}${s}`);
+      return deck;
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function simulatePrivateOdds(hole, board, iterations = 250) {
+      const used = new Set([...hole, ...board]);
+      const deck = buildDeck().filter(c => !used.has(c));
+      let win = 0, tie = 0;
+      for (let i = 0; i < iterations; i++) {
+        const sim = [...deck];
+        shuffle(sim);
+        const opp = [sim.pop(), sim.pop()];
+        const fullBoard = [...board];
+        while (fullBoard.length < 5) fullBoard.push(sim.pop());
+        const mine = evaluateSeven([...hole, ...fullBoard]);
+        const theirs = evaluateSeven([...opp, ...fullBoard]);
+        const cmp = compareRanks(mine, theirs);
+        if (cmp > 0) win++;
+        else if (cmp === 0) tie++;
+      }
+      return { winVsOne: win / iterations, tieVsOne: tie / iterations };
+    }
+
+    function simulatePublicOdds(players, board, iterations = 280) {
+      const used = new Set([...board, ...players.flatMap(p => p.holeCards || [])]);
+      const deck = buildDeck().filter(c => !used.has(c));
+      const stats = Object.fromEntries(players.map(p => [p.uid, { username: p.username, win: 0, tie: 0 }]));
+      for (let i = 0; i < iterations; i++) {
+        const sim = [...deck];
+        shuffle(sim);
+        const fullBoard = [...board];
+        while (fullBoard.length < 5) fullBoard.push(sim.pop());
+        const ranked = players.map(p => ({ uid: p.uid, rank: evaluateSeven([...(p.holeCards || []), ...fullBoard]) }));
+        ranked.sort((a,b) => compareRanks(b.rank, a.rank));
+        const best = ranked[0].rank;
+        const winners = ranked.filter(r => compareRanks(r.rank, best) === 0);
+        if (winners.length === 1) stats[winners[0].uid].win += 1;
+        else winners.forEach(w => stats[w.uid].tie += 1 / winners.length);
+      }
+      return Object.entries(stats).map(([uid, s]) => ({ uid, username: s.username, win: s.win / iterations, tie: s.tie / iterations }))
+        .sort((a,b) => b.win - a.win || b.tie - a.tie);
+    }
+
+    function evaluateSeven(cards) {
+      const combos = combinations(cards, 5);
+      let best = null;
+      for (const combo of combos) {
+        const score = evaluateFive(combo);
+        if (!best || compareRanks(score, best) > 0) best = score;
+      }
+      return best || [0];
+    }
+
+    function handNameBest(cards) {
+      if (cards.length < 5) return "High card / drawing";
+      const rank = evaluateSeven(cards);
+      return ["High Card","Pair","Two Pair","Three of a Kind","Straight","Flush","Full House","Four of a Kind","Straight Flush"][rank[0]] || "Hand";
+    }
+
+    function evaluateFive(cards) {
+      const ranks = cards.map(cardRank).sort((a,b) => b-a);
+      const suits = cards.map(c => c.slice(-1));
+      const counts = {};
+      ranks.forEach(r => counts[r] = (counts[r] || 0) + 1);
+      const groups = Object.entries(counts).map(([rank, count]) => ({ rank: Number(rank), count }))
+        .sort((a,b) => b.count - a.count || b.rank - a.rank);
+      const flush = suits.every(s => s === suits[0]);
+      const straightHigh = getStraightHigh(ranks);
+      if (flush && straightHigh) return [8, straightHigh];
+      if (groups[0].count === 4) return [7, groups[0].rank, groups[1].rank];
+      if (groups[0].count === 3 && groups[1].count === 2) return [6, groups[0].rank, groups[1].rank];
+      if (flush) return [5, ...ranks];
+      if (straightHigh) return [4, straightHigh];
+      if (groups[0].count === 3) return [3, groups[0].rank, ...groups.filter(g => g.count === 1).map(g => g.rank).sort((a,b)=>b-a)];
+      if (groups[0].count === 2 && groups[1].count === 2) {
+        const pairs = groups.filter(g => g.count === 2).map(g => g.rank).sort((a,b)=>b-a);
+        const kicker = groups.find(g => g.count === 1).rank;
+        return [2, ...pairs, kicker];
+      }
+      if (groups[0].count === 2) return [1, groups[0].rank, ...groups.filter(g => g.count === 1).map(g => g.rank).sort((a,b)=>b-a)];
+      return [0, ...ranks];
+    }
+
+    function getStraightHigh(ranks) {
+      const uniq = [...new Set(ranks)].sort((a,b)=>b-a);
+      if (uniq[0] === 14) uniq.push(1);
+      for (let i = 0; i <= uniq.length - 5; i++) {
+        if (uniq[i] - 1 === uniq[i+1] && uniq[i+1] - 1 === uniq[i+2] && uniq[i+2] - 1 === uniq[i+3] && uniq[i+3] - 1 === uniq[i+4]) {
+          return uniq[i] === 1 ? 5 : uniq[i];
+        }
+      }
+      return 0;
+    }
+
+    function combinations(arr, k) {
+      const out = [];
+      const walk = (start, chosen) => {
+        if (chosen.length === k) { out.push([...chosen]); return; }
+        for (let i = start; i <= arr.length - (k - chosen.length); i++) {
+          chosen.push(arr[i]);
+          walk(i + 1, chosen);
+          chosen.pop();
+        }
+      };
+      walk(0, []);
+      return out;
+    }
+
+    function cardRank(code) { return CARD_ORDER[code.slice(0, -1)] || 0; }
+
+    function compareRanks(a, b) {
+      const len = Math.max(a.length, b.length);
+      for (let i = 0; i < len; i++) {
+        const av = a[i] || 0;
+        const bv = b[i] || 0;
+        if (av > bv) return 1;
+        if (av < bv) return -1;
+      }
+      return 0;
+    }
+
+    function money(n) {
+      return new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(Number(n || 0));
+    }
+    function pct(x) { return `${(Number(x || 0) * 100).toFixed(1)}%`; }
+    function cap(s = "") { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }
+    function esc(s = "") { return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;"); }
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function fmtTS(ts) {
+      if (!ts) return "just now";
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleString();
+    }
+  </script>
 </body>
 </html>
