@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker — Lobby</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#09090b;
+      --panel:#121218;
+      --panel2:#181821;
+      --text:#f5f5f7;
+      --muted:#9a9aa5;
+      --line:#23232f;
+      --accent:#b00b55;
+      --accent-soft:rgba(176,11,85,.16);
+      --good:#83efb3;
+      --bad:#ff6b87;
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top left, rgba(176,11,85,.10), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(176,11,85,.08), transparent 22%),
+        var(--bg);
+      color:var(--text);
+      font-family:"Comfortaa",system-ui,sans-serif;
+      min-height:100vh;
+    }
+    .page{
+      width:min(1180px,100%);
+      margin:0 auto;
+      padding:18px;
+      display:grid;
+      gap:18px;
+    }
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;
+      gap:14px;
+      align-items:center;
+    }
+    .chip{
+      width:56px;
+      height:56px;
+      position:relative;
+    }
+    .chip img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+    }
+    .chip .stack{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      font-weight:700;
+      font-size:13px;
+      text-shadow:0 2px 10px rgba(0,0,0,.7);
+    }
+    h1{
+      margin:0;
+      font-size:1.2rem;
+    }
+    .sub{
+      color:var(--muted);
+      font-size:.84rem;
+      margin-top:4px;
+    }
+    .userActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .btn, button, select, input{
+      font-family:inherit;
+    }
+    .btn{
+      border:none;
+      border-radius:16px;
+      padding:12px 14px;
+      background:var(--accent);
+      color:#fff;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .btn.ghost{
+      background:#0d0d13;
+      color:#fff;
+      border:1px solid var(--line);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:18px;
+    }
+    .card{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:18px;
+      overflow:hidden;
+    }
+    .card h2{
+      margin:0 0 14px;
+      font-size:1rem;
+    }
+    .muted{color:var(--muted)}
+    .row{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+      margin-bottom:12px;
+    }
+    label{
+      display:grid;
+      gap:7px;
+      font-size:.8rem;
+      color:var(--muted);
+    }
+    input, select{
+      width:100%;
+      background:#0d0d13;
+      color:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      outline:none;
+    }
+    .list{
+      display:grid;
+      gap:10px;
+    }
+    .item{
+      background:#0d0d13;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .title{
+      font-size:.9rem;
+      font-weight:700;
+      margin-bottom:4px;
+    }
+    .meta{
+      font-size:.78rem;
+      color:var(--muted);
+      line-height:1.5;
+    }
+    .money.good{color:var(--good)}
+    .money.bad{color:var(--bad)}
+    .splitBtns{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .empty{
+      padding:18px;
+      text-align:center;
+      color:var(--muted);
+      border:1px dashed var(--line);
+      border-radius:16px;
+      background:#0d0d13;
+    }
+    .msg{
+      margin-top:10px;
+      font-size:.84rem;
+      color:var(--muted);
+      min-height:20px;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr}
+      .row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top">
+      <div class="brand">
+        <div class="chip">
+          <img src="/cards/chip.png" alt="chip">
+          <div class="stack" id="chipStack">---</div>
+        </div>
+        <div>
+          <h1>Lobby</h1>
+          <div class="sub" id="welcome">Loading...</div>
+        </div>
+      </div>
+      <div class="userActions">
+        <button class="btn ghost" id="refreshBtn">Refresh</button>
+        <button class="btn ghost" id="signOutBtn">Sign Out</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Start Game</h2>
+        <div class="row">
+          <label>
+            Buy-in Amount
+            <input id="buyIn" type="number" min="1" value="100">
+          </label>
+          <label>
+            Max Players
+            <input id="maxPlayers" type="number" min="2" max="10" value="6">
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            Small Blind
+            <input id="smallBlind" type="number" min="1" value="1">
+          </label>
+          <label>
+            Big Blind
+            <input id="bigBlind" type="number" min="1" value="2">
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            Time Per Turn (seconds)
+            <input id="timePerTurn" type="number" min="5" value="25">
+          </label>
+          <label>
+            Time Between Rounds (seconds)
+            <input id="timeBetweenRounds" type="number" min="2" value="6">
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            Mode
+            <select id="gameMode">
+              <option value="regular">Regular</option>
+              <option value="tournament">Tournament</option>
+            </select>
+          </label>
+          <label>
+            Reveal At Showdown
+            <select id="revealMode">
+              <option value="none">No Auto Reveal</option>
+              <option value="one">Reveal One Card</option>
+              <option value="both">Reveal Both Cards</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="splitBtns">
+          <button class="btn" id="createGameBtn">Create Game</button>
+        </div>
+        <div class="msg" id="createMsg"></div>
+      </div>
+
+      <div class="card">
+        <h2>Your Debts</h2>
+        <div class="list" id="debtsList"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Waiting Games</h2>
+      <div class="list" id="waitingGames"></div>
+    </div>
+
+    <div class="card">
+      <h2>Your Ongoing Games</h2>
+      <div class="list" id="myGames"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      getDocs,
+      query,
+      where,
+      orderBy,
+      setDoc,
+      updateDoc,
+      serverTimestamp,
+      addDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBYFdh01-yNDMI5QrNmb-hoH7yXMOKqHfg",
+      authDomain: "poker-2e9be.firebaseapp.com",
+      projectId: "poker-2e9be",
+      storageBucket: "poker-2e9be.firebasestorage.app",
+      messagingSenderId: "80287671054",
+      appId: "1:80287671054:web:de1ca6c3a932772486ad5f",
+      measurementId: "G-SDN3YSEL8X"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const welcome = document.getElementById("welcome");
+    const chipStack = document.getElementById("chipStack");
+    const debtsList = document.getElementById("debtsList");
+    const waitingGames = document.getElementById("waitingGames");
+    const myGames = document.getElementById("myGames");
+    const createMsg = document.getElementById("createMsg");
+
+    let currentUser = null;
+    let currentProfile = null;
+    const usersCache = new Map();
+
+    function setCreateMsg(text){
+      createMsg.textContent = text || "";
+    }
+
+    async function getUserProfile(uid){
+      if(usersCache.has(uid)) return usersCache.get(uid);
+      const snap = await getDoc(doc(db, "users", uid));
+      const data = snap.exists() ? snap.data() : { username: "Unknown" };
+      usersCache.set(uid, data);
+      return data;
+    }
+
+    async function loadDebts(profile){
+      debtsList.innerHTML = "";
+      const debts = profile.debts || {};
+      const entries = Object.entries(debts);
+
+      if (!entries.length) {
+        debtsList.innerHTML = `<div class="empty">No debts right now.</div>`;
+        return;
+      }
+
+      for (const [otherUid, amount] of entries) {
+        const other = await getUserProfile(otherUid);
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div>
+            <div class="title">${other.username}</div>
+            <div class="meta">${amount >= 0 ? "They owe you" : "You owe them"}</div>
+          </div>
+          <div class="money ${amount >= 0 ? "good":"bad"}">${amount >= 0 ? "+" : ""}${Number(amount).toFixed(2)}</div>
+        `;
+        debtsList.appendChild(div);
+      }
+    }
+
+    function gameMeta(g){
+      const players = g.playerOrder?.length || 0;
+      return `${players} player${players===1?"":"s"} • ${g.settings?.gameMode || "regular"} • buy-in ${g.settings?.buyIn ?? "-"} • blinds ${g.settings?.smallBlind ?? "-"}/${g.settings?.bigBlind ?? "-"}`;
+    }
+
+    function gameActions(gameId, status, canJoin=false){
+      let html = `<button class="btn ghost" onclick="location.href='./game.html?gameId=${gameId}'">Open</button>`;
+      if(canJoin) html += ` <button class="btn" onclick="joinGame('${gameId}')">Join</button>`;
+      return html;
+    }
+
+    async function loadWaitingGames(uid){
+      waitingGames.innerHTML = "";
+      const q = query(collection(db, "games"), where("status", "==", "waiting"));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        waitingGames.innerHTML = `<div class="empty">No waiting games.</div>`;
+        return;
+      }
+
+      for (const d of snap.docs) {
+        const g = d.data();
+        const host = await getUserProfile(g.hostId);
+        const isIn = (g.playerIds || []).includes(uid);
+        const full = (g.playerIds || []).length >= (g.settings?.maxPlayers || 6);
+        const canJoin = !isIn && !full;
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div>
+            <div class="title">${host.username}'s table</div>
+            <div class="meta">${gameMeta(g)}</div>
+          </div>
+          <div class="splitBtns">${gameActions(d.id, g.status, canJoin)}</div>
+        `;
+        waitingGames.appendChild(div);
+      }
+    }
+
+    async function loadMyGames(uid){
+      myGames.innerHTML = "";
+      const q = query(collection(db, "games"), where("playerIds", "array-contains", uid));
+      const snap = await getDocs(q);
+      const docs = snap.docs
+        .filter(d => {
+          const s = d.data().status;
+          return s === "waiting" || s === "active" || s === "showdown";
+        });
+
+      if (!docs.length) {
+        myGames.innerHTML = `<div class="empty">No ongoing games.</div>`;
+        return;
+      }
+
+      for (const d of docs) {
+        const g = d.data();
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div>
+            <div class="title">Game ${d.id.slice(0,8)}</div>
+            <div class="meta">${gameMeta(g)} • status: ${g.status} • street: ${g.street || "waiting"}</div>
+          </div>
+          <div class="splitBtns">${gameActions(d.id, g.status)}</div>
+        `;
+        myGames.appendChild(div);
+      }
+    }
+
+    async function createGame(){
+      try{
+        setCreateMsg("Creating game...");
+        const buyIn = Number(document.getElementById("buyIn").value);
+        const maxPlayers = Number(document.getElementById("maxPlayers").value);
+        const smallBlind = Number(document.getElementById("smallBlind").value);
+        const bigBlind = Number(document.getElementById("bigBlind").value);
+        const timePerTurn = Number(document.getElementById("timePerTurn").value);
+        const timeBetweenRounds = Number(document.getElementById("timeBetweenRounds").value);
+        const gameMode = document.getElementById("gameMode").value;
+        const revealMode = document.getElementById("revealMode").value;
+
+        if (!buyIn || !smallBlind || !bigBlind || bigBlind < smallBlind) {
+          throw new Error("Check buy-in and blind values.");
+        }
+
+        const gameRef = await addDoc(collection(db, "games"), {
+          type: "holdem",
+          status: "waiting",
+          street: "waiting",
+          hostId: currentUser.uid,
+          hostUsername: currentProfile.username,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          settings: {
+            buyIn,
+            maxPlayers,
+            smallBlind,
+            bigBlind,
+            timePerTurn,
+            timeBetweenRounds,
+            gameMode,
+            revealMode
+          },
+          playerIds: [currentUser.uid],
+          playerOrder: [currentUser.uid],
+          players: {
+            [currentUser.uid]: {
+              uid: currentUser.uid,
+              username: currentProfile.username,
+              stack: buyIn,
+              buyIn,
+              folded: false,
+              allIn: false,
+              sittingOut: false,
+              currentBet: 0,
+              totalCommitted: 0,
+              hasActed: false,
+              cardsRevealed: 0,
+              shownCards: []
+            }
+          },
+          communityCards: [],
+          pot: 0,
+          sidePots: [],
+          dealerIndex: 0,
+          currentBet: 0,
+          turnUid: null,
+          handNumber: 0,
+          message: "Waiting for players",
+          boardLocked: false,
+          allCardsUp: false,
+          settlementDone: false
+        });
+
+        await setDoc(doc(db, "games", gameRef.id, "privatePlayers", currentUser.uid), {
+          holeCards: [],
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        setCreateMsg("Game created.");
+        location.href = `./game.html?gameId=${gameRef.id}`;
+      }catch(err){
+        setCreateMsg(err.message || "Could not create game.");
+      }
+    }
+
+    window.joinGame = async function(gameId){
+      try{
+        const ref = doc(db, "games", gameId);
+        const snap = await getDoc(ref);
+        if(!snap.exists()) throw new Error("Game not found.");
+        const g = snap.data();
+
+        const playerIds = Array.isArray(g.playerIds) ? [...g.playerIds] : [];
+        const playerOrder = Array.isArray(g.playerOrder) ? [...g.playerOrder] : [];
+        const players = { ...(g.players || {}) };
+
+        if(playerIds.includes(currentUser.uid)){
+          location.href = `./game.html?gameId=${gameId}`;
+          return;
+        }
+        if((playerIds.length) >= (g.settings?.maxPlayers || 6)){
+          throw new Error("Table is full.");
+        }
+        if(g.status !== "waiting"){
+          throw new Error("Game already started.");
+        }
+
+        playerIds.push(currentUser.uid);
+        playerOrder.push(currentUser.uid);
+        players[currentUser.uid] = {
+          uid: currentUser.uid,
+          username: currentProfile.username,
+          stack: g.settings.buyIn,
+          buyIn: g.settings.buyIn,
+          folded: false,
+          allIn: false,
+          sittingOut: false,
+          currentBet: 0,
+          totalCommitted: 0,
+          hasActed: false,
+          cardsRevealed: 0,
+          shownCards: []
+        };
+
+        await updateDoc(ref, {
+          playerIds,
+          playerOrder,
+          players,
+          updatedAt: serverTimestamp(),
+          message: `${currentProfile.username} joined`
+        });
+
+        await setDoc(doc(db, "games", gameId, "privatePlayers", currentUser.uid), {
+          holeCards: [],
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        location.href = `./game.html?gameId=${gameId}`;
+      }catch(err){
+        alert(err.message || "Unable to join game.");
+      }
+    };
+
+    async function refreshAll(){
+      if(!currentUser || !currentProfile) return;
+      welcome.textContent = `Signed in as ${currentProfile.username}`;
+      chipStack.textContent = currentProfile.stats?.winningsNet?.toFixed?.(0) ?? "0";
+      await loadDebts(currentProfile);
+      await loadWaitingGames(currentUser.uid);
+      await loadMyGames(currentUser.uid);
+    }
+
+    document.getElementById("createGameBtn").onclick = createGame;
+    document.getElementById("refreshBtn").onclick = refreshAll;
+    document.getElementById("signOutBtn").onclick = async () => {
+      await signOut(auth);
+      location.href = "./auth.html";
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if(!user){
+        location.href = "./auth.html";
+        return;
+      }
+      currentUser = user;
+      const profileSnap = await getDoc(doc(db, "users", user.uid));
+      if(!profileSnap.exists()){
+        location.href = "./auth.html";
+        return;
+      }
+      currentProfile = profileSnap.data();
+      await refreshAll();
+    });
+  </script>
+</body>
+</html>
