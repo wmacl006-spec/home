@@ -533,8 +533,8 @@ function render() {
   const myHole = myPrivate.holeCards || [];
   els.oddsBtn.style.display = myHole.length === 2 && meP && !meP.folded ? "" : "none";
 
-  // auto-start next hand
-  handleAutoNext();
+  // auto-start when enough players are seated, and auto-next between hands
+  handleAutoStart();
 }
 
 function renderBoard(board) {
@@ -715,25 +715,36 @@ function showWinnerToast(msg) {
   winnerToastTimer = setTimeout(() => els.winnerToast.classList.remove("show"), 5000);
 }
 
-// ─── AUTO-NEXT HAND ───
-function handleAutoNext() {
+// ─── AUTO-START / AUTO-NEXT HAND ───
+function handleAutoStart() {
   if (!game || !me) return;
   const isHost = me.uid === game.hostId;
   if (!isHost) return;
 
-  const delayMs = Number(game.settings?.timeBetweenRounds || 5) * 1000;
-  const isOver = game.street === "waiting" && game.handNumber > 0 && game.settlementDone;
   const players = getActivePlayers();
   const canStart = players.length >= 2;
+  const isInitialStart = game.street === "waiting" && Number(game.handNumber || 0) === 0;
+  const isOver = game.street === "waiting" && Number(game.handNumber || 0) > 0 && game.settlementDone;
+  const delayMs = isInitialStart ? 1000 : Number(game.settings?.timeBetweenRounds || 5) * 1000;
 
-  if (isOver && canStart) {
+  if (canStart && (isInitialStart || isOver)) {
     if (autoNextTimer) return; // already scheduled
     autoNextTimer = setTimeout(async () => {
       autoNextTimer = null;
-      if (!actionBusy) await startOrNextHand();
+      const latestSnap = await getDoc(gameRef);
+      if (!latestSnap.exists()) return;
+      const latest = latestSnap.data();
+      const latestPlayers = listPlayersFromGame(latest).filter(p => !p.leftGame && !p.sittingOut);
+      const latestCanStart = latestPlayers.length >= 2;
+      const latestInitialStart = latest.street === "waiting" && Number(latest.handNumber || 0) === 0;
+      const latestIsOver = latest.street === "waiting" && Number(latest.handNumber || 0) > 0 && latest.settlementDone;
+      if (!actionBusy && latestCanStart && (latestInitialStart || latestIsOver)) {
+        await startOrNextHand();
+      }
     }, delayMs);
-  } else {
-    if (autoNextTimer) { clearTimeout(autoNextTimer); autoNextTimer = null; }
+  } else if (autoNextTimer) {
+    clearTimeout(autoNextTimer);
+    autoNextTimer = null;
   }
 }
 
