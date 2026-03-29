@@ -379,7 +379,7 @@
     }
 
     function gameActions(gameId, status, canJoin=false){
-      let html = `<button class="btn ghost" onclick="location.href='./game.html?gameId=${gameId}'">Open</button>`;
+      let html = `<button class="btn ghost" onclick="location.href='./pokergame.html?gameId=${gameId}'">Open</button>`;
       if(canJoin) html += ` <button class="btn" onclick="joinGame('${gameId}')">Join</button>`;
       return html;
     }
@@ -514,7 +514,7 @@
         }, { merge: true });
 
         setCreateMsg("Game created.");
-        location.href = `./game.html?gameId=${gameRef.id}`;
+        location.href = `./pokergame.html?gameId=${gameRef.id}`;
       }catch(err){
         setCreateMsg(err.message || "Could not create game.");
       }
@@ -572,7 +572,7 @@
           updatedAt: serverTimestamp()
         }, { merge: true });
 
-        location.href = `./game.html?gameId=${gameId}`;
+        location.href = `./pokergame.html?gameId=${gameId}`;
       }catch(err){
         alert(err.message || "Unable to join game.");
       }
