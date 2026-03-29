@@ -397,6 +397,7 @@ let actionBusy = false;
 let winnerToastTimer = null;
 let lastWinnerMsg = "";
 let autoNextTimer = null;
+let autoStartTimer = null;
 
 // ─── SETTINGS POPUP ───
 els.settingsBtn.onclick = () => els.settingsOverlay.classList.add("open");
@@ -518,9 +519,20 @@ function render() {
 
   // host start button
   const isHost = me?.uid === game.hostId;
-  els.startBtn.style.display = isHost ? "" : "none";
-  els.startBtn.disabled = !isHost || players.length < 2 || actionBusy;
-  els.startBtn.textContent = game.handNumber > 0 ? "Next Hand" : "Start Hand";
+  const waitingToStart = game.street === "waiting" && (!game.handNumber || !game.settlementDone);
+  const canHostStartNow = isHost && players.length >= 2 && waitingToStart;
+  els.startBtn.style.display = isHost && waitingToStart ? "" : "none";
+  els.startBtn.disabled = !canHostStartNow || actionBusy;
+
+  if (waitingToStart && game.autoStartAt) {
+    const msLeft = Math.max(0, Number(game.autoStartAt) - Date.now());
+    const secsLeft = Math.ceil(msLeft / 1000);
+    els.startBtn.textContent = canHostStartNow
+      ? `Start Now (${secsLeft}s)`
+      : `Waiting (${secsLeft}s)`;
+  } else {
+    els.startBtn.textContent = game.handNumber > 0 ? "Next Hand" : "Start Hand";
+  }
 
   // winner toast
   const winMsg = game.message || "";
@@ -533,8 +545,11 @@ function render() {
   const myHole = myPrivate.holeCards || [];
   els.oddsBtn.style.display = myHole.length === 2 && meP && !meP.folded ? "" : "none";
 
-  // auto-start when enough players are seated, and auto-next between hands
-  handleAutoStart();
+  // auto-start first hand countdown
+  handleAutoStartCountdown();
+
+  // auto-start next hand
+  handleAutoNext();
 }
 
 function renderBoard(board) {
@@ -715,36 +730,85 @@ function showWinnerToast(msg) {
   winnerToastTimer = setTimeout(() => els.winnerToast.classList.remove("show"), 5000);
 }
 
-// ─── AUTO-START / AUTO-NEXT HAND ───
-function handleAutoStart() {
+// ─── AUTO-START FIRST HAND ───
+function handleAutoStartCountdown() {
+  if (!game || !me) return;
+
+  const isHost = me.uid === game.hostId;
+  const players = getActivePlayers();
+  const waitingToStart = game.street === "waiting" && (!game.handNumber || !game.settlementDone);
+  const enoughPlayers = players.length >= 2;
+
+  if (!waitingToStart) {
+    clearAutoStartTimer();
+    if (isHost && game.autoStartAt) { syncAutoStart(null); }
+    return;
+  }
+
+  if (!enoughPlayers) {
+    clearAutoStartTimer();
+    if (isHost && game.autoStartAt) { syncAutoStart(null); }
+    return;
+  }
+
+  if (!game.autoStartAt && isHost) {
+    syncAutoStart(Date.now() + 60_000);
+    return;
+  }
+
+  if (game.autoStartAt) {
+    const msLeft = Number(game.autoStartAt) - Date.now();
+    if (msLeft <= 0) {
+      clearAutoStartTimer();
+      if (isHost && !actionBusy) startOrNextHand();
+      return;
+    }
+
+    clearAutoStartTimer();
+    autoStartTimer = setTimeout(() => {
+      autoStartTimer = null;
+      render();
+    }, Math.min(msLeft, 1000));
+  }
+}
+
+function clearAutoStartTimer() {
+  if (autoStartTimer) {
+    clearTimeout(autoStartTimer);
+    autoStartTimer = null;
+  }
+}
+
+async function syncAutoStart(timestamp) {
+  try {
+    const current = game?.autoStartAt ?? null;
+    const next = timestamp ?? null;
+    if (current === next) return;
+    await updateDoc(gameRef, { autoStartAt: next, updatedAt: serverTimestamp() });
+  } catch (e) {
+    console.warn("Auto-start sync failed:", e);
+  }
+}
+
+// ─── AUTO-NEXT HAND ───
+function handleAutoNext() {
   if (!game || !me) return;
   const isHost = me.uid === game.hostId;
   if (!isHost) return;
 
+  const delayMs = Number(game.settings?.timeBetweenRounds || 5) * 1000;
+  const isOver = game.street === "waiting" && game.handNumber > 0 && game.settlementDone;
   const players = getActivePlayers();
   const canStart = players.length >= 2;
-  const isInitialStart = game.street === "waiting" && Number(game.handNumber || 0) === 0;
-  const isOver = game.street === "waiting" && Number(game.handNumber || 0) > 0 && game.settlementDone;
-  const delayMs = isInitialStart ? 1000 : Number(game.settings?.timeBetweenRounds || 5) * 1000;
 
-  if (canStart && (isInitialStart || isOver)) {
+  if (isOver && canStart) {
     if (autoNextTimer) return; // already scheduled
     autoNextTimer = setTimeout(async () => {
       autoNextTimer = null;
-      const latestSnap = await getDoc(gameRef);
-      if (!latestSnap.exists()) return;
-      const latest = latestSnap.data();
-      const latestPlayers = listPlayersFromGame(latest).filter(p => !p.leftGame && !p.sittingOut);
-      const latestCanStart = latestPlayers.length >= 2;
-      const latestInitialStart = latest.street === "waiting" && Number(latest.handNumber || 0) === 0;
-      const latestIsOver = latest.street === "waiting" && Number(latest.handNumber || 0) > 0 && latest.settlementDone;
-      if (!actionBusy && latestCanStart && (latestInitialStart || latestIsOver)) {
-        await startOrNextHand();
-      }
+      if (!actionBusy) await startOrNextHand();
     }, delayMs);
-  } else if (autoNextTimer) {
-    clearTimeout(autoNextTimer);
-    autoNextTimer = null;
+  } else {
+    if (autoNextTimer) { clearTimeout(autoNextTimer); autoNextTimer = null; }
   }
 }
 
@@ -797,7 +861,7 @@ async function startOrNextHand() {
       dealerUid: ordered[dealerIndex].uid, smallBlindUid: ordered[sbIndex].uid,
       bigBlindUid: ordered[bbIndex].uid, turnUid: ordered[firstToAct].uid,
       handNumber: increment(1), allCardsUp: false, settlementDone: false,
-      winnerUids: [], boardLocked: false, updatedAt: serverTimestamp(),
+      winnerUids: [], boardLocked: false, autoStartAt: null, updatedAt: serverTimestamp(),
       message: `New hand started. Dealer: ${ordered[dealerIndex].username}`
     });
     await batch.commit();
