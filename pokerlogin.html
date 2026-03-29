@@ -286,7 +286,7 @@
           updatedAt: serverTimestamp()
         }, { merge: true });
       }
-      location.href = "./lobby.html";
+      location.href = "./poker.html";
     });
 
     signInForm.addEventListener("submit", async (e) => {
@@ -297,7 +297,7 @@
         const password = document.getElementById("siPassword").value;
         await signInWithEmailAndPassword(auth, email, password);
         setMsg("Signed in.", "success");
-        location.href = "./lobby.html";
+        location.href = "./poker.html";
       } catch (err) {
         setMsg(err.message, "error");
       }
@@ -337,7 +337,7 @@
         }, { merge: true });
 
         setMsg("Account created.", "success");
-        location.href = "./lobby.html";
+        location.href = "./poker.html";
       } catch (err) {
         setMsg(err.message, "error");
       }
