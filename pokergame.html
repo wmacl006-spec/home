@@ -398,6 +398,7 @@ let winnerToastTimer = null;
 let lastWinnerMsg = "";
 let autoNextTimer = null;
 let autoStartTimer = null;
+let autoStartEndsAt = 0;
 
 // ─── SETTINGS POPUP ───
 els.settingsBtn.onclick = () => els.settingsOverlay.classList.add("open");
@@ -452,6 +453,31 @@ async function ensureGameMembership() {
     }
   });
   await setDoc(doc(privateCol, me.uid), { holeCards: [], updatedAt: serverTimestamp() }, { merge: true });
+  await maybeAutoStartFromJoin();
+}
+
+async function maybeAutoStartFromJoin() {
+  if (!gameId || !me) return;
+  try {
+    await runTransaction(db, async tx => {
+      const gSnap = await tx.get(gameRef);
+      if (!gSnap.exists()) return;
+      const g = gSnap.data();
+      const playerIds = Array.isArray(g.playerIds) ? g.playerIds.filter(Boolean) : [];
+      const enoughPlayers = playerIds.length >= 2;
+      const isWaitingToStart = g.status === "waiting" && (g.street === "waiting" || !g.street) && !g.settlementDone;
+      if (!enoughPlayers || !isWaitingToStart) return;
+      if (!g.autoStartAt) {
+        tx.update(gameRef, {
+          autoStartAt: Date.now() + 60000,
+          updatedAt: serverTimestamp(),
+          message: "2 players joined. Auto-starting in 1 minute unless the host starts early."
+        });
+      }
+    });
+  } catch (err) {
+    console.warn("Auto-start scheduling failed:", err);
+  }
 }
 
 function subscribe() {
@@ -464,6 +490,9 @@ function subscribe() {
     myPrivate = snap.exists() ? snap.data() : { holeCards: [] };
     render();
   });
+  setInterval(() => {
+    if (game?.autoStartAt && game?.street === "waiting") render();
+  }, 1000);
 }
 
 function buildPlayerState(buyIn) {
@@ -519,20 +548,10 @@ function render() {
 
   // host start button
   const isHost = me?.uid === game.hostId;
-  const waitingToStart = game.street === "waiting" && (!game.handNumber || !game.settlementDone);
-  const canHostStartNow = isHost && players.length >= 2 && waitingToStart;
-  els.startBtn.style.display = isHost && waitingToStart ? "" : "none";
-  els.startBtn.disabled = !canHostStartNow || actionBusy;
-
-  if (waitingToStart && game.autoStartAt) {
-    const msLeft = Math.max(0, Number(game.autoStartAt) - Date.now());
-    const secsLeft = Math.ceil(msLeft / 1000);
-    els.startBtn.textContent = canHostStartNow
-      ? `Start Now (${secsLeft}s)`
-      : `Waiting (${secsLeft}s)`;
-  } else {
-    els.startBtn.textContent = game.handNumber > 0 ? "Next Hand" : "Start Hand";
-  }
+  const autoStartCountdown = getAutoStartCountdownMs();
+  els.startBtn.style.display = isHost ? "" : "none";
+  els.startBtn.disabled = !isHost || players.length < 2 || actionBusy;
+  els.startBtn.textContent = game.handNumber > 0 ? "Next Hand" : (autoStartCountdown > 0 ? `Start Now (${Math.ceil(autoStartCountdown / 1000)}s)` : "Start Hand");
 
   // winner toast
   const winMsg = game.message || "";
@@ -545,9 +564,6 @@ function render() {
   const myHole = myPrivate.holeCards || [];
   els.oddsBtn.style.display = myHole.length === 2 && meP && !meP.folded ? "" : "none";
 
-  // auto-start first hand countdown
-  handleAutoStartCountdown();
-
   // auto-start next hand
   handleAutoNext();
 }
@@ -557,7 +573,12 @@ function renderBoard(board) {
   for (let i = 0; i < 5; i++) {
     els.boardCards.appendChild(createCard(board[i] || null, !!board[i]));
   }
-  els.boardMsg.textContent = game?.message || "";
+  const autoStartCountdown = getAutoStartCountdownMs();
+  if ((game?.street === "waiting") && autoStartCountdown > 0 && getPlayers().length >= 2) {
+    els.boardMsg.textContent = `${game?.message || "Waiting to start"} · Auto-start in ${Math.ceil(autoStartCountdown / 1000)}s`;
+  } else {
+    els.boardMsg.textContent = game?.message || "";
+  }
 }
 
 function renderPlayers(players) {
@@ -663,7 +684,12 @@ function updateControls(meP) {
   if (!meP) {
     bar.textContent = "Joining game…";
   } else if (!started) {
-    bar.textContent = game.street === "waiting" ? "Waiting for the host to start." : "Hand over.";
+    const autoStartCountdown = getAutoStartCountdownMs();
+    if (game.street === "waiting" && autoStartCountdown > 0 && getPlayers().length >= 2) {
+      bar.textContent = `Waiting for hand start · ${Math.ceil(autoStartCountdown / 1000)}s`;
+    } else {
+      bar.textContent = game.street === "waiting" ? "Waiting for the host to start." : "Hand over.";
+    }
   } else if (meP.folded) {
     bar.textContent = "You folded this hand.";
   } else if (meP.allIn) {
@@ -730,46 +756,10 @@ function showWinnerToast(msg) {
   winnerToastTimer = setTimeout(() => els.winnerToast.classList.remove("show"), 5000);
 }
 
-// ─── AUTO-START FIRST HAND ───
-function handleAutoStartCountdown() {
-  if (!game || !me) return;
-
-  const isHost = me.uid === game.hostId;
-  const players = getActivePlayers();
-  const waitingToStart = game.street === "waiting" && (!game.handNumber || !game.settlementDone);
-  const enoughPlayers = players.length >= 2;
-
-  if (!waitingToStart) {
-    clearAutoStartTimer();
-    if (isHost && game.autoStartAt) { syncAutoStart(null); }
-    return;
-  }
-
-  if (!enoughPlayers) {
-    clearAutoStartTimer();
-    if (isHost && game.autoStartAt) { syncAutoStart(null); }
-    return;
-  }
-
-  if (!game.autoStartAt && isHost) {
-    syncAutoStart(Date.now() + 60_000);
-    return;
-  }
-
-  if (game.autoStartAt) {
-    const msLeft = Number(game.autoStartAt) - Date.now();
-    if (msLeft <= 0) {
-      clearAutoStartTimer();
-      if (isHost && !actionBusy) startOrNextHand();
-      return;
-    }
-
-    clearAutoStartTimer();
-    autoStartTimer = setTimeout(() => {
-      autoStartTimer = null;
-      render();
-    }, Math.min(msLeft, 1000));
-  }
+// ─── AUTO-START / AUTO-NEXT HAND ───
+function getAutoStartCountdownMs() {
+  const target = Number(game?.autoStartAt || 0);
+  return target > Date.now() ? target - Date.now() : 0;
 }
 
 function clearAutoStartTimer() {
@@ -777,32 +767,46 @@ function clearAutoStartTimer() {
     clearTimeout(autoStartTimer);
     autoStartTimer = null;
   }
+  autoStartEndsAt = 0;
 }
 
-async function syncAutoStart(timestamp) {
-  try {
-    const current = game?.autoStartAt ?? null;
-    const next = timestamp ?? null;
-    if (current === next) return;
-    await updateDoc(gameRef, { autoStartAt: next, updatedAt: serverTimestamp() });
-  } catch (e) {
-    console.warn("Auto-start sync failed:", e);
-  }
-}
-
-// ─── AUTO-NEXT HAND ───
 function handleAutoNext() {
   if (!game || !me) return;
   const isHost = me.uid === game.hostId;
-  if (!isHost) return;
-
   const delayMs = Number(game.settings?.timeBetweenRounds || 5) * 1000;
   const isOver = game.street === "waiting" && game.handNumber > 0 && game.settlementDone;
+  const waitingToStart = game.street === "waiting" && !game.settlementDone;
   const players = getActivePlayers();
   const canStart = players.length >= 2;
 
-  if (isOver && canStart) {
-    if (autoNextTimer) return; // already scheduled
+  if (isHost && waitingToStart && canStart) {
+    const countdownMs = getAutoStartCountdownMs();
+    if (countdownMs > 0) {
+      if (!autoStartTimer || autoStartEndsAt !== Number(game.autoStartAt || 0)) {
+        clearAutoStartTimer();
+        autoStartEndsAt = Number(game.autoStartAt || 0);
+        autoStartTimer = setTimeout(async () => {
+          clearAutoStartTimer();
+          const latestSnap = await getDoc(gameRef);
+          if (!latestSnap.exists()) return;
+          const latest = latestSnap.data();
+          const latestPlayers = listPlayersFromGame(latest).filter(p => !p.leftGame && !p.sittingOut);
+          const stillWaiting = latest.street === "waiting" && !latest.settlementDone;
+          if (stillWaiting && latestPlayers.length >= 2 && !actionBusy) {
+            await startOrNextHand();
+          }
+        }, countdownMs);
+      }
+    } else if (Number(game.autoStartAt || 0) > 0 && !actionBusy) {
+      clearAutoStartTimer();
+      startOrNextHand();
+    }
+  } else {
+    clearAutoStartTimer();
+  }
+
+  if (isHost && isOver && canStart) {
+    if (autoNextTimer) return;
     autoNextTimer = setTimeout(async () => {
       autoNextTimer = null;
       if (!actionBusy) await startOrNextHand();
@@ -811,6 +815,7 @@ function handleAutoNext() {
     if (autoNextTimer) { clearTimeout(autoNextTimer); autoNextTimer = null; }
   }
 }
+
 
 // ─── ACTIONS ───
 async function startOrNextHand() {
@@ -883,9 +888,11 @@ async function leaveGame() {
       const playerIds = Array.isArray(g.playerIds) ? [...g.playerIds] : [];
       if (!players[me.uid]) return;
       players[me.uid] = { ...players[me.uid], leftGame: true, folded: true, sittingOut: true, lastAction: "left game" };
+      const remainingIds = playerIds.filter(u => u !== me.uid);
       tx.update(gameRef, {
-        players, playerIds: playerIds.filter(u => u !== me.uid),
+        players, playerIds: remainingIds,
         playerOrder: (g.playerOrder||[]).filter(u => u !== me.uid),
+        autoStartAt: remainingIds.length >= 2 ? (g.autoStartAt || null) : null,
         updatedAt: serverTimestamp(), message: `${profile.username} left the game`
       });
     });
